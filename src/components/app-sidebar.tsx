@@ -13,7 +13,7 @@ import {
   LifeBuoy,
   Percent, // Added for Occupancy
   DollarSign, // Added for Revenue
-  PanelLeft, // Added for the toggle button
+  ChevronsLeftRight, // Changed from PanelLeft
 } from 'lucide-react';
 
 import {
@@ -42,17 +42,22 @@ const navItems = [
   { href: '/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
+const settingsAndSupportItems = [
+     { href: '#', icon: Settings, label: 'Settings', tooltip: "Settings" }, // Use '#' for placeholder links
+     { href: '#', icon: LifeBuoy, label: 'Support', tooltip: "Support" }, // Use '#' for placeholder links
+];
+
 export function AppSidebar() {
   const pathname = usePathname();
   const { state, toggleSidebar } = useSidebar(); // Get state and toggle function
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" side="left">
-      <SidebarHeader className="flex items-center justify-between p-2">
+      <SidebarHeader className="flex items-center justify-between p-2 h-14"> {/* Added h-14 for consistent header height */}
          {/* eZee Insights Title - visible only when expanded */}
          <h1 className={cn(
-            "text-lg font-semibold text-sidebar-foreground",
-             state === 'collapsed' ? 'hidden' : 'block' // Hide when collapsed
+            "text-lg font-semibold text-sidebar-foreground whitespace-nowrap",
+             state === 'collapsed' ? 'hidden' : 'block pl-1' // Add padding when visible
            )}>
              eZee Insights
          </h1>
@@ -64,7 +69,7 @@ export function AppSidebar() {
              onClick={toggleSidebar}
              aria-label={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
          >
-             <PanelLeft className="h-5 w-5" />
+             <ChevronsLeftRight className="h-5 w-5" /> {/* Changed icon */}
          </Button>
       </SidebarHeader>
       <SidebarContent>
@@ -94,24 +99,22 @@ export function AppSidebar() {
       <SidebarFooter className="mt-auto">
         <SidebarSeparator />
          <SidebarMenu>
-            <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip={{ children: "Settings", className: "bg-primary text-primary-foreground"}} className="justify-start">
-                    {/* Use '#' for placeholder links if actual settings page doesn't exist yet */}
-                    <Link href="#">
-                        <Settings className="h-5 w-5" />
-                        <span>Settings</span>
-                    </Link>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip={{ children: "Support", className: "bg-primary text-primary-foreground"}} className="justify-start">
-                    {/* Use '#' for placeholder links if actual support page doesn't exist yet */}
-                    <Link href="#">
-                        <LifeBuoy className="h-5 w-5" />
-                        <span>Support</span>
-                    </Link>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
+             {settingsAndSupportItems.map((item) => (
+                 <SidebarMenuItem key={item.href}> {/* Use unique keys, href is '#' here */}
+                     <Link href={item.href} legacyBehavior passHref>
+                         <SidebarMenuButton
+                             asChild
+                             tooltip={{ children: item.tooltip, className: "bg-primary text-primary-foreground"}}
+                             className="justify-start"
+                         >
+                             <a>
+                                 <item.icon className="h-5 w-5" />
+                                 <span>{item.label}</span>
+                             </a>
+                         </SidebarMenuButton>
+                     </Link>
+                 </SidebarMenuItem>
+             ))}
         </SidebarMenu>
         <SidebarSeparator />
         <div className="flex items-center gap-3 p-3 group-data-[collapsible=icon]:justify-center">
