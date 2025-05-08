@@ -4,7 +4,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react" // Changed from PanelLeft
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -276,7 +276,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, state } = useSidebar() // Added state
 
   return (
     <Button
@@ -291,7 +291,8 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      <PanelLeft />
+      {/* Show different icons based on state */}
+      {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
@@ -312,7 +313,7 @@ const SidebarInset = React.forwardRef<
        className={cn(
          "relative flex min-h-svh flex-1 flex-col bg-background transition-[margin-left] duration-300 ease-in-out",
          // Apply margin-left based on sidebar state on desktop
-         !isMobile && state === 'expanded' && "md:ml-[--sidebar-width]",
+         !isMobile && state === 'expanded' && "md:ml-2.5", // Reduced margin to 10px (ml-2.5)
          !isMobile && state === 'collapsed' && "md:ml-[--sidebar-width-icon]",
          // Inset variant specific styles (if needed, currently handled by margin)
          "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
@@ -552,13 +553,6 @@ const SidebarMenuButton = React.forwardRef<
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
-     // Conditionally render icon only when collapsed, text otherwise
-     const content = state === 'collapsed' ? (
-        React.Children.toArray(children).find((child: any) => child.type?.displayName?.includes('Icon'))
-      ) : (
-        // Filter out the icon when expanded, keep text (span)
-        React.Children.toArray(children).filter((child: any) => !child.type?.displayName?.includes('Icon'))
-      );
 
       const buttonContent = state === 'collapsed' ? (
           // Render only the icon when collapsed
