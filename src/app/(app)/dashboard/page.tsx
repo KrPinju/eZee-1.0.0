@@ -1,20 +1,21 @@
 
-
-
-
 import { DollarSign, Percent, Building, BedDouble, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { OccupancyChart } from "@/components/charts/occupancy-chart";
 import { RevenueChart } from "@/components/charts/revenue-chart";
-import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange } from "@/services/ezee-pms";
+import { AnnualPerformanceLineChart } from "@/components/charts/annual-performance-line-chart";
+import { PropertyComparisonChart } from "@/components/charts/property-comparison-chart";
+import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange, getAverageMonthlyPerformance, getMonthlyHotelPerformance, getPropertyComparisonData } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
+
 
 interface DashboardPageProps {
   searchParams?: {
     startDate?: string;
     endDate?: string;
+    chartHotel?: string; // For Annual Performance Chart hotel selection
   };
 }
 
@@ -27,6 +28,8 @@ const SPECIFIC_HOTEL_NAMES = [
   "Hotel Phuntsho Pelri",
   "Hotel Ugyen Ling",
 ];
+const ALL_HOTELS_SELECTOR = "__ALL_HOTELS__"; // Special value for 'All Hotels'
+
 
 const SPECIFIC_CAFE_RESTAURANT_NAMES = [
   "Airport Cafe",
@@ -40,7 +43,7 @@ const SPECIFIC_CAFE_RESTAURANT_NAMES = [
 const calculatePercentageChange = (current: number, previous: number): number | undefined => {
   if (previous === 0) {
     // If previous is 0, change is undefined unless current is also 0.
-    return current === 0 ? 0 : undefined; 
+    return current === 0 ? 0 : undefined;
   }
   return ((current - previous) / previous) * 100;
 };
@@ -50,44 +53,52 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const today = new Date();
   const endDateParam = searchParams?.endDate;
   const startDateParam = searchParams?.startDate;
+  const selectedHotelName = searchParams?.chartHotel ?? ALL_HOTELS_SELECTOR; // Default to 'All Hotels'
 
   const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
   const startDate = startDateParam && isValid(parseISO(startDateParam)) ? parseISO(startDateParam) : addDays(endDate, -6);
-  
+
   const dateRange: ApiDateRange = {
     startDate: format(startDate, "yyyy-MM-dd"),
     endDate: format(endDate, "yyyy-MM-dd"),
   };
-  
+
+  const currentYear = today.getFullYear();
 
   // Fetch data in parallel
   const [
-    occupancyData, 
-    revenueData, 
-    adrData, 
+    occupancyData,
+    revenueData,
+    adrData,
     revparData,
+    annualPerformanceData, // Fetch data based on selection
+    propertyComparisonData,
   ] = await Promise.all([
     getOccupancy(dateRange),
     getRevenue(dateRange),
     getADR(dateRange),
     getRevPAR(dateRange),
+    selectedHotelName === ALL_HOTELS_SELECTOR
+      ? getAverageMonthlyPerformance(currentYear)
+      : getMonthlyHotelPerformance(selectedHotelName, currentYear),
+    getPropertyComparisonData(dateRange), // Fetch data for Property Comparison Chart
   ]);
-  
+
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
-  
+
   const hotelOccupancyData = occupancyData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
-  
-  const averageHotelOccupancy = hotelOccupancyData.length > 0 
+
+  const averageHotelOccupancy = hotelOccupancyData.length > 0
     ? hotelOccupancyData.reduce((sum, item) => sum + item.occupancyRate, 0) / hotelOccupancyData.length
     : 0;
-  
+
   const currency = revenueData.length > 0 ? revenueData[0].currency : 'USD';
   const currencySymbol = currency === 'USD' ? '$' : currency;
 
   const hotelRevenueData = revenueData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
-  
-  const cafeAndRestaurantRevenue = revenueData.filter(item => 
+
+  const cafeAndRestaurantRevenue = revenueData.filter(item =>
     SPECIFIC_CAFE_RESTAURANT_NAMES.includes(item.entityName)
   );
 
@@ -159,11 +170,45 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         />
       </div>
 
+       {/* Occupancy Chart - Takes full width on smaller screens, half on large */}
+       <div className="grid gap-6 lg:grid-cols-1 mb-6">
+          <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
+       </div>
+
+      {/* Revenue Charts - Side by side on large screens */}
       <div className="grid gap-6 lg:grid-cols-2 mb-6">
-        <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
-        <RevenueChart data={hotelRevenueData} dateRange={dateRange} chartTitle="Revenue Break Down" />
-        <RevenueChart data={cafeAndRestaurantRevenue} dateRange={dateRange} chartTitle="Cafe & Restaurant Revenue Overview" />
+        <RevenueChart
+            data={hotelRevenueData}
+            dateRange={dateRange}
+            chartTitle="Hotels Revenue Break Down"
+            barColor="hsl(var(--chart-1))" // Navy blue
+        />
+        <RevenueChart
+            data={cafeAndRestaurantRevenue}
+            dateRange={dateRange}
+            chartTitle="Cafe & Restaurant Revenue Breakdown."
+            barColor="hsl(var(--chart-3))" // Orange
+        />
       </div>
+
+       {/* Annual Performance Chart */}
+       <div className="mb-6">
+           <AnnualPerformanceLineChart
+                initialData={annualPerformanceData}
+                allHotelNames={SPECIFIC_HOTEL_NAMES}
+                initialSelectedHotelName={selectedHotelName}
+                currencySymbol={currencySymbol}
+                currentYear={currentYear}
+           />
+       </div>
+
+        {/* Property Comparison Chart */}
+        <div className="mb-6">
+            <PropertyComparisonChart
+                data={propertyComparisonData}
+                dateRange={dateRange}
+            />
+        </div>
     </>
   );
 }

@@ -17,16 +17,28 @@ interface RevenueChartProps {
   data: Revenue[];
   dateRange: { startDate: string; endDate: string };
   chartTitle: string;
+  barColor?: string; // Optional color override
 }
 
-const chartConfig = {
+const chartConfigBase = {
   revenueAmount: {
     label: "Revenue",
+    // Default color, can be overridden
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
-export function RevenueChart({ data, dateRange, chartTitle }: RevenueChartProps) {
+export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueChartProps) {
+   // Dynamically set chart config color
+   const chartConfig = {
+       ...chartConfigBase,
+       revenueAmount: {
+           ...chartConfigBase.revenueAmount,
+           color: barColor || chartConfigBase.revenueAmount.color,
+       }
+   } satisfies ChartConfig;
+
+
    if (!data || data.length === 0) {
     return (
       <Card className="shadow-lg">
@@ -48,7 +60,7 @@ export function RevenueChart({ data, dateRange, chartTitle }: RevenueChartProps)
     revenueAmount: item.revenueAmount,
     currency: item.currency,
   }));
-  
+
   const currencySymbol = data[0]?.currency === "USD" ? "$" : data[0]?.currency;
 
   return (
@@ -72,20 +84,22 @@ export function RevenueChart({ data, dateRange, chartTitle }: RevenueChartProps)
                 // If only one item, show full name, otherwise show abbreviation
                 tickFormatter={(value) => (formattedData.length === 1 ? value : value.slice(0, 3))}
               />
-              <YAxis 
+              <YAxis
                 tickFormatter={(value) => `${currencySymbol}${value / 1000}k`}
               />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent 
+                content={<ChartTooltipContent
                     formatter={(value, name, props) => {
-                        const currency = props.payload.currency === 'USD' ? '$' : props.payload.currency;
-                        return `${currency}${Number(value).toLocaleString()}`
+                        // Use currency from payload for accuracy if hotels might have different currencies
+                        const itemCurrencySymbol = props.payload.currency === 'USD' ? '$' : props.payload.currency;
+                        return `${itemCurrencySymbol}${Number(value).toLocaleString()}`;
                     }}
-                    indicator="dashed" 
+                    indicator="dashed"
                 />}
               />
-              <Bar dataKey="revenueAmount" fill="var(--color-revenueAmount)" radius={4} />
+               {/* Use the dynamic color from chartConfig */}
+               <Bar dataKey="revenueAmount" fill="var(--color-revenueAmount)" radius={4} />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
