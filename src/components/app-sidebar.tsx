@@ -13,8 +13,8 @@ import {
   LifeBuoy,
   Percent, // Added for Occupancy
   DollarSign, // Added for Revenue
-  PanelLeftClose, 
-  PanelLeftOpen, 
+  ChevronLeft, // Replaced PanelLeftClose
+  ChevronRight, // Replaced PanelLeftOpen
 } from 'lucide-react';
 
 import {
@@ -54,7 +54,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" variant="sidebar" side="left">
        {/* Ensure header uses justify-between if other elements are added on the right */}
-      <SidebarHeader className="flex items-center justify-between p-2 h-14"> 
+      <SidebarHeader className="flex items-center justify-between p-2 h-14">
         <div className="flex items-center gap-2"> {/* Group title and button */}
             {/* eZee Insights Title - visible only when expanded */}
             <h1 className={cn(
@@ -71,7 +71,7 @@ export function AppSidebar() {
                 onClick={toggleSidebar}
                 aria-label={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
             >
-                {state === 'expanded' ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
+                {state === 'expanded' ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
             </Button>
         </div>
          {/* Add other potential right-aligned header elements here if needed */}
