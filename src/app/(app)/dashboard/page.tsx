@@ -169,13 +169,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           title="Monitored Hotels & Resorts"
           value={SPECIFIC_HOTEL_NAMES.length}
           icon={<Building className="h-5 w-5" />}
-          description="Hotels under observation"
+          description="Hotels under Bhutan Hotels & Restaurants,"
         />
          <StatCard
             title="Monitored Cafe & Restaurants"
             value={monitoredCafesRestaurantsCount}
             icon={<Coffee className="h-5 w-5" />}
-            description="Cafes/Restaurants under observation"
+            description="Cafes/Restaurants under Bhutan Hotels & Restaurants."
          />
       </div>
 
@@ -223,5 +223,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 }
 
 
+
+    
 
     
