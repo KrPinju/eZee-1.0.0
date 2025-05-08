@@ -2,7 +2,8 @@
 "use client";
 
 import type { Occupancy } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList } from "recharts"; // Added LabelList
+// Added LabelList, XAxis, YAxis, CartesianGrid, Label
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Label } from "recharts"; 
 import {
   ChartContainer,
   ChartTooltip,
@@ -56,9 +57,11 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[350px] w-full"> {/* Increased height slightly */}
+        {/* Adjusted height and margin for labels */}
+        <ChartContainer config={chartConfig} className="h-[400px] w-full"> 
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 5, left: 5, right: 5 }}> {/* Reduced bottom margin */}
+             {/* Adjusted margin for axis labels */}
+            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 30, left: 20, right: 5 }}> 
               <defs>
                 <filter id="shadow-occupancy" x="-20%" y="-20%" width="140%" height="140%">
                   <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
@@ -66,32 +69,39 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
               </defs>
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="name" // Still need dataKey for mapping
+                dataKey="name" 
                 tickLine={false}
                 axisLine={false}
                 tick={false} // Hide ticks and labels below the bar
-                height={0} // Remove space allocated for axis
-              />
+                height={40} // Increased height to accommodate label
+              >
+                {/* Added X-Axis Label */}
+                <Label value="Hotels & Resorts" offset={0} position="insideBottom" dy={10} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }}/>
+              </XAxis>
               <YAxis 
-                // Removed tickFormatter={(value) => `${value}%`}
                 domain={[0, 100]}
-              />
+                width={60} // Increased width to accommodate label
+              >
+                 {/* Added Y-Axis Label */}
+                 <Label value="In Percentage" angle={-90} position="insideLeft" dx={-10} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }}/>
+              </YAxis>
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="dashed" formatter={(value) => [`${value}%`, "Occupancy"]}/>} // Adjusted tooltip formatter
+                 // Adjusted tooltip formatter to show % sign
+                content={<ChartTooltipContent indicator="dashed" formatter={(value) => [`${value}%`, "Occupancy"]}/>}
               />
               <Bar dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} filter="url(#shadow-occupancy)">
-                 {/* Add labels inside the bars, centered */}
+                 {/* Keep labels inside the bars */}
                  <LabelList
                     dataKey="name"
-                    position="center" // Center the label inside the bar
-                    angle={-90} // Rotate label vertically
-                    offset={0} // No offset needed for center position
+                    position="center" 
+                    angle={-90} 
+                    offset={0} 
                     style={{
-                      fill: 'white', // White text for better contrast
+                      fill: 'white', 
                       fontSize: '10px',
-                      textAnchor: 'middle', // Center text horizontally
-                      fontWeight: 'bold', // Make the text bold
+                      textAnchor: 'middle', 
+                      fontWeight: 'bold', 
                     }}
                   />
               </Bar>

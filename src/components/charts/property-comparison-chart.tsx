@@ -2,7 +2,8 @@
 "use client";
 
 import type { PropertyComparisonData, DateRange } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip as RechartsTooltip, LabelList } from "recharts";
+// Added Label for YAxis
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip as RechartsTooltip, LabelList, Label } from "recharts";
 import {
   ChartContainer,
   ChartTooltipContent,
@@ -45,7 +46,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
           <p className="text-muted-foreground">No comparison data available for the selected period.</p>
         </CardContent>
       </Card>
-    );
+    ); // Semicolon removed here
   }
 
   // Keep original names in formatted data
@@ -84,7 +85,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
       <CardContent>
         <ChartContainer config={legendConfig} className="h-[400px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} barGap={4} margin={{ top: 20, bottom: 5, left: 5, right: 5 }}> {/* Added top/reduced bottom margin */}
+            <BarChart data={formattedData} barGap={4} margin={{ top: 20, bottom: 5, left: 20, right: 5 }}> {/* Adjusted left margin */}
               <defs>
                 <filter id="shadow-comparison" x="-20%" y="-20%" width="140%" height="140%">
                   <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
@@ -101,11 +102,12 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
               <YAxis
                 yAxisId="left"
                 orientation="left"
-                // Removed tickFormatter={(value) => `${value}%`}
                 domain={[0, 100]}
                 stroke="hsl(var(--chart-1))" // Match Occupancy color
-                width={40} // Adjust width if needed
-              />
+                width={60} // Adjust width if needed
+              >
+                 {/* Removed Label for Y-Axis with % sign */}
+              </YAxis>
                <YAxis
                  yAxisId="right"
                  orientation="right"
@@ -123,6 +125,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                       if (!configEntry) return `${value}`;
 
                       if (name === 'occupancyRate') {
+                         // Show % sign in tooltip only
                         return [`${Number(value).toFixed(1)}%`, configEntry.label];
                       }
                       // Use currency from payload for ADR/RevPAR
