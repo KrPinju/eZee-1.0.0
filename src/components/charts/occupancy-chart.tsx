@@ -86,6 +86,7 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                       fill: 'white', // White text for better contrast
                       fontSize: '10px',
                       textAnchor: 'middle', // Center text horizontally
+                      fontWeight: 'bold', // Make the text bold
                     }}
                   />
               </Bar>

@@ -108,6 +108,7 @@ export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueC
                         fill: 'white', // White text for better contrast
                         fontSize: '10px',
                         textAnchor: 'middle', // Center text horizontally
+                        fontWeight: 'bold', // Make the text bold
                       }}
                     />
                </Bar>

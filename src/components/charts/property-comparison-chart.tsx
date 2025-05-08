@@ -70,6 +70,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
       fill: 'white', // White text
       fontSize: '10px',
       textAnchor: 'middle', // Center text horizontally
+      fontWeight: 'bold', // Make the text bold
     };
 
   return (
