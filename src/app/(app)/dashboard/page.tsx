@@ -6,8 +6,8 @@ import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { OccupancyChart } from "@/components/charts/occupancy-chart";
 import { RevenueChart } from "@/components/charts/revenue-chart";
-import { AnnualPerformanceLineChart } from "@/components/charts/annual-performance-line-chart";
-import { getOccupancy, getRevenue, getADR, getRevPAR, getAnnualHotelPerformance, type DateRange as ApiDateRange, type AnnualPerformanceChartDataPoint } from "@/services/ezee-pms";
+// import { AnnualPerformanceLineChart } from "@/components/charts/annual-performance-line-chart"; // Removed
+import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange } from "@/services/ezee-pms"; // Removed getAnnualHotelPerformance and AnnualPerformanceChartDataPoint
 import { addDays, format, isValid, parseISO } from "date-fns";
 
 interface DashboardPageProps {
@@ -58,7 +58,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     endDate: format(endDate, "yyyy-MM-dd"),
   };
   
-  const currentYear = today.getFullYear();
+  // const currentYear = today.getFullYear(); // Removed as it was for annual performance
 
   // Fetch data in parallel
   const [
@@ -66,17 +66,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     revenueData, 
     adrData, 
     revparData,
-    annualPerformanceDataRaw
+    // annualPerformanceDataRaw // Removed
   ] = await Promise.all([
     getOccupancy(dateRange),
     getRevenue(dateRange),
     getADR(dateRange),
     getRevPAR(dateRange),
-    getAnnualHotelPerformance(currentYear, SPECIFIC_HOTEL_NAMES),
+    // getAnnualHotelPerformance(currentYear, SPECIFIC_HOTEL_NAMES), // Removed
   ]);
   
   // Ensure annualPerformanceData is correctly typed after Promise.all
-  const annualPerformanceData: AnnualPerformanceChartDataPoint[] = annualPerformanceDataRaw;
+  // const annualPerformanceData: AnnualPerformanceChartDataPoint[] = annualPerformanceDataRaw; // Removed
 
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
@@ -118,66 +118,66 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const averageHotelADRChange = calculatePercentageChange(averageHotelADR, previousAverageHotelADR);
   const averageHotelRevPARChange = calculatePercentageChange(averageHotelRevPAR, previousAverageHotelRevPAR);
 
-  // Calculate Annual Averages from annualPerformanceData
-  const annualHotelMetrics: {
-    [hotelName: string]: {
-      occupancySum: number;
-      revparSum: number;
-      adrSum: number;
-      adrMonthsCount: number;
-    };
-  } = {};
+  // Calculate Annual Averages from annualPerformanceData - Removed
+  // const annualHotelMetrics: {
+  //   [hotelName: string]: {
+  //     occupancySum: number;
+  //     revparSum: number;
+  //     adrSum: number;
+  //     adrMonthsCount: number;
+  //   };
+  // } = {};
 
-  SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
-    annualHotelMetrics[hotelName] = {
-      occupancySum: 0,
-      revparSum: 0,
-      adrSum: 0,
-      adrMonthsCount: 0,
-    };
-  });
+  // SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
+  //   annualHotelMetrics[hotelName] = {
+  //     occupancySum: 0,
+  //     revparSum: 0,
+  //     adrSum: 0,
+  //     adrMonthsCount: 0,
+  //   };
+  // });
 
-  if (annualPerformanceData && annualPerformanceData.length > 0) {
-    annualPerformanceData.forEach(monthData => {
-      SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
-        const occupancyVal = monthData[`${hotelName}_Occupancy`];
-        const revparVal = monthData[`${hotelName}_RevPAR`];
+  // if (annualPerformanceData && annualPerformanceData.length > 0) {
+  //   annualPerformanceData.forEach(monthData => {
+  //     SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
+  //       const occupancyVal = monthData[`${hotelName}_Occupancy`];
+  //       const revparVal = monthData[`${hotelName}_RevPAR`];
 
-        const occupancy = typeof occupancyVal === 'number' ? occupancyVal : 0;
-        const revpar = typeof revparVal === 'number' ? revparVal : 0;
+  //       const occupancy = typeof occupancyVal === 'number' ? occupancyVal : 0;
+  //       const revpar = typeof revparVal === 'number' ? revparVal : 0;
 
-        annualHotelMetrics[hotelName].occupancySum += occupancy;
-        annualHotelMetrics[hotelName].revparSum += revpar;
+  //       annualHotelMetrics[hotelName].occupancySum += occupancy;
+  //       annualHotelMetrics[hotelName].revparSum += revpar;
 
-        if (occupancy > 0) {
-          const monthlyAdr = revpar / (occupancy / 100);
-          annualHotelMetrics[hotelName].adrSum += monthlyAdr;
-          annualHotelMetrics[hotelName].adrMonthsCount++;
-        }
-      });
-    });
-  }
+  //       if (occupancy > 0) {
+  //         const monthlyAdr = revpar / (occupancy / 100);
+  //         annualHotelMetrics[hotelName].adrSum += monthlyAdr;
+  //         annualHotelMetrics[hotelName].adrMonthsCount++;
+  //       }
+  //     });
+  //   });
+  // }
 
-  let cumulativeAnnualAvgOccupancy = 0;
-  let cumulativeAnnualAvgRevPAR = 0;
-  let cumulativeAnnualAvgADR = 0;
-  let hotelsWithAnnualADRCount = 0;
-  const numberOfMonths = annualPerformanceData.length > 0 ? annualPerformanceData.length : 1;
+  // let cumulativeAnnualAvgOccupancy = 0;
+  // let cumulativeAnnualAvgRevPAR = 0;
+  // let cumulativeAnnualAvgADR = 0;
+  // let hotelsWithAnnualADRCount = 0;
+  // const numberOfMonths = annualPerformanceData && annualPerformanceData.length > 0 ? annualPerformanceData.length : 1; // Adjusted logic
 
 
-  SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
-    const hotelPerf = annualHotelMetrics[hotelName];
-    cumulativeAnnualAvgOccupancy += hotelPerf.occupancySum / numberOfMonths;
-    cumulativeAnnualAvgRevPAR += hotelPerf.revparSum / numberOfMonths;
-    if (hotelPerf.adrMonthsCount > 0) {
-      cumulativeAnnualAvgADR += hotelPerf.adrSum / hotelPerf.adrMonthsCount;
-      hotelsWithAnnualADRCount++;
-    }
-  });
+  // SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
+  //   const hotelPerf = annualHotelMetrics[hotelName];
+  //   cumulativeAnnualAvgOccupancy += hotelPerf.occupancySum / numberOfMonths;
+  //   cumulativeAnnualAvgRevPAR += hotelPerf.revparSum / numberOfMonths;
+  //   if (hotelPerf.adrMonthsCount > 0) {
+  //     cumulativeAnnualAvgADR += hotelPerf.adrSum / hotelPerf.adrMonthsCount;
+  //     hotelsWithAnnualADRCount++;
+  //   }
+  // });
   
-  const overallAnnualAvgOccupancy = SPECIFIC_HOTEL_NAMES.length > 0 ? cumulativeAnnualAvgOccupancy / SPECIFIC_HOTEL_NAMES.length : 0;
-  const overallAnnualAvgRevPAR = SPECIFIC_HOTEL_NAMES.length > 0 ? cumulativeAnnualAvgRevPAR / SPECIFIC_HOTEL_NAMES.length : 0;
-  const overallAnnualAvgADR = hotelsWithAnnualADRCount > 0 ? cumulativeAnnualAvgADR / hotelsWithAnnualADRCount : 0;
+  // const overallAnnualAvgOccupancy = SPECIFIC_HOTEL_NAMES.length > 0 ? cumulativeAnnualAvgOccupancy / SPECIFIC_HOTEL_NAMES.length : 0;
+  // const overallAnnualAvgRevPAR = SPECIFIC_HOTEL_NAMES.length > 0 ? cumulativeAnnualAvgRevPAR / SPECIFIC_HOTEL_NAMES.length : 0;
+  // const overallAnnualAvgADR = hotelsWithAnnualADRCount > 0 ? cumulativeAnnualAvgADR / hotelsWithAnnualADRCount : 0;
 
 
   return (
@@ -231,6 +231,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <RevenueChart data={cafeAndRestaurantRevenue} dateRange={dateRange} chartTitle="Cafe & Restaurant Revenue Overview" />
       </div>
 
+      {/* AnnualPerformanceLineChart and related StatCards removed */}
+      {/* 
       <div className="mb-6">
         <AnnualPerformanceLineChart 
           data={annualPerformanceData} 
@@ -262,6 +264,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           />
         </div>
       )}
+      */}
     </>
   );
 }

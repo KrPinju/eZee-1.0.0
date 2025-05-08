@@ -81,15 +81,16 @@ export interface DateRange {
   endDate: string;
 }
 
-/**
- * Represents a data point for the annual performance line chart.
- * Contains month and dynamic keys for each hotel's occupancy and RevPAR.
- * Example: { month: "Jan", "Hotel A_Occupancy": 70, "Hotel A_RevPAR": 120, ... }
- */
-export interface AnnualPerformanceChartDataPoint {
-  month: string; // "Jan", "Feb", "Mar", ..., "Dec"
-  [metricName: string]: number | string; // Dynamic keys like "Hotel Olathang_Occupancy": 75
-}
+// AnnualPerformanceChartDataPoint interface removed as it's no longer used.
+// /**
+//  * Represents a data point for the annual performance line chart.
+//  * Contains month and dynamic keys for each hotel's occupancy and RevPAR.
+//  * Example: { month: "Jan", "Hotel A_Occupancy": 70, "Hotel A_RevPAR": 120, ... }
+//  */
+// export interface AnnualPerformanceChartDataPoint {
+//   month: string; // "Jan", "Feb", "Mar", ..., "Dec"
+//   [metricName: string]: number | string; // Dynamic keys like "Hotel Olathang_Occupancy": 75
+// }
 
 
 const SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA = [
@@ -188,32 +189,33 @@ export async function getRevPAR(dateRange: DateRange): Promise<RevPARData[]> {
   }));
 }
 
-/**
- * Asynchronously retrieves annual hotel performance data (Occupancy and RevPAR) for a given year and list of hotels.
- * @param year The year for which to retrieve data.
- * @param hotelNames An array of hotel names.
- * @returns A promise that resolves to an array of AnnualPerformanceChartDataPoint objects.
- */
-export async function getAnnualHotelPerformance(
-  year: number, // Currently not used in mock, but available for future API calls
-  hotelNames: string[]
-): Promise<AnnualPerformanceChartDataPoint[]> {
-  // TODO: Implement this by calling the eZee PMS API.
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const mockData: AnnualPerformanceChartDataPoint[] = [];
+// getAnnualHotelPerformance function removed as it's no longer used.
+// /**
+//  * Asynchronously retrieves annual hotel performance data (Occupancy and RevPAR) for a given year and list of hotels.
+//  * @param year The year for which to retrieve data.
+//  * @param hotelNames An array of hotel names.
+//  * @returns A promise that resolves to an array of AnnualPerformanceChartDataPoint objects.
+//  */
+// export async function getAnnualHotelPerformance(
+//   year: number, // Currently not used in mock, but available for future API calls
+//   hotelNames: string[]
+// ): Promise<AnnualPerformanceChartDataPoint[]> {
+//   // TODO: Implement this by calling the eZee PMS API.
+//   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+//   const mockData: AnnualPerformanceChartDataPoint[] = [];
 
-  for (const month of months) {
-    const monthData: AnnualPerformanceChartDataPoint = { month };
-    for (const hotelName of hotelNames) {
-      // Mock occupancy: Trend with seasonality (e.g. higher in mid-year)
-      const baseOcc = 50 + (months.indexOf(month) % 6) * 3; // Simple seasonality
-      monthData[`${hotelName}_Occupancy`] = Math.min(95, baseOcc + Math.floor(Math.random() * 21)); // Randomness within 50-95%
+//   for (const month of months) {
+//     const monthData: AnnualPerformanceChartDataPoint = { month };
+//     for (const hotelName of hotelNames) {
+//       // Mock occupancy: Trend with seasonality (e.g. higher in mid-year)
+//       const baseOcc = 50 + (months.indexOf(month) % 6) * 3; // Simple seasonality
+//       monthData[`${hotelName}_Occupancy`] = Math.min(95, baseOcc + Math.floor(Math.random() * 21)); // Randomness within 50-95%
       
-      // Mock RevPAR: Correlated with occupancy, with some randomness
-      const baseRevPAR = monthData[`${hotelName}_Occupancy`] as number * 1.2; // Simplified relation
-      monthData[`${hotelName}_RevPAR`] = Math.max(40, Math.floor(baseRevPAR + (Math.random() * 41 - 20))); // Randomness within 40-140
-    }
-    mockData.push(monthData);
-  }
-  return mockData;
-}
+//       // Mock RevPAR: Correlated with occupancy, with some randomness
+//       const baseRevPAR = monthData[`${hotelName}_Occupancy`] as number * 1.2; // Simplified relation
+//       monthData[`${hotelName}_RevPAR`] = Math.max(40, Math.floor(baseRevPAR + (Math.random() * 41 - 20))); // Randomness within 40-140
+//     }
+//     mockData.push(monthData);
+//   }
+//   return mockData;
+// }
