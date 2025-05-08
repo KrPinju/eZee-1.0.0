@@ -1,4 +1,5 @@
 
+
 import { DollarSign, Percent, Building } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -23,6 +24,15 @@ const SPECIFIC_HOTEL_NAMES = [
   "Zhingkham Resort",
   "Hotel Phuntsho Pelri",
   "Hotel Ugyen Ling",
+];
+
+const SPECIFIC_CAFE_RESTAURANT_NAMES = [
+  "Airport Cafe",
+  "Airport Restaurants",
+  "Taktshang Cafe",
+  "Cafe Phuntsho Pelri",
+  "60th Cafe",
+  "Druk Wangyel Cafe",
 ];
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
@@ -59,9 +69,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   // Filter revenue data for the specified hotels
   const hotelRevenueData = revenueData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
   
-  // Filter revenue data for cafe and restaurant
+  // Filter revenue data for specified cafes and restaurants
   const cafeAndRestaurantRevenue = revenueData.filter(item => 
-    item.entityName === 'Cafe' || item.entityName === 'Restaurant'
+    SPECIFIC_CAFE_RESTAURANT_NAMES.includes(item.entityName)
   );
 
   return (

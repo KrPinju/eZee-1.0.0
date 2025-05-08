@@ -53,6 +53,16 @@ const SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA = [
   "Hotel Ugyen Ling",
 ];
 
+const SPECIFIC_CAFE_RESTAURANT_NAMES_FOR_MOCK_DATA = [
+  "Airport Cafe",
+  "Airport Restaurants",
+  "Taktshang Cafe",
+  "Cafe Phuntsho Pelri",
+  "60th Cafe",
+  "Druk Wangyel Cafe",
+];
+
+
 /**
  * Asynchronously retrieves occupancy data for a given date range.
  * @param dateRange The date range for which to retrieve occupancy data.
@@ -61,16 +71,17 @@ const SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA = [
 export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
   // TODO: Implement this by calling the eZee PMS API.
   // For now, mock data reflects individual hotels.
-  return [
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[0], occupancyRate: 70 },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[1], occupancyRate: 80 },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[2], occupancyRate: 65 },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[3], occupancyRate: 75 },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[4], occupancyRate: 85 },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[5], occupancyRate: 72 },
-    { entityName: 'Cafe', occupancyRate: 55 }, // Adjusted mock value
-    { entityName: 'Restaurant', occupancyRate: 68 }, // Adjusted mock value
-  ];
+  const hotelOccupancy = SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
+    entityName: name,
+    occupancyRate: Math.floor(Math.random() * 31) + 60, // Random rate between 60-90%
+  }));
+
+  const cafeRestaurantOccupancy = SPECIFIC_CAFE_RESTAURANT_NAMES_FOR_MOCK_DATA.map(name => ({
+    entityName: name,
+    occupancyRate: Math.floor(Math.random() * 41) + 40, // Random rate between 40-80%
+  }));
+  
+  return [...hotelOccupancy, ...cafeRestaurantOccupancy];
 }
 
 /**
@@ -80,15 +91,18 @@ export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
  */
 export async function getRevenue(dateRange: DateRange): Promise<Revenue[]> {
   // TODO: Implement this by calling the eZee PMS API.
-  // For now, mock data reflects individual hotels.
-  return [
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[0], revenueAmount: 12000, currency: 'USD' },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[1], revenueAmount: 15000, currency: 'USD' },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[2], revenueAmount: 10000, currency: 'USD' },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[3], revenueAmount: 13500, currency: 'USD' },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[4], revenueAmount: 16000, currency: 'USD' },
-    { entityName: SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA[5], revenueAmount: 11000, currency: 'USD' },
-    { entityName: 'Cafe', revenueAmount: 3200, currency: 'USD' }, // Adjusted mock value
-    { entityName: 'Restaurant', revenueAmount: 7500, currency: 'USD' }, // Adjusted mock value
-  ];
+  // For now, mock data reflects individual hotels, cafes, and restaurants.
+  const hotelRevenue = SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
+    entityName: name,
+    revenueAmount: Math.floor(Math.random() * 10000) + 5000, // Random revenue between 5000-15000
+    currency: 'USD',
+  }));
+
+  const cafeRestaurantRevenue = SPECIFIC_CAFE_RESTAURANT_NAMES_FOR_MOCK_DATA.map(name => ({
+    entityName: name,
+    revenueAmount: Math.floor(Math.random() * 3000) + 1000, // Random revenue between 1000-4000
+    currency: 'USD',
+  }));
+
+  return [...hotelRevenue, ...cafeRestaurantRevenue];
 }
