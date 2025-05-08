@@ -58,21 +58,21 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+        <ChartContainer config={chartConfig} className="h-[350px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} accessibilityLayer>
+            <BarChart data={formattedData} accessibilityLayer margin={{ bottom: 30 }}> {/* Added bottom margin */}
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="name" // Use the full name as the key
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                // Remove the tickFormatter that abbreviated names
-                // tickFormatter={(value) => (formattedData.length === 1 ? value : value.slice(0, 3))}
-                 interval={0} // Ensure all labels are shown if possible
-                 angle={-45} // Angle labels to prevent overlap
-                 textAnchor="end" // Adjust anchor for angled labels
-                 height={60} // Increase height to accommodate angled labels
+                // Ensure full names are attempted
+                interval={0} // Ensure all labels are shown if possible
+                angle={-45} // Angle labels to prevent overlap
+                textAnchor="end" // Adjust anchor for angled labels
+                height={70} // Increase height to accommodate angled labels better
+                fontSize={10} // Slightly reduce font size if needed for long names
               />
               <YAxis 
                 tickFormatter={(value) => `${value}%`}

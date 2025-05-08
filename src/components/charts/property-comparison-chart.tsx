@@ -75,19 +75,21 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={legendConfig} className="h-[350px] w-full">
+        <ChartContainer config={legendConfig} className="h-[400px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} barGap={4}>
+            <BarChart data={formattedData} barGap={4} margin={{ bottom: 30 }}> {/* Added bottom margin */}
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="name" // Use the full name as the key
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
+                 // Ensure full names are attempted
                  interval={0} // Ensure all labels are shown if possible
                  angle={-45} // Angle labels to prevent overlap
                  textAnchor="end" // Adjust anchor for angled labels
-                 height={60} // Increase height to accommodate angled labels
+                 height={70} // Increase height to accommodate angled labels better
+                 fontSize={10} // Slightly reduce font size if needed for long names
               />
               <YAxis
                 yAxisId="left"
