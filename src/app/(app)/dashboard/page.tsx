@@ -1,13 +1,13 @@
 
 
+
 import { DollarSign, Percent, Building, BedDouble, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { OccupancyChart } from "@/components/charts/occupancy-chart";
 import { RevenueChart } from "@/components/charts/revenue-chart";
-// import { AnnualPerformanceLineChart } from "@/components/charts/annual-performance-line-chart"; // Removed
-import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange } from "@/services/ezee-pms"; // Removed getAnnualHotelPerformance and AnnualPerformanceChartDataPoint
+import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
 interface DashboardPageProps {
@@ -58,7 +58,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     endDate: format(endDate, "yyyy-MM-dd"),
   };
   
-  // const currentYear = today.getFullYear(); // Removed as it was for annual performance
 
   // Fetch data in parallel
   const [
@@ -66,18 +65,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     revenueData, 
     adrData, 
     revparData,
-    // annualPerformanceDataRaw // Removed
   ] = await Promise.all([
     getOccupancy(dateRange),
     getRevenue(dateRange),
     getADR(dateRange),
     getRevPAR(dateRange),
-    // getAnnualHotelPerformance(currentYear, SPECIFIC_HOTEL_NAMES), // Removed
   ]);
   
-  // Ensure annualPerformanceData is correctly typed after Promise.all
-  // const annualPerformanceData: AnnualPerformanceChartDataPoint[] = annualPerformanceDataRaw; // Removed
-
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
   
@@ -117,67 +111,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const averageHotelOccupancyChange = calculatePercentageChange(averageHotelOccupancy, previousAverageHotelOccupancy);
   const averageHotelADRChange = calculatePercentageChange(averageHotelADR, previousAverageHotelADR);
   const averageHotelRevPARChange = calculatePercentageChange(averageHotelRevPAR, previousAverageHotelRevPAR);
-
-  // Calculate Annual Averages from annualPerformanceData - Removed
-  // const annualHotelMetrics: {
-  //   [hotelName: string]: {
-  //     occupancySum: number;
-  //     revparSum: number;
-  //     adrSum: number;
-  //     adrMonthsCount: number;
-  //   };
-  // } = {};
-
-  // SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
-  //   annualHotelMetrics[hotelName] = {
-  //     occupancySum: 0,
-  //     revparSum: 0,
-  //     adrSum: 0,
-  //     adrMonthsCount: 0,
-  //   };
-  // });
-
-  // if (annualPerformanceData && annualPerformanceData.length > 0) {
-  //   annualPerformanceData.forEach(monthData => {
-  //     SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
-  //       const occupancyVal = monthData[`${hotelName}_Occupancy`];
-  //       const revparVal = monthData[`${hotelName}_RevPAR`];
-
-  //       const occupancy = typeof occupancyVal === 'number' ? occupancyVal : 0;
-  //       const revpar = typeof revparVal === 'number' ? revparVal : 0;
-
-  //       annualHotelMetrics[hotelName].occupancySum += occupancy;
-  //       annualHotelMetrics[hotelName].revparSum += revpar;
-
-  //       if (occupancy > 0) {
-  //         const monthlyAdr = revpar / (occupancy / 100);
-  //         annualHotelMetrics[hotelName].adrSum += monthlyAdr;
-  //         annualHotelMetrics[hotelName].adrMonthsCount++;
-  //       }
-  //     });
-  //   });
-  // }
-
-  // let cumulativeAnnualAvgOccupancy = 0;
-  // let cumulativeAnnualAvgRevPAR = 0;
-  // let cumulativeAnnualAvgADR = 0;
-  // let hotelsWithAnnualADRCount = 0;
-  // const numberOfMonths = annualPerformanceData && annualPerformanceData.length > 0 ? annualPerformanceData.length : 1; // Adjusted logic
-
-
-  // SPECIFIC_HOTEL_NAMES.forEach(hotelName => {
-  //   const hotelPerf = annualHotelMetrics[hotelName];
-  //   cumulativeAnnualAvgOccupancy += hotelPerf.occupancySum / numberOfMonths;
-  //   cumulativeAnnualAvgRevPAR += hotelPerf.revparSum / numberOfMonths;
-  //   if (hotelPerf.adrMonthsCount > 0) {
-  //     cumulativeAnnualAvgADR += hotelPerf.adrSum / hotelPerf.adrMonthsCount;
-  //     hotelsWithAnnualADRCount++;
-  //   }
-  // });
-  
-  // const overallAnnualAvgOccupancy = SPECIFIC_HOTEL_NAMES.length > 0 ? cumulativeAnnualAvgOccupancy / SPECIFIC_HOTEL_NAMES.length : 0;
-  // const overallAnnualAvgRevPAR = SPECIFIC_HOTEL_NAMES.length > 0 ? cumulativeAnnualAvgRevPAR / SPECIFIC_HOTEL_NAMES.length : 0;
-  // const overallAnnualAvgADR = hotelsWithAnnualADRCount > 0 ? cumulativeAnnualAvgADR / hotelsWithAnnualADRCount : 0;
 
 
   return (
@@ -227,44 +160,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       <div className="grid gap-6 lg:grid-cols-2 mb-6">
         <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
-        <RevenueChart data={hotelRevenueData} dateRange={dateRange} chartTitle="Hotel Revenue Overview" />
+        <RevenueChart data={hotelRevenueData} dateRange={dateRange} chartTitle="revenue break" />
         <RevenueChart data={cafeAndRestaurantRevenue} dateRange={dateRange} chartTitle="Cafe & Restaurant Revenue Overview" />
       </div>
-
-      {/* AnnualPerformanceLineChart and related StatCards removed */}
-      {/* 
-      <div className="mb-6">
-        <AnnualPerformanceLineChart 
-          data={annualPerformanceData} 
-          hotelNames={SPECIFIC_HOTEL_NAMES} 
-          currencySymbol={currencySymbol}
-          currentYear={currentYear}
-        />
-      </div>
-
-      {annualPerformanceData && annualPerformanceData.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
-          <StatCard
-            title={`Annual Avg Occupancy (${currentYear})`}
-            value={`${overallAnnualAvgOccupancy.toFixed(1)}%`}
-            icon={<Percent className="h-5 w-5" />}
-            description={`Average for ${currentYear} across monitored hotels`}
-          />
-          <StatCard
-            title={`Annual Avg ADR (${currentYear})`}
-            value={`${currencySymbol}${overallAnnualAvgADR.toFixed(2)}`}
-            icon={<BedDouble className="h-5 w-5" />}
-            description={`Average for ${currentYear} across monitored hotels`}
-          />
-          <StatCard
-            title={`Annual Avg RevPAR (${currentYear})`}
-            value={`${currencySymbol}${overallAnnualAvgRevPAR.toFixed(2)}`}
-            icon={<TrendingUp className="h-5 w-5" />}
-            description={`Average for ${currentYear} across monitored hotels`}
-          />
-        </div>
-      )}
-      */}
     </>
   );
 }
+
