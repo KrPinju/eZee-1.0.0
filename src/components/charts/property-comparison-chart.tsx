@@ -77,7 +77,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
       <CardContent>
         <ChartContainer config={legendConfig} className="h-[400px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} barGap={4} margin={{ bottom: 30 }}> {/* Added bottom margin */}
+            <BarChart data={formattedData} barGap={4} margin={{ bottom: 30, left: 5, right: 5 }}> {/* Added bottom margin, reduced L/R margin */}
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="name" // Use the full name as the key
@@ -126,6 +126,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                 }
               />
                <Legend content={<ChartLegendContent />} />
+               {/* Bars do not have LabelList to avoid clutter */}
               <Bar yAxisId="left" dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} />
               <Bar yAxisId="right" dataKey="adr" fill="var(--color-adr)" radius={4} />
               <Bar yAxisId="right" dataKey="revpar" fill="var(--color-revpar)" radius={4} />
@@ -136,4 +137,3 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
     </Card>
   );
 }
-

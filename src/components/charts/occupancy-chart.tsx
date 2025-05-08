@@ -2,13 +2,13 @@
 "use client";
 
 import type { Occupancy } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from "recharts";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList } from "recharts"; // Added LabelList
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
+  // ChartLegend, // Not used
+  // ChartLegendContent, // Not used
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -60,7 +60,7 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} accessibilityLayer margin={{ bottom: 30 }}> {/* Added bottom margin */}
+            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 30, left: 5, right: 5 }}> {/* Added top margin for labels */}
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="name" // Use the full name as the key
@@ -80,9 +80,22 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
               />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="dashed" />}
+                content={<ChartTooltipContent indicator="dashed" formatter={(value) => [`${value}%`, "Occupancy"]}/>} // Adjusted tooltip formatter
               />
-              <Bar dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} />
+              <Bar dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} >
+                 {/* Add labels inside the bars */}
+                 <LabelList
+                    dataKey="name"
+                    position="insideTop" // Place label inside the top of the bar
+                    angle={-90} // Rotate label vertically
+                    offset={15} // Adjust offset from the top
+                    style={{
+                      fill: 'white', // White text for better contrast
+                      fontSize: '10px',
+                      textAnchor: 'middle', // Center text horizontally
+                    }}
+                  />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
