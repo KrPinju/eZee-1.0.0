@@ -1,4 +1,4 @@
-import { DollarSign, Percent, Users } from "lucide-react";
+import { DollarSign, Percent, Users, Building } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
@@ -34,8 +34,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   ]);
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
-  const averageOccupancy = occupancyData.length > 0 
-    ? occupancyData.reduce((sum, item) => sum + item.occupancyRate, 0) / occupancyData.length
+  
+  // Filter occupancy data for hotels only
+  const hotelOccupancyData = occupancyData.filter(item => item.entityName === 'Hotel');
+  
+  const averageHotelOccupancy = hotelOccupancyData.length > 0 
+    ? hotelOccupancyData.reduce((sum, item) => sum + item.occupancyRate, 0) / hotelOccupancyData.length
     : 0;
   
   const currency = revenueData.length > 0 ? revenueData[0].currency : 'USD';
@@ -57,23 +61,24 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           description="Across all properties"
         />
         <StatCard
-          title="Average Occupancy"
-          value={`${averageOccupancy.toFixed(1)}%`}
+          title="Hotel Average Occupancy"
+          value={`${averageHotelOccupancy.toFixed(1)}%`}
           icon={<Percent className="h-5 w-5" />}
-          description="Across all properties"
+          description="For hotels"
         />
         <StatCard
-          title="Active Properties"
-          value={occupancyData.length} // Assuming one entry per active property
-          icon={<Users className="h-5 w-5" />}
-          description="Hotel, Cafe, Restaurant"
+          title="Monitored Property Type"
+          value={hotelOccupancyData.length > 0 ? "Hotel" : "N/A"}
+          icon={<Building className="h-5 w-5" />}
+          description="Focus on hotel occupancy"
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <OccupancyChart data={occupancyData} dateRange={dateRange} />
+        <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
         <RevenueChart data={revenueData} dateRange={dateRange} />
       </div>
     </>
   );
 }
+

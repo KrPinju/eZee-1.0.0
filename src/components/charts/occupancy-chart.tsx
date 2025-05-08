@@ -65,7 +65,8 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
+                // If only one item, show full name, otherwise show abbreviation
+                tickFormatter={(value) => (formattedData.length === 1 ? value : value.slice(0, 3))}
               />
               <YAxis 
                 tickFormatter={(value) => `${value}%`}
@@ -83,3 +84,4 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
     </Card>
   );
 }
+
