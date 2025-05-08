@@ -101,7 +101,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
               <YAxis
                 yAxisId="left"
                 orientation="left"
-                tickFormatter={(value) => `${value}%`}
+                // Removed tickFormatter={(value) => `${value}%`}
                 domain={[0, 100]}
                 stroke="hsl(var(--chart-1))" // Match Occupancy color
                 width={40} // Adjust width if needed

@@ -73,7 +73,7 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                 height={0} // Remove space allocated for axis
               />
               <YAxis 
-                tickFormatter={(value) => `${value}%`}
+                // Removed tickFormatter={(value) => `${value}%`}
                 domain={[0, 100]}
               />
               <ChartTooltip
