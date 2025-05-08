@@ -1,13 +1,11 @@
 
-
-
 import { DollarSign, Percent, Building, BedDouble, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { OccupancyChart } from "@/components/charts/occupancy-chart";
 import { RevenueChart } from "@/components/charts/revenue-chart";
-import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange, type ADRData, type RevPARData } from "@/services/ezee-pms";
+import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
 interface DashboardPageProps {
@@ -36,6 +34,15 @@ const SPECIFIC_CAFE_RESTAURANT_NAMES = [
   "Druk Wangyel Cafe",
 ];
 
+const calculatePercentageChange = (current: number, previous: number): number | undefined => {
+  if (previous === 0) {
+    // If previous is 0, change is undefined unless current is also 0.
+    return current === 0 ? 0 : undefined; 
+  }
+  return ((current - previous) / previous) * 100;
+};
+
+
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const today = new Date();
   const endDateParam = searchParams?.endDate;
@@ -59,7 +66,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
   
-  // Filter occupancy data for the specified hotels
   const hotelOccupancyData = occupancyData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
   
   const averageHotelOccupancy = hotelOccupancyData.length > 0 
@@ -69,26 +75,33 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const currency = revenueData.length > 0 ? revenueData[0].currency : 'USD';
   const currencySymbol = currency === 'USD' ? '$' : currency;
 
-  // Filter revenue data for the specified hotels
   const hotelRevenueData = revenueData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
   
-  // Filter revenue data for specified cafes and restaurants
   const cafeAndRestaurantRevenue = revenueData.filter(item => 
     SPECIFIC_CAFE_RESTAURANT_NAMES.includes(item.entityName)
   );
 
-  // Process ADR data for specified hotels
   const hotelADRData = adrData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
   const averageHotelADR = hotelADRData.length > 0
     ? hotelADRData.reduce((sum, item) => sum + item.adr, 0) / hotelADRData.length
     : 0;
 
-  // Process RevPAR data for specified hotels
   const hotelRevPARData = revparData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
   const averageHotelRevPAR = hotelRevPARData.length > 0
     ? hotelRevPARData.reduce((sum, item) => sum + item.revpar, 0) / hotelRevPARData.length
     : 0;
 
+  // Simulate previous period data for percentage change calculation
+  // For mock purposes, generate random changes between -15% and +15%
+  const previousTotalRevenue = Math.max(1, totalRevenue * (1 - (Math.random() * 0.3 - 0.15)));
+  const previousAverageHotelOccupancy = Math.max(0.1, averageHotelOccupancy * (1 - (Math.random() * 0.3 - 0.15)));
+  const previousAverageHotelADR = Math.max(1, averageHotelADR * (1 - (Math.random() * 0.3 - 0.15)));
+  const previousAverageHotelRevPAR = Math.max(1, averageHotelRevPAR * (1 - (Math.random() * 0.3 - 0.15)));
+
+  const totalRevenueChange = calculatePercentageChange(totalRevenue, previousTotalRevenue);
+  const averageHotelOccupancyChange = calculatePercentageChange(averageHotelOccupancy, previousAverageHotelOccupancy);
+  const averageHotelADRChange = calculatePercentageChange(averageHotelADR, previousAverageHotelADR);
+  const averageHotelRevPARChange = calculatePercentageChange(averageHotelRevPAR, previousAverageHotelRevPAR);
 
   return (
     <>
@@ -104,24 +117,28 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           value={`${currencySymbol}${totalRevenue.toLocaleString()}`}
           icon={<DollarSign className="h-5 w-5" />}
           description="Across all properties"
+          changePercentage={totalRevenueChange}
         />
         <StatCard
           title="Avg Hotel Occupancy"
           value={`${averageHotelOccupancy.toFixed(1)}%`}
           icon={<Percent className="h-5 w-5" />}
           description="For specified hotels"
+          changePercentage={averageHotelOccupancyChange}
         />
         <StatCard
           title="Avg Daily Rate (ADR)"
           value={`${currencySymbol}${averageHotelADR.toFixed(2)}`}
           icon={<BedDouble className="h-5 w-5" />}
           description="For specified hotels"
+          changePercentage={averageHotelADRChange}
         />
         <StatCard
           title="RevPAR"
           value={`${currencySymbol}${averageHotelRevPAR.toFixed(2)}`}
           icon={<TrendingUp className="h-5 w-5" />}
           description="For specified hotels"
+          changePercentage={averageHotelRevPARChange}
         />
         <StatCard
           title="Monitored Properties"
