@@ -7,8 +7,6 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  // ChartLegend, // Not used
-  // ChartLegendContent, // Not used
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -60,19 +58,14 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 30, left: 5, right: 5 }}> {/* Added top margin for labels */}
+            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 5, left: 5, right: 5 }}> {/* Reduced bottom margin */}
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="name" // Use the full name as the key
+                dataKey="name" // Still need dataKey for mapping
                 tickLine={false}
-                tickMargin={10}
                 axisLine={false}
-                // Ensure full names are attempted
-                interval={0} // Ensure all labels are shown if possible
-                angle={-45} // Angle labels to prevent overlap
-                textAnchor="end" // Adjust anchor for angled labels
-                height={70} // Increase height to accommodate angled labels better
-                fontSize={10} // Slightly reduce font size if needed for long names
+                tick={false} // Hide ticks and labels below the bar
+                height={0} // Remove space allocated for axis
               />
               <YAxis 
                 tickFormatter={(value) => `${value}%`}
@@ -83,12 +76,12 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                 content={<ChartTooltipContent indicator="dashed" formatter={(value) => [`${value}%`, "Occupancy"]}/>} // Adjusted tooltip formatter
               />
               <Bar dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} >
-                 {/* Add labels inside the bars */}
+                 {/* Add labels inside the bars, centered */}
                  <LabelList
                     dataKey="name"
-                    position="insideTop" // Place label inside the top of the bar
+                    position="center" // Center the label inside the bar
                     angle={-90} // Rotate label vertically
-                    offset={15} // Adjust offset from the top
+                    offset={0} // No offset needed for center position
                     style={{
                       fill: 'white', // White text for better contrast
                       fontSize: '10px',
@@ -103,4 +96,3 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
     </Card>
   );
 }
-

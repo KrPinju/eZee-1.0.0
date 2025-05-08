@@ -2,7 +2,7 @@
 "use client";
 
 import type { PropertyComparisonData, DateRange } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip as RechartsTooltip } from "recharts";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip as RechartsTooltip, LabelList } from "recharts"; // Added LabelList
 import {
   ChartContainer,
   ChartTooltipContent,
@@ -77,19 +77,14 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
       <CardContent>
         <ChartContainer config={legendConfig} className="h-[400px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} barGap={4} margin={{ bottom: 30, left: 5, right: 5 }}> {/* Added bottom margin, reduced L/R margin */}
+            <BarChart data={formattedData} barGap={4} margin={{ top: 20, bottom: 5, left: 5, right: 5 }}> {/* Added top/reduced bottom margin */}
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="name" // Use the full name as the key
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                 // Ensure full names are attempted
-                 interval={0} // Ensure all labels are shown if possible
-                 angle={-45} // Angle labels to prevent overlap
-                 textAnchor="end" // Adjust anchor for angled labels
-                 height={70} // Increase height to accommodate angled labels better
-                 fontSize={10} // Slightly reduce font size if needed for long names
+                 dataKey="name" // Still need dataKey for mapping
+                 tickLine={false}
+                 axisLine={false}
+                 tick={false} // Hide ticks and labels below the bar
+                 height={0} // Remove space allocated for axis
               />
               <YAxis
                 yAxisId="left"
@@ -126,8 +121,20 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                 }
               />
                <Legend content={<ChartLegendContent />} />
-               {/* Bars do not have LabelList to avoid clutter */}
-              <Bar yAxisId="left" dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} />
+              <Bar yAxisId="left" dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4}>
+                  {/* Add labels inside the occupancy bar */}
+                  <LabelList
+                    dataKey="name"
+                    position="center" // Center the label
+                    angle={-90} // Rotate vertically
+                    offset={0} // No offset for center
+                    style={{
+                      fill: 'white', // White text
+                      fontSize: '10px',
+                      textAnchor: 'middle',
+                    }}
+                  />
+              </Bar>
               <Bar yAxisId="right" dataKey="adr" fill="var(--color-adr)" radius={4} />
               <Bar yAxisId="right" dataKey="revpar" fill="var(--color-revpar)" radius={4} />
             </BarChart>
