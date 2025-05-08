@@ -1,12 +1,13 @@
 
 
-import { DollarSign, Percent, Building } from "lucide-react";
+
+import { DollarSign, Percent, Building, BedDouble, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { OccupancyChart } from "@/components/charts/occupancy-chart";
 import { RevenueChart } from "@/components/charts/revenue-chart";
-import { getOccupancy, getRevenue, type DateRange as ApiDateRange } from "@/services/ezee-pms";
+import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange, type ADRData, type RevPARData } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
 interface DashboardPageProps {
@@ -49,9 +50,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   };
 
   // Fetch data in parallel
-  const [occupancyData, revenueData] = await Promise.all([
+  const [occupancyData, revenueData, adrData, revparData] = await Promise.all([
     getOccupancy(dateRange),
     getRevenue(dateRange),
+    getADR(dateRange),
+    getRevPAR(dateRange),
   ]);
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
@@ -74,6 +77,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     SPECIFIC_CAFE_RESTAURANT_NAMES.includes(item.entityName)
   );
 
+  // Process ADR data for specified hotels
+  const hotelADRData = adrData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
+  const averageHotelADR = hotelADRData.length > 0
+    ? hotelADRData.reduce((sum, item) => sum + item.adr, 0) / hotelADRData.length
+    : 0;
+
+  // Process RevPAR data for specified hotels
+  const hotelRevPARData = revparData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
+  const averageHotelRevPAR = hotelRevPARData.length > 0
+    ? hotelRevPARData.reduce((sum, item) => sum + item.revpar, 0) / hotelRevPARData.length
+    : 0;
+
+
   return (
     <>
       <PageHeader
@@ -90,16 +106,28 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           description="Across all properties"
         />
         <StatCard
-          title="Average Hotel Occupancy"
+          title="Avg Hotel Occupancy"
           value={`${averageHotelOccupancy.toFixed(1)}%`}
           icon={<Percent className="h-5 w-5" />}
           description="For specified hotels"
         />
         <StatCard
-          title="Monitored Property Type"
-          value={hotelOccupancyData.length > 0 ? "Hotel" : "N/A"}
+          title="Avg Daily Rate (ADR)"
+          value={`${currencySymbol}${averageHotelADR.toFixed(2)}`}
+          icon={<BedDouble className="h-5 w-5" />}
+          description="For specified hotels"
+        />
+        <StatCard
+          title="RevPAR"
+          value={`${currencySymbol}${averageHotelRevPAR.toFixed(2)}`}
+          icon={<TrendingUp className="h-5 w-5" />}
+          description="For specified hotels"
+        />
+        <StatCard
+          title="Monitored Properties"
+          value={SPECIFIC_HOTEL_NAMES.length}
           icon={<Building className="h-5 w-5" />}
-          description="Focus on hotel occupancy"
+          description="Hotels under observation"
         />
       </div>
 

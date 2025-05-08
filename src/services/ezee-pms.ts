@@ -31,6 +31,43 @@ export interface Revenue {
 }
 
 /**
+ * Represents Average Daily Rate data for a specific entity.
+ */
+export interface ADRData {
+  /**
+   * The name of the entity.
+   */
+  entityName: string;
+  /**
+   * The Average Daily Rate.
+   */
+  adr: number;
+  /**
+   * The currency.
+   */
+  currency: string;
+}
+
+/**
+ * Represents Revenue Per Available Room data for a specific entity.
+ */
+export interface RevPARData {
+  /**
+   * The name of the entity.
+   */
+  entityName: string;
+  /**
+   * The Revenue Per Available Room.
+   */
+  revpar: number;
+  /**
+   * The currency.
+   */
+  currency: string;
+}
+
+
+/**
  * Represents a date range with start and end dates.
  */
 export interface DateRange {
@@ -105,4 +142,37 @@ export async function getRevenue(dateRange: DateRange): Promise<Revenue[]> {
   }));
 
   return [...hotelRevenue, ...cafeRestaurantRevenue];
+}
+
+/**
+ * Asynchronously retrieves Average Daily Rate (ADR) data for hotels for a given date range.
+ * @param dateRange The date range for which to retrieve ADR data.
+ * @returns A promise that resolves to an array of ADRData objects.
+ */
+export async function getADR(dateRange: DateRange): Promise<ADRData[]> {
+  // TODO: Implement this by calling the eZee PMS API.
+  // Mock data for specified hotels.
+  return SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
+    entityName: name,
+    adr: Math.floor(Math.random() * 71) + 80, // Random ADR between 80-150 USD
+    currency: 'USD',
+  }));
+}
+
+/**
+ * Asynchronously retrieves Revenue Per Available Room (RevPAR) data for hotels for a given date range.
+ * @param dateRange The date range for which to retrieve RevPAR data.
+ * @returns A promise that resolves to an array of RevPARData objects.
+ */
+export async function getRevPAR(dateRange: DateRange): Promise<RevPARData[]> {
+  // TODO: Implement this by calling the eZee PMS API.
+  // Mock data for specified hotels.
+  // RevPAR is typically ADR * Occupancy Rate. For simplicity, we'll mock it directly,
+  // ensuring it's generally lower than ADR and reflects occupancy.
+  // Example: If ADR is 80-150 and Occupancy is 60-90%, RevPAR could be 50-135.
+  return SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
+    entityName: name,
+    revpar: Math.floor(Math.random() * 86) + 50, // Random RevPAR between 50-135 USD
+    currency: 'USD',
+  }));
 }
