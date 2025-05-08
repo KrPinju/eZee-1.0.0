@@ -94,8 +94,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ? hotelOccupancyData.reduce((sum, item) => sum + item.occupancyRate, 0) / hotelOccupancyData.length
     : 0;
 
-  const currency = revenueData.length > 0 ? revenueData[0].currency : 'USD';
-  const currencySymbol = currency === 'USD' ? '$' : currency;
+  const currency = revenueData.length > 0 ? revenueData[0].currency : 'BTN'; // Default to BTN
+  const currencySymbol = currency === 'BTN' ? 'Nu.' : currency; // Use Nu. for BTN
 
   const hotelRevenueData = revenueData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
 
@@ -224,6 +224,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
 
 
-    
 
-    
+
+

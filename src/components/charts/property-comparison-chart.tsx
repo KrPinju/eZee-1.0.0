@@ -46,7 +46,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
           <p className="text-muted-foreground">No comparison data available for the selected period.</p>
         </CardContent>
       </Card>
-    ); // Semicolon removed here
+    );
   }
 
   // Keep original names in formatted data
@@ -58,7 +58,8 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
     currency: item.currency,
   }));
 
-  const currencySymbol = formattedData[0]?.currency === "USD" ? "$" : formattedData[0]?.currency;
+  // Determine currency symbol - use Nu. for BTN
+  const currencySymbol = formattedData[0]?.currency === "BTN" ? "Nu." : formattedData[0]?.currency;
 
   // Update labels with currency for config used by Legend
    const legendConfig = {
@@ -105,6 +106,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                 domain={[0, 100]}
                 stroke="hsl(var(--chart-1))" // Match Occupancy color
                 width={60} // Adjust width if needed
+                // Removed tickFormatter for %
               >
                  {/* Removed Label for Y-Axis with % sign */}
               </YAxis>
@@ -128,8 +130,8 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                          // Show % sign in tooltip only
                         return [`${Number(value).toFixed(1)}%`, configEntry.label];
                       }
-                      // Use currency from payload for ADR/RevPAR
-                      const itemCurrencySymbol = props.payload.currency === 'USD' ? '$' : props.payload.currency;
+                      // Use currency from payload and map to Nu. if BTN
+                      const itemCurrencySymbol = props.payload.currency === 'BTN' ? 'Nu.' : props.payload.currency;
                       return [`${itemCurrencySymbol}${Number(value).toLocaleString()}`, `${configEntry.label} (${itemCurrencySymbol})`];
                     }}
                   />

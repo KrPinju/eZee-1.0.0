@@ -25,7 +25,7 @@ export interface Revenue {
    */
   revenueAmount: number;
   /**
-   * The currency.
+   * The currency code (e.g., "BTN", "USD").
    */
   currency: string;
 }
@@ -43,7 +43,7 @@ export interface ADRData {
    */
   adr: number;
   /**
-   * The currency.
+   * The currency code (e.g., "BTN", "USD").
    */
   currency: string;
 }
@@ -61,7 +61,7 @@ export interface RevPARData {
    */
   revpar: number;
   /**
-   * The currency.
+   * The currency code (e.g., "BTN", "USD").
    */
   currency: string;
 }
@@ -143,13 +143,13 @@ export async function getRevenue(dateRange: DateRange): Promise<Revenue[]> {
   const hotelRevenue = SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
     entityName: name,
     revenueAmount: Math.floor(Math.random() * 10000) + 5000, // Random revenue between 5000-15000
-    currency: 'USD',
+    currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 
   const cafeRestaurantRevenue = SPECIFIC_CAFE_RESTAURANT_NAMES_FOR_MOCK_DATA.map(name => ({
     entityName: name,
     revenueAmount: Math.floor(Math.random() * 3000) + 1000, // Random revenue between 1000-4000
-    currency: 'USD',
+    currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 
   return [...hotelRevenue, ...cafeRestaurantRevenue];
@@ -165,8 +165,8 @@ export async function getADR(dateRange: DateRange): Promise<ADRData[]> {
   // Mock data for specified hotels.
   return SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
     entityName: name,
-    adr: Math.floor(Math.random() * 71) + 80, // Random ADR between 80-150 USD
-    currency: 'USD',
+    adr: Math.floor(Math.random() * 71) + 80, // Random ADR between 80-150
+    currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 }
 
@@ -183,8 +183,8 @@ export async function getRevPAR(dateRange: DateRange): Promise<RevPARData[]> {
   // Example: If ADR is 80-150 and Occupancy is 60-90%, RevPAR could be 50-135.
   return SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
     entityName: name,
-    revpar: Math.floor(Math.random() * 86) + 50, // Random RevPAR between 50-135 USD
-    currency: 'USD',
+    revpar: Math.floor(Math.random() * 86) + 50, // Random RevPAR between 50-135
+    currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 }
 
@@ -321,7 +321,7 @@ export async function getPropertyComparisonData(dateRange: DateRange): Promise<P
             occupancyRate: occ,
             adr: adrItem?.adr ?? 0,
             revpar: revparItem?.revpar ?? 0,
-            currency: adrItem?.currency ?? 'USD', // Assume currency is consistent
+            currency: adrItem?.currency ?? 'BTN', // Assume currency is consistent, default BTN
         };
     });
 

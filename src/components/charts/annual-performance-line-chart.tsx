@@ -29,11 +29,11 @@ const chartConfigBase = {
     color: "hsl(var(--chart-1))",
   },
   avgAdr: {
-    label: "ADR",
+    label: "ADR", // Currency symbol added dynamically
     color: "hsl(var(--chart-2))",
   },
   avgRevpar: {
-    label: "RevPAR",
+    label: "RevPAR", // Currency symbol added dynamically
     color: "hsl(var(--chart-3))",
   },
 } satisfies ChartConfig;
@@ -60,7 +60,8 @@ export function AnnualPerformanceLineChart({
       current.set("chartHotel", value);
     }
     const query = current.toString();
-    router.push(`${pathname}?${query}`, { scroll: false }); // Use router for navigation without full reload
+    // Use replace to avoid pushing duplicate history entries
+    router.replace(`${pathname}?${query}`, { scroll: false });
   };
 
   const chartTitle = selectedHotel === ALL_HOTELS_SELECTOR
@@ -71,7 +72,7 @@ export function AnnualPerformanceLineChart({
     ? "Monthly average Occupancy, ADR, and RevPAR across all monitored hotels."
     : `Monthly Occupancy, ADR, and RevPAR for ${selectedHotel}.`;
 
-  // Ensure chartConfig includes currency for formatting
+  // Update chartConfig labels with the correct currency symbol
   const chartConfig = { ...chartConfigBase };
   chartConfig.avgAdr.label = `ADR (${currencySymbol})`;
   chartConfig.avgRevpar.label = `RevPAR (${currencySymbol})`;
@@ -163,7 +164,8 @@ export function AnnualPerformanceLineChart({
                               if (!configEntry) return value; // Fallback
 
                               if (name === 'avgOccupancyRate') {
-                                  return [`${Number(value).toFixed(1)}`, configEntry.label]; // Just the number for occupancy
+                                  // Format Occupancy without % sign
+                                  return [`${Number(value).toFixed(1)}`, configEntry.label];
                               }
                               // For ADR and RevPAR, use the label which includes the currency symbol
                               return [`${Number(value).toLocaleString()}`, configEntry.label];

@@ -60,7 +60,8 @@ export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueC
     currency: item.currency,
   }));
 
-  const currencySymbol = data[0]?.currency === "USD" ? "$" : data[0]?.currency;
+  // Determine currency symbol - use Nu. for BTN
+  const currencySymbol = data[0]?.currency === "BTN" ? "Nu." : data[0]?.currency;
 
   return (
     <Card className="shadow-lg">
@@ -94,8 +95,8 @@ export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueC
                 cursor={false}
                 content={<ChartTooltipContent
                     formatter={(value, name, props) => {
-                        // Use currency from payload for accuracy if hotels might have different currencies
-                        const itemCurrencySymbol = props.payload.currency === 'USD' ? '$' : props.payload.currency;
+                        // Use currency from payload for accuracy and map to Nu. if BTN
+                        const itemCurrencySymbol = props.payload.currency === 'BTN' ? 'Nu.' : props.payload.currency;
                         return [`${itemCurrencySymbol}${Number(value).toLocaleString()}`, chartConfig.revenueAmount.label]; // Added label here
                     }}
                     indicator="dashed"
