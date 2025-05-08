@@ -55,6 +55,7 @@ export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueC
     );
   }
 
+  // Keep original names in formatted data
   const formattedData = data.map(item => ({
     name: item.entityName,
     revenueAmount: item.revenueAmount,
@@ -77,12 +78,16 @@ export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueC
             <BarChart data={formattedData} accessibilityLayer>
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="name"
+                dataKey="name" // Use the full name as the key
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                // If only one item, show full name, otherwise show abbreviation
-                tickFormatter={(value) => (formattedData.length === 1 ? value : value.slice(0, 3))}
+                // Remove the tickFormatter that abbreviated names
+                // tickFormatter={(value) => (formattedData.length === 1 ? value : value.slice(0, 3))}
+                 interval={0} // Ensure all labels are shown if possible
+                 angle={-45} // Angle labels to prevent overlap
+                 textAnchor="end" // Adjust anchor for angled labels
+                 height={60} // Increase height to accommodate angled labels
               />
               <YAxis
                 tickFormatter={(value) => `${currencySymbol}${value / 1000}k`}
@@ -93,7 +98,7 @@ export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueC
                     formatter={(value, name, props) => {
                         // Use currency from payload for accuracy if hotels might have different currencies
                         const itemCurrencySymbol = props.payload.currency === 'USD' ? '$' : props.payload.currency;
-                        return `${itemCurrencySymbol}${Number(value).toLocaleString()}`;
+                        return [`${itemCurrencySymbol}${Number(value).toLocaleString()}`, chartConfig.revenueAmount.label]; // Added label here
                     }}
                     indicator="dashed"
                 />}

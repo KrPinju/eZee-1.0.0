@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Occupancy } from "@/services/ezee-pms";
@@ -42,6 +43,7 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
     );
   }
   
+  // Keep original names in formatted data
   const formattedData = data.map(item => ({
     name: item.entityName,
     occupancyRate: item.occupancyRate,
@@ -61,12 +63,16 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
             <BarChart data={formattedData} accessibilityLayer>
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="name"
+                dataKey="name" // Use the full name as the key
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                // If only one item, show full name, otherwise show abbreviation
-                tickFormatter={(value) => (formattedData.length === 1 ? value : value.slice(0, 3))}
+                // Remove the tickFormatter that abbreviated names
+                // tickFormatter={(value) => (formattedData.length === 1 ? value : value.slice(0, 3))}
+                 interval={0} // Ensure all labels are shown if possible
+                 angle={-45} // Angle labels to prevent overlap
+                 textAnchor="end" // Adjust anchor for angled labels
+                 height={60} // Increase height to accommodate angled labels
               />
               <YAxis 
                 tickFormatter={(value) => `${value}%`}

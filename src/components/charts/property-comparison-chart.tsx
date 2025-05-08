@@ -48,8 +48,9 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
     );
   }
 
+  // Keep original names in formatted data
   const formattedData = data.map(item => ({
-    name: item.entityName.length > 15 ? item.entityName.slice(0, 3) : item.entityName, // Abbreviate long names
+    name: item.entityName, // Use full name directly
     occupancyRate: item.occupancyRate,
     adr: item.adr,
     revpar: item.revpar,
@@ -79,10 +80,14 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
             <BarChart data={formattedData} barGap={4}>
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="name"
+                dataKey="name" // Use the full name as the key
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
+                 interval={0} // Ensure all labels are shown if possible
+                 angle={-45} // Angle labels to prevent overlap
+                 textAnchor="end" // Adjust anchor for angled labels
+                 height={60} // Increase height to accommodate angled labels
               />
               <YAxis
                 yAxisId="left"
