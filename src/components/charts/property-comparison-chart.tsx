@@ -85,6 +85,11 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
         <ChartContainer config={legendConfig} className="h-[400px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={formattedData} barGap={4} margin={{ top: 20, bottom: 5, left: 5, right: 5 }}> {/* Added top/reduced bottom margin */}
+              <defs>
+                <filter id="shadow-comparison" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
+                </filter>
+              </defs>
               <CartesianGrid vertical={false} />
               <XAxis
                  dataKey="name" // Still need dataKey for mapping
@@ -128,7 +133,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                 }
               />
                <Legend content={<ChartLegendContent />} />
-              <Bar yAxisId="left" dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4}>
+              <Bar yAxisId="left" dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} filter="url(#shadow-comparison)">
                   {/* Add labels inside the occupancy bar */}
                   <LabelList
                     dataKey="name"
@@ -138,7 +143,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                     style={labelStyle}
                   />
               </Bar>
-              <Bar yAxisId="right" dataKey="adr" fill="var(--color-adr)" radius={4}>
+              <Bar yAxisId="right" dataKey="adr" fill="var(--color-adr)" radius={4} filter="url(#shadow-comparison)">
                   {/* Add labels inside the ADR bar */}
                   <LabelList
                     dataKey="name"
@@ -148,7 +153,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                     style={labelStyle}
                   />
               </Bar>
-              <Bar yAxisId="right" dataKey="revpar" fill="var(--color-revpar)" radius={4}>
+              <Bar yAxisId="right" dataKey="revpar" fill="var(--color-revpar)" radius={4} filter="url(#shadow-comparison)">
                    {/* Add labels inside the RevPAR bar */}
                   <LabelList
                     dataKey="name"
@@ -165,3 +170,4 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
     </Card>
   );
 }
+

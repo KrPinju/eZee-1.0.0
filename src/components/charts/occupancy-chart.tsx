@@ -59,6 +59,11 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
         <ChartContainer config={chartConfig} className="h-[350px] w-full"> {/* Increased height slightly */}
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 5, left: 5, right: 5 }}> {/* Reduced bottom margin */}
+              <defs>
+                <filter id="shadow-occupancy" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
+                </filter>
+              </defs>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="name" // Still need dataKey for mapping
@@ -75,7 +80,7 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                 cursor={false}
                 content={<ChartTooltipContent indicator="dashed" formatter={(value) => [`${value}%`, "Occupancy"]}/>} // Adjusted tooltip formatter
               />
-              <Bar dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} >
+              <Bar dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} filter="url(#shadow-occupancy)">
                  {/* Add labels inside the bars, centered */}
                  <LabelList
                     dataKey="name"
@@ -97,3 +102,4 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
     </Card>
   );
 }
+
