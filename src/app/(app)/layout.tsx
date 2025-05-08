@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
@@ -12,7 +13,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             {children}
           </main>
           <footer className="bg-card border-t border-border text-center p-4 text-sm text-muted-foreground mt-auto">
-            All rights reserved to Bhutan Hotels &amp; Restaurants - Unit of Bhutan Tourism Corporation Limited
+             © Bhutan Hotels & Restaurants - A Unit of Bhutan Tourism Corporation Limited, All rights reserved.
           </footer>
         </div>
       </SidebarInset>
