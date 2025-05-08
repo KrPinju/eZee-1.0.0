@@ -13,8 +13,8 @@ import {
   LifeBuoy,
   Percent, // Added for Occupancy
   DollarSign, // Added for Revenue
-  PanelLeftClose, // Changed from ChevronsLeftRight
-  PanelLeftOpen, // Added for collapsed state
+  PanelLeftClose, 
+  PanelLeftOpen, 
 } from 'lucide-react';
 
 import {
@@ -26,7 +26,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  // SidebarTrigger, // Trigger is part of header now
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -54,24 +53,28 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" side="left">
-      <SidebarHeader className="flex items-center justify-between p-2 h-14"> {/* Added h-14 for consistent header height */}
-         {/* eZee Insights Title - visible only when expanded */}
-         <h1 className={cn(
-            "text-lg font-semibold text-sidebar-foreground whitespace-nowrap",
-             state === 'collapsed' ? 'hidden' : 'block pl-1' // Add padding when visible
-           )}>
-             eZee Insights
-         </h1>
-         {/* Toggle Button */}
-         <Button
-             variant="ghost"
-             size="icon"
-             className="h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-             onClick={toggleSidebar}
-             aria-label={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
-         >
-            {state === 'expanded' ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
-         </Button>
+       {/* Ensure header uses justify-between if other elements are added on the right */}
+      <SidebarHeader className="flex items-center justify-between p-2 h-14"> 
+        <div className="flex items-center gap-2"> {/* Group title and button */}
+            {/* eZee Insights Title - visible only when expanded */}
+            <h1 className={cn(
+                "text-lg font-semibold text-sidebar-foreground whitespace-nowrap",
+                state === 'collapsed' ? 'hidden' : 'block' // Hide title when collapsed
+            )}>
+                eZee Insights
+            </h1>
+            {/* Toggle Button */}
+            <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                onClick={toggleSidebar}
+                aria-label={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
+            >
+                {state === 'expanded' ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
+            </Button>
+        </div>
+         {/* Add other potential right-aligned header elements here if needed */}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
