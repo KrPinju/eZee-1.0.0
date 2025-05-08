@@ -2,7 +2,7 @@
 "use client";
 
 import type { PropertyComparisonData, DateRange } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip as RechartsTooltip, LabelList } from "recharts"; // Added LabelList
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip as RechartsTooltip, LabelList } from "recharts";
 import {
   ChartContainer,
   ChartTooltipContent,
@@ -66,6 +66,12 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
      revpar: { ...chartConfig.revpar, label: `RevPAR (${currencySymbol})` },
    };
 
+   const labelStyle = {
+      fill: 'white', // White text
+      fontSize: '10px',
+      textAnchor: 'middle', // Center text horizontally
+    };
+
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -128,15 +134,29 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                     position="center" // Center the label
                     angle={-90} // Rotate vertically
                     offset={0} // No offset for center
-                    style={{
-                      fill: 'white', // White text
-                      fontSize: '10px',
-                      textAnchor: 'middle',
-                    }}
+                    style={labelStyle}
                   />
               </Bar>
-              <Bar yAxisId="right" dataKey="adr" fill="var(--color-adr)" radius={4} />
-              <Bar yAxisId="right" dataKey="revpar" fill="var(--color-revpar)" radius={4} />
+              <Bar yAxisId="right" dataKey="adr" fill="var(--color-adr)" radius={4}>
+                  {/* Add labels inside the ADR bar */}
+                  <LabelList
+                    dataKey="name"
+                    position="center" // Center the label
+                    angle={-90} // Rotate vertically
+                    offset={0} // No offset for center
+                    style={labelStyle}
+                  />
+              </Bar>
+              <Bar yAxisId="right" dataKey="revpar" fill="var(--color-revpar)" radius={4}>
+                   {/* Add labels inside the RevPAR bar */}
+                  <LabelList
+                    dataKey="name"
+                    position="center" // Center the label
+                    angle={-90} // Rotate vertically
+                    offset={0} // No offset for center
+                    style={labelStyle}
+                  />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
