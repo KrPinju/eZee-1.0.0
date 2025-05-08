@@ -189,13 +189,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <RevenueChart
             data={hotelRevenueData}
             dateRange={dateRange}
-            chartTitle="Hotels Revenue Break Down"
+            chartTitle="Hotels Revenue Breakdown"
             barColor="hsl(var(--chart-1))" // Navy blue
         />
         <RevenueChart
             data={cafeAndRestaurantRevenue}
             dateRange={dateRange}
-            chartTitle="Cafe & Restaurant Revenue Breakdown."
+            chartTitle="Cafe & Restaurant Revenue Breakdown"
             barColor="hsl(var(--chart-3))" // Orange
         />
       </div>
