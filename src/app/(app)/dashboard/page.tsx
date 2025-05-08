@@ -1,6 +1,7 @@
 
 
 
+
 import { DollarSign, Percent, Building, BedDouble, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -160,7 +161,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       <div className="grid gap-6 lg:grid-cols-2 mb-6">
         <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
-        <RevenueChart data={hotelRevenueData} dateRange={dateRange} chartTitle="revenue break" />
+        <RevenueChart data={hotelRevenueData} dateRange={dateRange} chartTitle="Revenue Break Down" />
         <RevenueChart data={cafeAndRestaurantRevenue} dateRange={dateRange} chartTitle="Cafe & Restaurant Revenue Overview" />
       </div>
     </>
