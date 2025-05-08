@@ -166,7 +166,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           changePercentage={averageHotelRevPARChange}
         />
         <StatCard
-          title="Monitored Properties"
+          title="Monitored Hotels & Resorts"
           value={SPECIFIC_HOTEL_NAMES.length}
           icon={<Building className="h-5 w-5" />}
           description="Hotels under observation"
