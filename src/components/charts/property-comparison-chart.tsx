@@ -84,9 +84,9 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={legendConfig} className="h-[400px] w-full"> {/* Increased height slightly */}
+        <ChartContainer config={legendConfig} className="h-[350px] sm:h-[400px] w-full"> {/* Adjusted height */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} barGap={4} margin={{ top: 20, bottom: 5, left: 20, right: 5 }}> {/* Adjusted left margin */}
+            <BarChart data={formattedData} barGap={4} margin={{ top: 20, bottom: 5, left: 10, right: 5 }}> {/* Adjusted left margin */}
               <defs>
                 <filter id="shadow-comparison" x="-20%" y="-20%" width="140%" height="140%">
                   <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
@@ -105,7 +105,8 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                 orientation="left"
                 domain={[0, 100]}
                 stroke="hsl(var(--chart-1))" // Match Occupancy color
-                width={60} // Adjust width if needed
+                width={50} // Adjusted width
+                tick={{ fontSize: 10 }} // Smaller font size for ticks
                 // Removed tickFormatter for %
               >
                  {/* Removed Label for Y-Axis with % sign */}
@@ -115,7 +116,8 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                  orientation="right"
                  tickFormatter={(value) => `${currencySymbol}${value}`}
                  stroke="hsl(var(--chart-2))" // Match ADR/RevPAR color (can pick one)
-                 width={50} // Adjust width if needed
+                 width={60} // Adjusted width
+                 tick={{ fontSize: 10 }} // Smaller font size for ticks
               />
               <RechartsTooltip
                 cursor={false}

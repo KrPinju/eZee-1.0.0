@@ -81,14 +81,14 @@ export function AnnualPerformanceLineChart({
   if (!initialData || initialData.length === 0) {
     return (
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
           <div>
             <CardTitle>Annual Performance</CardTitle>
             <CardDescription>No data available for the selected year or hotel.</CardDescription>
           </div>
            {/* Dropdown - still show even if no data initially */}
            <Select value={selectedHotel} onValueChange={handleHotelChange}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full sm:w-[200px] mt-2 sm:mt-0">
                     <SelectValue placeholder="Select Hotel" />
                 </SelectTrigger>
                 <SelectContent>
@@ -108,7 +108,7 @@ export function AnnualPerformanceLineChart({
 
   return (
     <Card className="shadow-lg">
-      <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-4">
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
            <div className="flex-1">
               <CardTitle>{chartTitle}</CardTitle>
               <CardDescription>{chartDescription}</CardDescription>
@@ -126,15 +126,16 @@ export function AnnualPerformanceLineChart({
             </Select>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[350px] w-full">
+        <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full"> {/* Adjusted height */}
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={initialData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+            <LineChart data={initialData} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}> {/* Adjusted left margin */}
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
+                tick={{ fontSize: 10 }} // Smaller font size for ticks
               />
               <YAxis
                  yAxisId="left"
@@ -143,6 +144,7 @@ export function AnnualPerformanceLineChart({
                  tickLine={false}
                  axisLine={false}
                  tickMargin={4}
+                 tick={{ fontSize: 10 }} // Smaller font size for ticks
                  // Removed tickFormatter for %
               />
                <YAxis
@@ -153,6 +155,7 @@ export function AnnualPerformanceLineChart({
                  axisLine={false}
                  tickMargin={4}
                  tickFormatter={(value) => `${currencySymbol}${value}`}
+                 tick={{ fontSize: 10 }} // Smaller font size for ticks
               />
               <RechartsTooltip
                   cursor={true}
@@ -168,7 +171,7 @@ export function AnnualPerformanceLineChart({
                                   return [`${Number(value).toFixed(1)}`, configEntry.label];
                               }
                               // For ADR and RevPAR, use the label which includes the currency symbol
-                              return [`${Number(value).toLocaleString()}`, configEntry.label];
+                              return [`${currencySymbol}${Number(value).toLocaleString()}`, configEntry.label];
                           }}
                       />
                   }

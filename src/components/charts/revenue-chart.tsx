@@ -72,9 +72,9 @@ export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueC
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[350px] w-full"> {/* Increased height slightly */}
+        <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full"> {/* Adjusted height */}
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 5, left: 5, right: 5 }}> {/* Reduced bottom margin */}
+            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 5, left: 5, right: 5 }}> {/* Adjusted bottom margin */}
                <defs>
                 <filter id="shadow-revenue" x="-20%" y="-20%" width="140%" height="140%">
                   <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
@@ -90,6 +90,8 @@ export function RevenueChart({ data, dateRange, chartTitle, barColor }: RevenueC
               />
               <YAxis
                 tickFormatter={(value) => `${currencySymbol}${value / 1000}k`}
+                width={50} // Ensure enough width for labels
+                tick={{ fontSize: 10 }} // Smaller font size for ticks
               />
               <ChartTooltip
                 cursor={false}

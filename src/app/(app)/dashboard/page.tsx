@@ -136,7 +136,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         actions={<DateRangePicker initialStartDate={dateRange.startDate} initialEndDate={dateRange.endDate} />}
       />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
         <StatCard
           title="Total Revenue"
           value={`${currencySymbol}${totalRevenue.toLocaleString()}`}
@@ -179,13 +179,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
          />
       </div>
 
-       {/* Occupancy Chart - Takes full width on smaller screens, half on large */}
-       <div className="grid gap-6 lg:grid-cols-1 mb-6">
+       {/* Occupancy Chart - Takes full width */}
+       <div className="grid grid-cols-1 gap-6 mb-6">
           <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
        </div>
 
-      {/* Revenue Charts - Side by side on large screens */}
-      <div className="grid gap-6 lg:grid-cols-2 mb-6">
+      {/* Revenue Charts - Full width on small screens, side by side on large screens */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
         <RevenueChart
             data={hotelRevenueData}
             dateRange={dateRange}
@@ -201,7 +201,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </div>
 
        {/* Annual Performance Chart */}
-       <div className="mb-6">
+       <div className="grid grid-cols-1 gap-6 mb-6">
            <AnnualPerformanceLineChart
                 initialData={annualPerformanceData}
                 allHotelNames={SPECIFIC_HOTEL_NAMES}
@@ -212,7 +212,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
        </div>
 
         {/* Property Comparison Chart */}
-        <div className="mb-6">
+        <div className="grid grid-cols-1 gap-6 mb-6">
             <PropertyComparisonChart
                 data={propertyComparisonData}
                 dateRange={dateRange}
@@ -221,9 +221,4 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     </>
   );
 }
-
-
-
-
-
 

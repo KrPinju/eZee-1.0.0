@@ -59,10 +59,10 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
       </CardHeader>
       <CardContent>
         {/* Adjusted height and margin for labels */}
-        <ChartContainer config={chartConfig} className="h-[400px] w-full"> 
+        <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full"> 
           <ResponsiveContainer width="100%" height="100%">
-             {/* Adjusted margin for axis labels */}
-            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 30, left: 20, right: 5 }}> 
+             {/* Adjusted margin for axis labels, slightly more on left */}
+            <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 30, left: 10, right: 5 }}> 
               <defs>
                 <filter id="shadow-occupancy" x="-20%" y="-20%" width="140%" height="140%">
                   <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
@@ -93,14 +93,15 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
               </XAxis>
               <YAxis 
                 domain={[0, 100]}
-                width={60} // Increased width to accommodate label
+                width={50} // Adjusted width slightly for responsiveness
+                tick={{ fontSize: 10 }} // Smaller font size for ticks
               >
                  {/* Added Y-Axis Label with arrow */}
                  <Label 
                     value="In Percentage" 
                     angle={-90} 
                     position="insideLeft" 
-                    dx={-10} 
+                    dx={-5} // Adjusted position slightly
                     style={{ 
                       textAnchor: 'middle', 
                       fill: 'hsl(var(--foreground))', 
