@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    // Required for Inter font variable
+    optimizeFonts: true,
+  },
 };
 
 export default nextConfig;
