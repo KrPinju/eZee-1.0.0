@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -10,37 +11,61 @@ import {
   BarChart3,
   Settings,
   LifeBuoy,
+  Percent, // Added for Occupancy
+  DollarSign, // Added for Revenue
+  PanelLeft, // Added for the toggle button
 } from 'lucide-react';
 
 import {
   Sidebar,
-  SidebarHeader,
   SidebarContent,
   SidebarFooter,
+  SidebarHeader,
   SidebarMenu,
-  SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuItem,
   SidebarSeparator,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
+import { useSidebar } from '@/components/ui/sidebar'; // Import useSidebar hook
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/hotels', icon: Building2, label: 'Hotels' },
   { href: '/cafe', icon: Coffee, label: 'Cafe' },
   { href: '/restaurants', icon: Utensils, label: 'Restaurants' },
+  { href: '/occupancy', icon: Percent, label: 'Occupancy' }, // Added Occupancy
+  { href: '/revenue', icon: DollarSign, label: 'Revenue' }, // Added Revenue
   { href: '/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { state, toggleSidebar } = useSidebar(); // Get state and toggle function
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" side="left">
-      <SidebarHeader>
-        <Logo />
+      <SidebarHeader className="flex items-center justify-between p-2">
+         {/* eZee Insights Title - visible only when expanded */}
+         <h1 className={cn(
+            "text-lg font-semibold text-sidebar-foreground",
+             state === 'collapsed' ? 'hidden' : 'block' // Hide when collapsed
+           )}>
+             eZee Insights
+         </h1>
+         {/* Toggle Button */}
+         <Button
+             variant="ghost"
+             size="icon"
+             className="h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+             onClick={toggleSidebar}
+             aria-label={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
+         >
+             <PanelLeft className="h-5 w-5" />
+         </Button>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -71,6 +96,7 @@ export function AppSidebar() {
          <SidebarMenu>
             <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip={{ children: "Settings", className: "bg-primary text-primary-foreground"}} className="justify-start">
+                    {/* Use '#' for placeholder links if actual settings page doesn't exist yet */}
                     <Link href="#">
                         <Settings className="h-5 w-5" />
                         <span>Settings</span>
@@ -79,6 +105,7 @@ export function AppSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip={{ children: "Support", className: "bg-primary text-primary-foreground"}} className="justify-start">
+                    {/* Use '#' for placeholder links if actual support page doesn't exist yet */}
                     <Link href="#">
                         <LifeBuoy className="h-5 w-5" />
                         <span>Support</span>
