@@ -1,5 +1,6 @@
 
-import { DollarSign, Percent, Building, BedDouble, TrendingUp } from "lucide-react";
+
+import { DollarSign, Percent, Building, BedDouble, TrendingUp, Coffee } from "lucide-react"; // Added Coffee icon
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
@@ -124,6 +125,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const averageHotelADRChange = calculatePercentageChange(averageHotelADR, previousAverageHotelADR);
   const averageHotelRevPARChange = calculatePercentageChange(averageHotelRevPAR, previousAverageHotelRevPAR);
 
+  const monitoredCafesRestaurantsCount = SPECIFIC_CAFE_RESTAURANT_NAMES.length;
+
 
   return (
     <>
@@ -168,6 +171,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           icon={<Building className="h-5 w-5" />}
           description="Hotels under observation"
         />
+         <StatCard
+            title="Monitored Cafe & Restaurants"
+            value={monitoredCafesRestaurantsCount}
+            icon={<Coffee className="h-5 w-5" />}
+            description="Cafes/Restaurants under observation"
+         />
       </div>
 
        {/* Occupancy Chart - Takes full width on smaller screens, half on large */}
@@ -213,3 +222,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   );
 }
 
+
+
+    
