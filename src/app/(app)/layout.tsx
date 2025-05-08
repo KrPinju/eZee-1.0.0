@@ -12,7 +12,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <main className="flex-1 p-4 sm:p-6 lg:p-8 bg-background">
             {children}
           </main>
-          <footer className="bg-card border-t border-border text-center p-4 text-sm text-muted-foreground mt-auto">
+          {/* Removed text-muted-foreground for darker text, updated text content */}
+          <footer className="bg-card border-t border-border text-center p-4 text-sm mt-auto">
              © Bhutan Hotels & Restaurants - A Unit of Bhutan Tourism Corporation Limited, All rights reserved.
           </footer>
         </div>
