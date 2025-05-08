@@ -1,3 +1,4 @@
+
 import { DollarSign, Percent, Users, Building } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -45,6 +46,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const currency = revenueData.length > 0 ? revenueData[0].currency : 'USD';
   const currencySymbol = currency === 'USD' ? '$' : currency;
 
+  // Filter revenue data for different segments
+  const hotelRevenue = revenueData.filter(item => item.entityName === 'Hotel');
+  const cafeAndRestaurantRevenue = revenueData.filter(item => 
+    item.entityName === 'Cafe' || item.entityName === 'Restaurant'
+  );
+
   return (
     <>
       <PageHeader
@@ -76,7 +83,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       <div className="grid gap-6 lg:grid-cols-2">
         <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
-        <RevenueChart data={revenueData} dateRange={dateRange} />
+        <RevenueChart data={hotelRevenue} dateRange={dateRange} chartTitle="Hotel Revenue Overview" />
+        <RevenueChart data={cafeAndRestaurantRevenue} dateRange={dateRange} chartTitle="Cafe & Restaurant Revenue Overview" />
       </div>
     </>
   );

@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Revenue } from "@/services/ezee-pms";
@@ -6,8 +7,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
+  // ChartLegend, // Not used
+  // ChartLegendContent, // Not used
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -15,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 interface RevenueChartProps {
   data: Revenue[];
   dateRange: { startDate: string; endDate: string };
+  chartTitle: string;
 }
 
 const chartConfig = {
@@ -24,12 +26,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function RevenueChart({ data, dateRange }: RevenueChartProps) {
+export function RevenueChart({ data, dateRange, chartTitle }: RevenueChartProps) {
    if (!data || data.length === 0) {
     return (
-      <Card>
+      <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Revenue Overview</CardTitle>
+          <CardTitle>{chartTitle}</CardTitle>
           <CardDescription>
              For period: {dateRange.startDate} to {dateRange.endDate}
           </CardDescription>
@@ -52,7 +54,7 @@ export function RevenueChart({ data, dateRange }: RevenueChartProps) {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle>Revenue Overview</CardTitle>
+        <CardTitle>{chartTitle}</CardTitle>
         <CardDescription>
              For period: {dateRange.startDate} to {dateRange.endDate}
         </CardDescription>
@@ -67,7 +69,8 @@ export function RevenueChart({ data, dateRange }: RevenueChartProps) {
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
+                // If only one item, show full name, otherwise show abbreviation
+                tickFormatter={(value) => (formattedData.length === 1 ? value : value.slice(0, 3))}
               />
               <YAxis 
                 tickFormatter={(value) => `${currencySymbol}${value / 1000}k`}
@@ -90,3 +93,4 @@ export function RevenueChart({ data, dateRange }: RevenueChartProps) {
     </Card>
   );
 }
+
