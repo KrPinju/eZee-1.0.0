@@ -4,6 +4,7 @@
 import type { Occupancy } from "@/services/ezee-pms";
 // Added LabelList, XAxis, YAxis, CartesianGrid, Label
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Label } from "recharts"; 
+import { IoIosArrowRoundForward } from "react-icons/io"; // Import the arrow icon
 import {
   ChartContainer,
   ChartTooltip,
@@ -75,15 +76,39 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                 tick={false} // Hide ticks and labels below the bar
                 height={40} // Increased height to accommodate label
               >
-                {/* Added X-Axis Label */}
-                <Label value="Hotels & Resorts" offset={0} position="insideBottom" dy={10} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }}/>
+                {/* Added X-Axis Label with arrow */}
+                <Label 
+                  value="Hotels & Resorts" 
+                  offset={0} 
+                  position="insideBottom" 
+                  dy={10} 
+                  style={{ 
+                    textAnchor: 'middle', 
+                    fill: 'hsl(var(--foreground))', 
+                    fontSize: '12px', 
+                    fontWeight: 'bold' // Make bold
+                  }}
+                />
+                {/* Removed arrow component from here */}
               </XAxis>
               <YAxis 
                 domain={[0, 100]}
                 width={60} // Increased width to accommodate label
               >
-                 {/* Added Y-Axis Label */}
-                 <Label value="In Percentage" angle={-90} position="insideLeft" dx={-10} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }}/>
+                 {/* Added Y-Axis Label with arrow */}
+                 <Label 
+                    value="In Percentage" 
+                    angle={-90} 
+                    position="insideLeft" 
+                    dx={-10} 
+                    style={{ 
+                      textAnchor: 'middle', 
+                      fill: 'hsl(var(--foreground))', 
+                      fontSize: '12px', 
+                      fontWeight: 'bold' // Make bold
+                    }}
+                  />
+                   {/* Removed arrow component from here */}
               </YAxis>
               <ChartTooltip
                 cursor={false}
