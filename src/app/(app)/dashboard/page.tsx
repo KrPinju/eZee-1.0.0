@@ -1,5 +1,5 @@
 
-import { DollarSign, Percent, Users, Building } from "lucide-react";
+import { DollarSign, Percent, Building } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
@@ -14,6 +14,16 @@ interface DashboardPageProps {
     endDate?: string;
   };
 }
+
+// Define the list of specific hotel names to display
+const SPECIFIC_HOTEL_NAMES = [
+  "Hotel Olathang",
+  "Olathang Cottages",
+  "Gangtey Tent Resort",
+  "Zhingkham Resort",
+  "Hotel Phuntsho Pelri",
+  "Hotel Ugyen Ling",
+];
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const today = new Date();
@@ -36,8 +46,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
   
-  // Filter occupancy data for hotels only
-  const hotelOccupancyData = occupancyData.filter(item => item.entityName === 'Hotel');
+  // Filter occupancy data for the specified hotels
+  const hotelOccupancyData = occupancyData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
   
   const averageHotelOccupancy = hotelOccupancyData.length > 0 
     ? hotelOccupancyData.reduce((sum, item) => sum + item.occupancyRate, 0) / hotelOccupancyData.length
@@ -46,8 +56,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const currency = revenueData.length > 0 ? revenueData[0].currency : 'USD';
   const currencySymbol = currency === 'USD' ? '$' : currency;
 
-  // Filter revenue data for different segments
-  const hotelRevenue = revenueData.filter(item => item.entityName === 'Hotel');
+  // Filter revenue data for the specified hotels
+  const hotelRevenueData = revenueData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
+  
+  // Filter revenue data for cafe and restaurant
   const cafeAndRestaurantRevenue = revenueData.filter(item => 
     item.entityName === 'Cafe' || item.entityName === 'Restaurant'
   );
@@ -68,10 +80,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           description="Across all properties"
         />
         <StatCard
-          title="Hotel Average Occupancy"
+          title="Average Hotel Occupancy"
           value={`${averageHotelOccupancy.toFixed(1)}%`}
           icon={<Percent className="h-5 w-5" />}
-          description="For hotels"
+          description="For specified hotels"
         />
         <StatCard
           title="Monitored Property Type"
@@ -83,10 +95,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       <div className="grid gap-6 lg:grid-cols-2">
         <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
-        <RevenueChart data={hotelRevenue} dateRange={dateRange} chartTitle="Hotel Revenue Overview" />
+        <RevenueChart data={hotelRevenueData} dateRange={dateRange} chartTitle="Hotel Revenue Overview" />
         <RevenueChart data={cafeAndRestaurantRevenue} dateRange={dateRange} chartTitle="Cafe & Restaurant Revenue Overview" />
       </div>
     </>
   );
 }
-
