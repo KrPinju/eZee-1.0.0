@@ -13,7 +13,8 @@ import {
   LifeBuoy,
   Percent, // Added for Occupancy
   DollarSign, // Added for Revenue
-  ChevronsLeftRight, // Changed from PanelLeft
+  PanelLeftClose, // Changed from ChevronsLeftRight
+  PanelLeftOpen, // Added for collapsed state
 } from 'lucide-react';
 
 import {
@@ -25,7 +26,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  SidebarTrigger,
+  // SidebarTrigger, // Trigger is part of header now
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -33,13 +34,13 @@ import { Button } from './ui/button';
 import { useSidebar } from '@/components/ui/sidebar'; // Import useSidebar hook
 
 const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/hotels', icon: Building2, label: 'Hotels' },
-  { href: '/cafe', icon: Coffee, label: 'Cafe' },
-  { href: '/restaurants', icon: Utensils, label: 'Restaurants' },
-  { href: '/occupancy', icon: Percent, label: 'Occupancy' }, // Added Occupancy
-  { href: '/revenue', icon: DollarSign, label: 'Revenue' }, // Added Revenue
-  { href: '/analytics', icon: BarChart3, label: 'Analytics' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', tooltip: 'Dashboard' },
+  { href: '/hotels', icon: Building2, label: 'Hotels', tooltip: 'Hotels' },
+  { href: '/cafe', icon: Coffee, label: 'Cafe', tooltip: 'Cafe' },
+  { href: '/restaurants', icon: Utensils, label: 'Restaurants', tooltip: 'Restaurants' },
+  { href: '/occupancy', icon: Percent, label: 'Occupancy', tooltip: 'Occupancy' },
+  { href: '/revenue', icon: DollarSign, label: 'Revenue', tooltip: 'Revenue' },
+  { href: '/analytics', icon: BarChart3, label: 'Analytics', tooltip: 'Analytics' },
 ];
 
 const settingsAndSupportItems = [
@@ -69,7 +70,7 @@ export function AppSidebar() {
              onClick={toggleSidebar}
              aria-label={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
          >
-             <ChevronsLeftRight className="h-5 w-5" /> {/* Changed icon */}
+            {state === 'expanded' ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
          </Button>
       </SidebarHeader>
       <SidebarContent>
@@ -80,7 +81,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={pathname.startsWith(item.href)}
-                  tooltip={{ children: item.label, className: "bg-primary text-primary-foreground" }}
+                  tooltip={{ children: item.tooltip, className: "bg-primary text-primary-foreground" }}
                   className={cn(
                     "justify-start",
                     pathname.startsWith(item.href) && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
@@ -100,7 +101,7 @@ export function AppSidebar() {
         <SidebarSeparator />
          <SidebarMenu>
              {settingsAndSupportItems.map((item) => (
-                 <SidebarMenuItem key={item.href}> {/* Use unique keys, href is '#' here */}
+                 <SidebarMenuItem key={item.label}> {/* Changed key to label as href is not unique */}
                      <Link href={item.href} legacyBehavior passHref>
                          <SidebarMenuButton
                              asChild
@@ -131,3 +132,4 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
+
