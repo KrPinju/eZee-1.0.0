@@ -5,7 +5,8 @@ import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { OccupancyChart } from "@/components/charts/occupancy-chart";
 import { RevenueChart } from "@/components/charts/revenue-chart";
-import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange } from "@/services/ezee-pms";
+import { AnnualPerformanceLineChart } from "@/components/charts/annual-performance-line-chart";
+import { getOccupancy, getRevenue, getADR, getRevPAR, getAnnualHotelPerformance, type DateRange as ApiDateRange, type AnnualPerformanceChartDataPoint } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
 interface DashboardPageProps {
@@ -55,14 +56,27 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     startDate: format(startDate, "yyyy-MM-dd"),
     endDate: format(endDate, "yyyy-MM-dd"),
   };
+  
+  const currentYear = today.getFullYear();
 
   // Fetch data in parallel
-  const [occupancyData, revenueData, adrData, revparData] = await Promise.all([
+  const [
+    occupancyData, 
+    revenueData, 
+    adrData, 
+    revparData,
+    annualPerformanceDataRaw
+  ] = await Promise.all([
     getOccupancy(dateRange),
     getRevenue(dateRange),
     getADR(dateRange),
     getRevPAR(dateRange),
+    getAnnualHotelPerformance(currentYear, SPECIFIC_HOTEL_NAMES),
   ]);
+  
+  // Ensure annualPerformanceData is correctly typed after Promise.all
+  const annualPerformanceData: AnnualPerformanceChartDataPoint[] = annualPerformanceDataRaw;
+
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
   
@@ -148,10 +162,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2 mb-6">
         <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
         <RevenueChart data={hotelRevenueData} dateRange={dateRange} chartTitle="Hotel Revenue Overview" />
         <RevenueChart data={cafeAndRestaurantRevenue} dateRange={dateRange} chartTitle="Cafe & Restaurant Revenue Overview" />
+      </div>
+
+      <div className="mb-6">
+        <AnnualPerformanceLineChart 
+          data={annualPerformanceData} 
+          hotelNames={SPECIFIC_HOTEL_NAMES} 
+          currencySymbol={currencySymbol}
+          currentYear={currentYear}
+        />
       </div>
     </>
   );
