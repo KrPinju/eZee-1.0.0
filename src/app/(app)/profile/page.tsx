@@ -9,10 +9,10 @@ import { FaUserCircle } from 'react-icons/fa';
 
 export default function ProfilePage() {
   const user = {
-    name: "Property Manager",
+    name: "USER", // Changed from "Property Manager"
     email: "manager@ezee.com",
     avatarUrl: "", // Set to empty string to demonstrate default icon
-    avatarFallback: "PM",
+    avatarFallback: "U", // Changed from "PM"
     role: "Administrator",
     phone: "+975-17-XXXXXX", // Placeholder
   };
@@ -120,3 +120,4 @@ export default function ProfilePage() {
     </>
   );
 }
+

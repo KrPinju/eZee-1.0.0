@@ -12,7 +12,7 @@ import {
   LifeBuoy,
   Percent,
   DollarSign,
-  User, // Added User icon
+  User, 
 } from 'lucide-react';
 import { IoIosArrowForward } from "react-icons/io";
 
@@ -40,7 +40,7 @@ const navItems = [
   { href: '/analytics', icon: BarChart3, label: 'Analytics', tooltip: 'Analytics' },
 ];
 
-const utilityNavItems = [ // Renamed and added Profile
+const utilityNavItems = [ 
      { href: '/profile', icon: User, label: 'Profile', tooltip: "Profile"},
      { href: '/settings', icon: Settings, label: 'Settings', tooltip: "Settings" },
      { href: '/support', icon: LifeBuoy, label: 'Support', tooltip: "Support" },
@@ -102,7 +102,7 @@ export function AppSidebar() {
       <SidebarFooter className="mt-auto">
         <SidebarSeparator />
          <SidebarMenu>
-             {utilityNavItems.map((item) => ( // Changed to utilityNavItems
+             {utilityNavItems.map((item) => ( 
                  <SidebarMenuItem key={item.href}>
                      <Link href={item.href} legacyBehavior passHref>
                          <SidebarMenuButton
@@ -132,10 +132,10 @@ export function AppSidebar() {
           >
             <Avatar className="h-9 w-9 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
                 <AvatarImage src="https://picsum.photos/id/237/200/200" alt="User Avatar" data-ai-hint="user avatar" />
-                <AvatarFallback>PM</AvatarFallback>
+                <AvatarFallback>U</AvatarFallback> {/* Changed from PM */}
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-medium text-sidebar-foreground">Property Manager</span>
+                <span className="text-sm font-medium text-sidebar-foreground">USER</span> {/* Changed from Property Manager */}
                 <span className="text-xs text-sidebar-foreground/70">manager@ezee.com</span>
             </div>
           </a>
@@ -144,3 +144,4 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
+
