@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { PropertyComparisonData, DateRange } from "@/services/ezee-pms";
@@ -43,7 +44,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
            <div className="flex-1">
               <CardTitle>Property Comparison</CardTitle>
-              <CardDescription>
+              <CardDescription className="mt-1">
                 For period: {dateRange.startDate} to {dateRange.endDate}
               </CardDescription>
             </div>
@@ -76,7 +77,8 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
   }));
 
   // Determine currency symbol - use Nu. for BTN
-  const currencySymbol = formattedData[0]?.currency === "BTN" ? "Nu." : formattedData[0]?.currency;
+  const currencySymbol = formattedData[0]?.currency === "BTN" ? "Nu." : formattedData[0]?.currency || "Nu.";
+
 
   // Filter config based on selection
   const chartConfig: ChartConfig = {};
@@ -110,12 +112,12 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
            <div className="flex-1">
              <CardTitle>Property Comparison</CardTitle>
-             <CardDescription>
+             <CardDescription className="mt-1">
                 {
                   selectedMetric === 'all' ? 'Occupancy, ADR & RevPAR' :
                   selectedMetric === 'occupancyRate' ? 'Occupancy Rate' :
-                  selectedMetric === 'adr' ? 'Average Daily Rate (ADR)' :
-                  'Revenue Per Available Room (RevPAR)'
+                  selectedMetric === 'adr' ? `Average Daily Rate (ADR)` :
+                  `Revenue Per Available Room (RevPAR)`
                 } from {dateRange.startDate} to {dateRange.endDate}
              </CardDescription>
            </div>
@@ -156,6 +158,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                   stroke="hsl(var(--chart-1))" // Match Occupancy color
                   width={50} // Adjusted width
                   tick={{ fontSize: 10 }} // Smaller font size for ticks
+                  // Removed tickFormatter for %
                 />
               )}
                {showRightYAxis && (
@@ -182,7 +185,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                         return [`${Number(value).toFixed(1)}%`, configEntry.label];
                       }
                       // Use currency from payload and map to Nu. if BTN
-                      const itemCurrencySymbol = props.payload.currency === 'BTN' ? 'Nu.' : props.payload.currency;
+                      const itemCurrencySymbol = props.payload.currency === 'BTN' ? 'Nu.' : props.payload.currency || currencySymbol;
                       return [`${itemCurrencySymbol}${Number(value).toLocaleString()}`, `${configEntry.label}`]; // Label already includes currency
                     }}
                   />
@@ -229,3 +232,4 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
     </Card>
   );
 }
+
