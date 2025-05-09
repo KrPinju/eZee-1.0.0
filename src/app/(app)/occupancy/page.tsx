@@ -2,13 +2,36 @@
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import { DateRangePicker } from "@/components/date-range-picker";
+import { format, addDays, parseISO, isValid } from "date-fns";
+import type { DateRange as ApiDateRange } from "@/services/ezee-pms";
 
-export default function OccupancyPage() {
+interface OccupancyPageProps {
+  searchParams?: {
+    startDate?: string;
+    endDate?: string;
+  };
+}
+
+export default function OccupancyPage({ searchParams }: OccupancyPageProps) {
+  const today = new Date();
+  const endDateParam = searchParams?.endDate;
+  const startDateParam = searchParams?.startDate;
+
+  const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
+  const startDate = startDateParam && isValid(parseISO(startDateParam)) ? parseISO(startDateParam) : addDays(endDate, -6);
+
+  const dateRangeForSummary: ApiDateRange = {
+    startDate: format(startDate, "yyyy-MM-dd"),
+    endDate: format(endDate, "yyyy-MM-dd"),
+  };
+
   return (
     <>
       <PageHeader
         title="Occupancy Dashboard"
-        description="View and analyze property-specific occupancy details."
+        description={`View and analyze property-specific occupancy details from ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}.`}
+        actions={<DateRangePicker initialStartDate={dateRangeForSummary.startDate} initialEndDate={dateRangeForSummary.endDate} />}
       />
       <Card className="shadow-lg">
         <CardHeader>
@@ -35,4 +58,3 @@ export default function OccupancyPage() {
     </>
   );
 }
-
