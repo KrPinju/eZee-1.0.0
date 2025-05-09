@@ -143,14 +143,14 @@ export interface MonthlyCafePerformanceDataPoint {
 }
 
 /**
- * Represents a data point for monthly occupancy for a single hotel.
+ * Represents a data point for monthly occupancy performance for a single entity.
  */
 export interface MonthlyOccupancyDataPoint {
-  month: string; // "Jan", "Feb", "Mar", ..., "Dec"
+  month: string; // "Jan", "Feb", ..., "Dec"
   entityName: string;
   occupancyRate: number;
-  totalRooms?: number;
   occupiedRooms?: number;
+  totalRooms?: number;
 }
 
 
@@ -572,3 +572,47 @@ export async function getAnnualAverageOccupancyPerHotel(year: number): Promise<O
   return annualAverages;
 }
 
+
+/**
+ * Generates mock monthly occupancy performance data for a single entity.
+ * @param entityName The name of the entity.
+ * @param year The year for which to generate data.
+ * @returns An array of MonthlyOccupancyDataPoint.
+ */
+const generateMockMonthlyEntityOccupancy = (entityName: string, year: number): MonthlyOccupancyDataPoint[] => {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const mockData: MonthlyOccupancyDataPoint[] = [];
+  const isHotel = SPECIFIC_HOTEL_NAMES.includes(entityName);
+  const baseOcc = isHotel ? (50 + (entityName.length % 10) * 2) : (40 + (entityName.length % 10) * 3); // Base occupancy %
+  const totalRooms = isHotel ? (HOTEL_ROOM_COUNTS[entityName] || 50) : undefined;
+
+  for (let i = 0; i < months.length; i++) {
+    const month = months[i];
+    const seasonalFactorOcc = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 15 + 1; // Seasonal variation for occupancy
+    const randomFactorOcc = Math.random() * 10 - 5; // Random noise for occupancy
+    const occupancyRate = Math.min(isHotel ? 98 : 95, Math.max(isHotel ? 30 : 20, baseOcc + seasonalFactorOcc + randomFactorOcc));
+    const occupiedRooms = totalRooms ? Math.round((occupancyRate / 100) * totalRooms) : undefined;
+
+    mockData.push({
+      month: month,
+      entityName: entityName,
+      occupancyRate: parseFloat(occupancyRate.toFixed(1)),
+      ...(occupiedRooms !== undefined && { occupiedRooms }),
+      ...(totalRooms !== undefined && { totalRooms }),
+    });
+  }
+  return mockData;
+};
+
+/**
+ * Retrieves monthly occupancy performance data for a specific entity for a given year (mock implementation).
+ * @param entityName The name of the entity.
+ * @param year The year.
+ * @returns A promise resolving to an array of MonthlyOccupancyDataPoint.
+ */
+export async function getMonthlyEntityOccupancyPerformance(
+  entityName: string,
+  year: number
+): Promise<MonthlyOccupancyDataPoint[]> {
+  return generateMockMonthlyEntityOccupancy(entityName, year);
+}

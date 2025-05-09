@@ -3,33 +3,35 @@
 
 import { useRouter, usePathname, useSearchParams as useNextSearchParams } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { OccupancyPageSearchParams } from '@/app/(app)/occupancy/page'; // Ensure this path and type are correct
 
 interface EntitySelectorProps {
   defaultValue: string;
   allEntities: string[];
-  currentSearchParams?: OccupancyPageSearchParams;
+  currentSearchParams?: Record<string, string | string[] | undefined>; 
+  paramName?: string; 
+  placeholder?: string;
 }
 
-export function EntitySelector({ defaultValue, allEntities, currentSearchParams: pageSearchParams }: EntitySelectorProps) {
+export function EntitySelector({ 
+  defaultValue, 
+  allEntities, 
+  paramName = "individualEntity", 
+  placeholder = "Select Entity"
+}: EntitySelectorProps) {
   const router = useRouter();
   const pathname = usePathname();
-  
-  // Use useNextSearchParams hook to get current search params on the client side
-  // This is more reliable in client components than passing them down if they might be stale
   const nextSearchParams = useNextSearchParams();
 
   const handleEntityChange = (value: string) => {
-    // Create a new URLSearchParams object from the client-side hook's result
     const newSearchParams = new URLSearchParams(nextSearchParams.toString());
-    newSearchParams.set("individualEntity", value);
+    newSearchParams.set(paramName, value);
     router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false });
   };
 
   return (
     <Select value={defaultValue} onValueChange={handleEntityChange}>
       <SelectTrigger className="w-full sm:w-[250px]">
-        <SelectValue placeholder="Select Hotel or Restaurant" />
+        <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
         {allEntities.map(name => (
