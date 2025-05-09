@@ -263,17 +263,38 @@ export function HotelPerformanceComparisonChart({
               { (showOccupancy || showAdr || showRevpar) && <Legend content={<ChartLegendContent />} /> }
 
               {showOccupancy && (
-                <Bar yAxisId={showAdr || showRevpar ? "left" : undefined} dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={[4, 4, 0, 0]} filter="url(#shadow-hotel-performance)" name={baseChartConfig.occupancyRate.label}>
+                <Bar
+                  yAxisId="left"
+                  dataKey="occupancyRate"
+                  fill="var(--color-occupancyRate)"
+                  radius={[4, 4, 0, 0]}
+                  filter="url(#shadow-hotel-performance)"
+                  name={baseChartConfig.occupancyRate.label}
+                >
                   <LabelList dataKey="name" position="center" angle={-90} offset={0} style={labelStyle} />
                 </Bar>
               )}
               {showAdr && (
-                <Bar yAxisId="right" dataKey="adr" fill="var(--color-adr)" radius={[4, 4, 0, 0]} filter="url(#shadow-hotel-performance)" name={chartConfig.adr?.label}>
+                <Bar
+                  yAxisId="right"
+                  dataKey="adr"
+                  fill="var(--color-adr)"
+                  radius={[4, 4, 0, 0]}
+                  filter="url(#shadow-hotel-performance)"
+                  name={chartConfig.adr?.label}
+                >
                   <LabelList dataKey="name" position="center" angle={-90} offset={0} style={labelStyle} />
                 </Bar>
               )}
               {showRevpar && (
-                <Bar yAxisId="right" dataKey="revpar" fill="var(--color-revpar)" radius={[4, 4, 0, 0]} filter="url(#shadow-hotel-performance)" name={chartConfig.revpar?.label}>
+                <Bar
+                  yAxisId="right"
+                  dataKey="revpar"
+                  fill="var(--color-revpar)"
+                  radius={[4, 4, 0, 0]}
+                  filter="url(#shadow-hotel-performance)"
+                  name={chartConfig.revpar?.label}
+                >
                   <LabelList dataKey="name" position="center" angle={-90} offset={0} style={labelStyle} />
                 </Bar>
               )}
