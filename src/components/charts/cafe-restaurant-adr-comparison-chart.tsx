@@ -10,6 +10,7 @@ import {
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { DateRangePicker } from "@/components/date-range-picker"; // Added import
 
 interface CafeRestaurantADRComparisonChartProps {
   data: ADRData[]; 
@@ -44,11 +45,18 @@ export function CafeRestaurantADRComparisonChart({
   if (!data || data.length === 0) {
     return (
       <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Cafe &amp; Restaurant Average Daily Revenue Comparison</CardTitle>
-          <CardDescription>
-            Average Daily Revenue from {dateRange.startDate} to {dateRange.endDate}
-          </CardDescription>
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex-1">
+            <CardTitle>Cafe &amp; Restaurant Average Daily Revenue Comparison</CardTitle>
+            <CardDescription>
+              Average Daily Revenue from {dateRange.startDate} to {dateRange.endDate}
+            </CardDescription>
+          </div>
+          <DateRangePicker
+            initialStartDate={dateRange.startDate}
+            initialEndDate={dateRange.endDate}
+            className="mt-2 sm:mt-0"
+          />
         </CardHeader>
         <CardContent className="h-[350px] flex items-center justify-center">
           <p className="text-muted-foreground">No ADR data available for the selected period.</p>
@@ -71,11 +79,18 @@ export function CafeRestaurantADRComparisonChart({
 
   return (
     <Card className="shadow-lg">
-      <CardHeader>
-        <CardTitle>Cafe &amp; Restaurant Average Daily Revenue Comparison</CardTitle>
-        <CardDescription>
-          Average Daily Revenue from {dateRange.startDate} to {dateRange.endDate}
-        </CardDescription>
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex-1">
+          <CardTitle>Cafe &amp; Restaurant Average Daily Revenue Comparison</CardTitle>
+          <CardDescription>
+            Average Daily Revenue from {dateRange.startDate} to {dateRange.endDate}
+          </CardDescription>
+        </div>
+        <DateRangePicker
+            initialStartDate={dateRange.startDate}
+            initialEndDate={dateRange.endDate}
+            className="mt-2 sm:mt-0"
+        />
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full">
