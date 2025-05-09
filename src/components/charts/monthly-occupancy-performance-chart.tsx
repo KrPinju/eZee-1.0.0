@@ -9,7 +9,7 @@ import {
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { EntitySelector } from "@/components/entity-selector"; // Import EntitySelector
+import { EntitySelector } from "@/components/entity-selector"; 
 
 interface MonthlyOccupancyPerformanceChartProps {
   data: MonthlyOccupancyDataPoint[];
@@ -30,7 +30,7 @@ export function MonthlyOccupancyPerformanceChart({
   data,
   entityName,
   year,
-  allEntities, 
+  allEntities, // Should be SPECIFIC_HOTEL_NAMES passed from page
   paramNameForSelector, 
 }: MonthlyOccupancyPerformanceChartProps) {
   const chartConfig = { ...chartConfigBase };
@@ -48,9 +48,9 @@ export function MonthlyOccupancyPerformanceChart({
           </div>
           <EntitySelector
             defaultValue={entityName}
-            allEntities={allEntities}
+            allEntities={allEntities} // Ensure this list contains only hotels for this chart
             paramName={paramNameForSelector}
-            placeholder="Select Entity"
+            placeholder="Select Hotel"
           />
         </CardHeader>
         <CardContent className="h-[350px] flex items-center justify-center">
@@ -68,9 +68,9 @@ export function MonthlyOccupancyPerformanceChart({
         </div>
         <EntitySelector
           defaultValue={entityName}
-          allEntities={allEntities}
+          allEntities={allEntities} // Ensure this list contains only hotels
           paramName={paramNameForSelector}
-          placeholder="Select Entity"
+          placeholder="Select Hotel"
         />
       </CardHeader>
       <CardContent>
@@ -128,4 +128,3 @@ export function MonthlyOccupancyPerformanceChart({
     </Card>
   );
 }
-
