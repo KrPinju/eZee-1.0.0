@@ -219,7 +219,7 @@ export function HotelPerformanceComparisonChart({
                   axisLine={false}
                   tickLine={false}
                 >
-                   <Label value="Occupancy (%)" angle={-90} position="insideLeft" offset={selectedMetric === 'all' ? -5 : -15} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
+                   <Label value="Occupancy (%)" angle={-90} position="insideLeft" offset={selectedMetric === 'all' ? -10 : -20} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
                 </YAxis>
               )}
               { (showAdr || showRevpar) && (
@@ -231,7 +231,7 @@ export function HotelPerformanceComparisonChart({
                   axisLine={false}
                   tickLine={false}
                 >
-                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" offset={-20} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
+                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" offset={-25} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
                 </YAxis>
               )}
 
