@@ -1,7 +1,6 @@
 
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
-import { EntitySelector } from "@/components/entity-selector";
 import { MonthlyOccupancyPerformanceChart } from "@/components/charts/monthly-occupancy-performance-chart"; 
 import { 
   ALL_SELECTABLE_ENTITIES, 
@@ -53,14 +52,7 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
               initialStartDate={initialPickerStartDate} 
               initialEndDate={initialPickerEndDate} 
             />
-            <Suspense fallback={<Skeleton className="h-10 w-full sm:w-[250px]" />}>
-              <EntitySelector
-                defaultValue={selectedEntityName}
-                allEntities={ALL_SELECTABLE_ENTITIES}
-                paramName="entityForPerformance" 
-                placeholder={`Select ${entityType}`}
-              />
-            </Suspense>
+            {/* EntitySelector is now part of MonthlyOccupancyPerformanceChart */}
           </div>
         }
       />
@@ -69,8 +61,11 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
           data={monthlyPerformanceData}
           entityName={selectedEntityName}
           year={yearForChart}
+          allEntities={ALL_SELECTABLE_ENTITIES}
+          paramNameForSelector="entityForPerformance"
         />
       </div>
     </>
   );
 }
+

@@ -9,11 +9,14 @@ import {
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { EntitySelector } from "@/components/entity-selector"; // Import EntitySelector
 
 interface MonthlyOccupancyPerformanceChartProps {
   data: MonthlyOccupancyDataPoint[];
   entityName: string;
   year: number;
+  allEntities: string[]; // New prop
+  paramNameForSelector: string; // New prop
 }
 
 const chartConfigBase: ChartConfig = {
@@ -27,6 +30,8 @@ export function MonthlyOccupancyPerformanceChart({
   data,
   entityName,
   year,
+  allEntities, // Destructure new prop
+  paramNameForSelector, // Destructure new prop
 }: MonthlyOccupancyPerformanceChartProps) {
   const chartConfig = { ...chartConfigBase };
 
@@ -36,9 +41,17 @@ export function MonthlyOccupancyPerformanceChart({
   if (!data || data.length === 0) {
     return (
       <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>{chartTitle}</CardTitle>
-          <CardDescription>{chartDescriptionForNoData}</CardDescription>
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <div className="flex-1">
+            <CardTitle>{chartTitle}</CardTitle>
+            <CardDescription>{chartDescriptionForNoData}</CardDescription>
+          </div>
+          <EntitySelector
+            defaultValue={entityName}
+            allEntities={allEntities}
+            paramName={paramNameForSelector}
+            placeholder="Select Entity"
+          />
         </CardHeader>
         <CardContent className="h-[350px] flex items-center justify-center">
           <p className="text-muted-foreground">Occupancy performance data is currently unavailable.</p>
@@ -49,8 +62,16 @@ export function MonthlyOccupancyPerformanceChart({
 
   return (
     <Card className="shadow-lg">
-      <CardHeader>
-        <CardTitle>{chartTitle}</CardTitle>
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div className="flex-1">
+          <CardTitle>{chartTitle}</CardTitle>
+        </div>
+        <EntitySelector
+          defaultValue={entityName}
+          allEntities={allEntities}
+          paramName={paramNameForSelector}
+          placeholder="Select Entity"
+        />
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full">
@@ -107,3 +128,4 @@ export function MonthlyOccupancyPerformanceChart({
     </Card>
   );
 }
+
