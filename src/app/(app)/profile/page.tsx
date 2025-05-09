@@ -38,9 +38,7 @@ export default function ProfilePage() {
               )}
             </Avatar>
             <CardTitle className="text-2xl">{user.name}</CardTitle>
-            <CardDescription className="flex items-center justify-center gap-1 text-sm">
-              <Briefcase className="h-4 w-4 text-muted-foreground" /> {user.role}
-            </CardDescription>
+            {/* Removed CardDescription displaying role */}
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center text-sm">
@@ -69,7 +67,7 @@ export default function ProfilePage() {
               Account Details
             </CardTitle>
             <CardDescription>
-              Manage your account preferences and security.
+              Manage your account preferences and security. (Role: {user.role})
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
