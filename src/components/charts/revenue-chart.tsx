@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { MonthlyRevenueDataPoint } from "@/services/ezee-pms";
@@ -17,7 +18,7 @@ interface RevenueChartProps {
   allEntityNames: string[];
   initialSelectedEntityName: string;
   currencySymbol: string;
-  currentYear: number;
+  currentYear: number; // Keep prop for data fetching, but not for title
   baseChartTitle: string; // e.g., "Hotel Revenue" or "Cafe & Restaurant Revenue"
   barColor?: string;
   entityType: 'hotel' | 'cafe'; // To manage different query params for routing
@@ -36,7 +37,7 @@ export function RevenueChart({
   allEntityNames,
   initialSelectedEntityName,
   currencySymbol,
-  currentYear,
+  currentYear, // Still needed for data fetching logic if any, or other descriptions
   baseChartTitle,
   barColor,
   entityType,
@@ -67,7 +68,7 @@ export function RevenueChart({
     router.replace(`${pathname}?${query}`, { scroll: false });
   };
 
-  const dynamicChartTitle = `${baseChartTitle} - ${selectedEntity} (${currentYear})`;
+  const dynamicChartTitle = `${baseChartTitle} - ${selectedEntity}`;
 
 
   if (!initialData || initialData.length === 0) {
@@ -75,7 +76,7 @@ export function RevenueChart({
       <Card className="shadow-lg">
         <CardHeader className="flex flex-col items-center text-center gap-2">
           <CardTitle>{baseChartTitle}</CardTitle>
-          <CardDescription>No revenue data available for {selectedEntity || 'the selected entity'} for {currentYear}.</CardDescription>
+          <CardDescription>No revenue data available for {selectedEntity || 'the selected entity'}.</CardDescription>
           <Select value={selectedEntity} onValueChange={handleEntityChange}>
             <SelectTrigger className="w-full sm:w-[220px]">
               <SelectValue placeholder={`Select ${entityType === 'hotel' ? 'Hotel' : 'Cafe/Restaurant'}`} />
