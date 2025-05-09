@@ -2,20 +2,61 @@
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { OccupancyComparisonChart } from "@/components/charts/occupancy-comparison-chart"; 
-import { getAnnualAverageOccupancyPerHotel, getOccupancy, SPECIFIC_HOTEL_NAMES, type Occupancy as OccupancyData, type DateRange as ApiDateRange } from "@/services/ezee-pms";
+import { IndividualOccupancyChart } from "@/components/charts/individual-occupancy-chart"; // New chart
+import { 
+  getAnnualAverageOccupancyPerHotel, 
+  getOccupancy, 
+  getIndividualEntityOccupancy, // New service function
+  SPECIFIC_HOTEL_NAMES, 
+  SPECIFIC_CAFE_RESTAURANT_NAMES, // Import cafe names
+  ALL_SELECTABLE_ENTITIES, // New import for all entities
+  type Occupancy as OccupancyData, 
+  type DateRange as ApiDateRange 
+} from "@/services/ezee-pms";
 import { format, parseISO, isValid, getYear, differenceInDays, isSameMonth, isSameYear, startOfMonth, endOfMonth, addDays } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface OccupancyPageProps {
   searchParams?: {
     startDate?: string;
     endDate?: string;
+    individualEntity?: string; // New searchParam for selected individual entity
   };
 }
+
+// Helper component for the entity selector dropdown to handle client-side navigation
+function EntitySelector({ defaultValue, searchParams }: { defaultValue: string, searchParams?: OccupancyPageProps['searchParams']}) {
+  const { useRouter, usePathname } = require("next/navigation");
+  const router = useRouter();
+  const pathname = usePathname();
+  const currentSearchParams = new URLSearchParams(Array.from(Object.entries(searchParams || {})));
+
+
+  const handleEntityChange = (value: string) => {
+    currentSearchParams.set("individualEntity", value);
+    router.replace(`${pathname}?${currentSearchParams.toString()}`, { scroll: false });
+  };
+
+  return (
+    <Select value={defaultValue} onValueChange={handleEntityChange}>
+      <SelectTrigger className="w-full sm:w-[250px]">
+        <SelectValue placeholder="Select Hotel or Restaurant" />
+      </SelectTrigger>
+      <SelectContent>
+        {ALL_SELECTABLE_ENTITIES.map(name => (
+          <SelectItem key={name} value={name}>{name}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 
 export default async function OccupancyPage({ searchParams }: OccupancyPageProps) {
   const today = new Date();
 
-  // Determine effective start and end dates from searchParams or defaults
   let effectiveStartDate: Date;
   let effectiveEndDate: Date;
 
@@ -27,75 +68,83 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
     if (parsedEndDateParam && isValid(parsedEndDateParam) && parsedEndDateParam >= parsedStartDateParam) {
       effectiveEndDate = parsedEndDateParam;
     } else {
-      // If only startDate is provided, or endDate is invalid/before startDate, default endDate to end of startDate's month
       effectiveEndDate = endOfMonth(effectiveStartDate);
     }
   } else {
-    // Default to the current month if no startDate or if startDate is invalid
     effectiveStartDate = startOfMonth(today);
     effectiveEndDate = endOfMonth(today);
   }
   
-  // Final check to ensure startDate is not after endDate; if so, adjust startDate.
   if (effectiveStartDate > effectiveEndDate) {
     effectiveStartDate = startOfMonth(effectiveEndDate);
   }
 
+  const dateRangeForCharts: ApiDateRange = {
+    startDate: format(effectiveStartDate, "yyyy-MM-dd"),
+    endDate: format(effectiveEndDate, "yyyy-MM-dd"),
+  };
 
-  let occupancyDataSource: OccupancyData[];
-  let dateRangeForChartDisplay: ApiDateRange;
+  // For OccupancyComparisonChart (existing logic)
+  let comparisonOccupancyDataSource: OccupancyData[];
+  let comparisonChartDateRange: ApiDateRange;
   let pageDescription: string;
 
   const dayDifference = differenceInDays(effectiveEndDate, effectiveStartDate);
-
-  // Condition to fetch data for a specific month/short range
-  // If the range is effectively a single month or shorter (e.g., less than 35 days and within the same year/month).
   const isShortRangeView = isSameMonth(effectiveStartDate, effectiveEndDate) && 
                            isSameYear(effectiveStartDate, effectiveEndDate) && 
                            dayDifference < 35;
 
   if (isShortRangeView) { 
-    const rangeForQuery: ApiDateRange = {
-      startDate: format(effectiveStartDate, "yyyy-MM-dd"),
-      endDate: format(effectiveEndDate, "yyyy-MM-dd"),
-    };
-    occupancyDataSource = await getOccupancy(rangeForQuery);
-    dateRangeForChartDisplay = rangeForQuery;
-    
+    comparisonOccupancyDataSource = await getOccupancy(dateRangeForCharts);
+    comparisonChartDateRange = dateRangeForCharts;
     const isFullMonth = format(effectiveStartDate, "yyyy-MM-dd") === format(startOfMonth(effectiveStartDate), "yyyy-MM-dd") && 
                         format(effectiveEndDate, "yyyy-MM-dd") === format(endOfMonth(effectiveEndDate), "yyyy-MM-dd");
-    
     if (isFullMonth) {
-      pageDescription = `Hotel occupancy for ${format(effectiveStartDate, "MMMM yyyy")}.`;
+      pageDescription = `Hotel occupancy comparison for ${format(effectiveStartDate, "MMMM yyyy")}. Select an individual entity below for its specific occupancy.`;
     } else {
-      pageDescription = `Hotel occupancy from ${format(effectiveStartDate, "MMM d, yyyy")} to ${format(effectiveEndDate, "MMM d, yyyy")}.`;
+      pageDescription = `Hotel occupancy comparison from ${format(effectiveStartDate, "MMM d, yyyy")} to ${format(effectiveEndDate, "MMM d, yyyy")}. Select an individual entity below for its specific occupancy.`;
     }
   } else {
-    // Fetch annual average data for the year of the start date if range is longer / multi-month / year
     const selectedYear = getYear(effectiveStartDate);
-    occupancyDataSource = await getAnnualAverageOccupancyPerHotel(selectedYear);
-    // The chart display range should reflect the full year for which averages are shown
-    dateRangeForChartDisplay = {
+    comparisonOccupancyDataSource = await getAnnualAverageOccupancyPerHotel(selectedYear);
+    comparisonChartDateRange = {
       startDate: format(new Date(selectedYear, 0, 1), "yyyy-MM-dd"),
       endDate: format(new Date(selectedYear, 11, 31), "yyyy-MM-dd"),
     };
-    pageDescription = `View and analyze hotel property average monthly occupancy details for the year ${selectedYear}.`;
+    pageDescription = `View and analyze hotel property average monthly occupancy details for the year ${selectedYear}. Select an individual entity below for its specific occupancy.`;
   }
   
   const initialPickerStartDate = format(effectiveStartDate, "yyyy-MM-dd");
   const initialPickerEndDate = format(effectiveEndDate, "yyyy-MM-dd");
+
+  // For IndividualOccupancyChart
+  const selectedIndividualEntityName = searchParams?.individualEntity ?? ALL_SELECTABLE_ENTITIES[0];
+  const individualOccupancyData = await getIndividualEntityOccupancy(selectedIndividualEntityName, dateRangeForCharts);
+  const entityTypeForIndividualChart = SPECIFIC_HOTEL_NAMES.includes(selectedIndividualEntityName) ? 'hotel' : 'restaurant';
 
   return (
     <>
       <PageHeader
         title="Occupancy Dashboard"
         description={pageDescription}
-        actions={<DateRangePicker initialStartDate={initialPickerStartDate} initialEndDate={initialPickerEndDate} />}
+        actions={
+          <div className="flex flex-col sm:flex-row gap-2">
+            <DateRangePicker initialStartDate={initialPickerStartDate} initialEndDate={initialPickerEndDate} />
+            <Suspense fallback={<Skeleton className="h-10 w-full sm:w-[250px]" />}>
+               <EntitySelector defaultValue={selectedIndividualEntityName} searchParams={searchParams} />
+            </Suspense>
+          </div>
+        }
       />
       <div className="grid grid-cols-1 gap-6">
         <OccupancyComparisonChart
-          data={occupancyDataSource}
-          dateRange={dateRangeForChartDisplay} // Pass the potentially adjusted range for chart's own description
+          data={comparisonOccupancyDataSource}
+          dateRange={comparisonChartDateRange} 
+        />
+        <IndividualOccupancyChart
+          data={individualOccupancyData}
+          dateRange={dateRangeForCharts}
+          entityType={entityTypeForIndividualChart}
         />
       </div>
     </>

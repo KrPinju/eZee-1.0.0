@@ -172,6 +172,9 @@ export const SPECIFIC_CAFE_RESTAURANT_NAMES = [
   "Druk Wangyel Cafe",
 ];
 
+export const ALL_SELECTABLE_ENTITIES = [...SPECIFIC_HOTEL_NAMES, ...SPECIFIC_CAFE_RESTAURANT_NAMES];
+
+
 const HOTEL_ROOM_COUNTS: Record<string, number> = {
   "Hotel Olathang": 60,
   "Olathang Cottages": 20,
@@ -207,6 +210,38 @@ export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
   // For now, returning only hotel occupancy. If cafe occupancy is needed, it would be different metrics.
   return hotelOccupancy;
 }
+
+
+/**
+ * Asynchronously retrieves occupancy data for a single entity (hotel or restaurant) for a given date range.
+ * @param entityName The name of the entity.
+ * @param dateRange The date range for which to retrieve occupancy data.
+ * @returns A promise that resolves to an Occupancy object or null if not found.
+ */
+export async function getIndividualEntityOccupancy(entityName: string, dateRange: DateRange): Promise<Occupancy | null> {
+  // TODO: Implement this by calling the eZee PMS API for the specific entity.
+  if (SPECIFIC_HOTEL_NAMES.includes(entityName)) {
+    const occupancyRate = Math.floor(Math.random() * 31) + 60; // Random rate between 60-90%
+    const totalRooms = HOTEL_ROOM_COUNTS[entityName] || 50; // Default if not in map
+    const occupiedRooms = Math.round((occupancyRate / 100) * totalRooms);
+    return {
+      entityName: entityName,
+      occupancyRate: occupancyRate,
+      occupiedRooms: occupiedRooms,
+      totalRooms: totalRooms,
+    };
+  } else if (SPECIFIC_CAFE_RESTAURANT_NAMES.includes(entityName)) {
+    // Mock "occupancy" for restaurants, e.g., average table occupancy or peak hour utilization
+    const occupancyRate = Math.floor(Math.random() * 41) + 50; // Random rate between 50-90% "utilization"
+    return {
+      entityName: entityName,
+      occupancyRate: occupancyRate,
+      // occupiedRooms and totalRooms are not applicable for restaurants in this mock
+    };
+  }
+  return null; // Entity not found or not applicable
+}
+
 
 /**
  * Asynchronously retrieves revenue data for a given date range (used for summary cards).
@@ -536,3 +571,4 @@ export async function getAnnualAverageOccupancyPerHotel(year: number): Promise<O
 
   return annualAverages;
 }
+
