@@ -1,8 +1,7 @@
-
 "use client";
 
 import type { AnnualPerformanceChartDataPoint } from "@/services/ezee-pms";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Added useEffect
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
 import {
@@ -25,15 +24,15 @@ const ALL_HOTELS_SELECTOR = "__ALL_HOTELS__";
 
 const chartConfigBase = {
   avgOccupancyRate: {
-    label: "Occupancy", // Removed % sign
+    label: "Occupancy", 
     color: "hsl(var(--chart-1))",
   },
   avgAdr: {
-    label: "ADR", // Currency symbol added dynamically
+    label: "ADR", 
     color: "hsl(var(--chart-2))",
   },
   avgRevpar: {
-    label: "RevPAR", // Currency symbol added dynamically
+    label: "RevPAR", 
     color: "hsl(var(--chart-3))",
   },
 } satisfies ChartConfig;
@@ -51,6 +50,10 @@ export function AnnualPerformanceLineChart({
   const searchParams = useSearchParams();
   const [selectedHotel, setSelectedHotel] = useState(initialSelectedHotelName);
 
+  useEffect(() => {
+    setSelectedHotel(initialSelectedHotelName);
+  }, [initialSelectedHotelName]);
+
   const handleHotelChange = (value: string) => {
     setSelectedHotel(value);
     const current = new URLSearchParams(Array.from(searchParams.entries()));
@@ -60,7 +63,6 @@ export function AnnualPerformanceLineChart({
       current.set("chartHotel", value);
     }
     const query = current.toString();
-    // Use replace to avoid pushing duplicate history entries
     router.replace(`${pathname}?${query}`, { scroll: false });
   };
 
@@ -72,7 +74,6 @@ export function AnnualPerformanceLineChart({
     ? "Monthly average Occupancy, ADR, and RevPAR across all monitored hotels."
     : `Monthly Occupancy, ADR, and RevPAR for ${selectedHotel}.`;
 
-  // Update chartConfig labels with the correct currency symbol
   const chartConfig = { ...chartConfigBase };
   chartConfig.avgAdr.label = `ADR (${currencySymbol})`;
   chartConfig.avgRevpar.label = `RevPAR (${currencySymbol})`;
@@ -86,7 +87,6 @@ export function AnnualPerformanceLineChart({
             <CardTitle>Annual Performance</CardTitle>
             <CardDescription>No data available for the selected year or hotel.</CardDescription>
           </div>
-           {/* Dropdown - still show even if no data initially */}
            <Select value={selectedHotel} onValueChange={handleHotelChange}>
                 <SelectTrigger className="w-full sm:w-[200px] mt-2 sm:mt-0">
                     <SelectValue placeholder="Select Hotel" />
@@ -126,16 +126,16 @@ export function AnnualPerformanceLineChart({
             </Select>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full"> {/* Adjusted height */}
+        <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full"> 
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={initialData} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}> {/* Adjusted left margin */}
+            <LineChart data={initialData} margin={{ top: 5, right: 10, left: -15, bottom: 0 }}> 
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tick={{ fontSize: 10 }} // Smaller font size for ticks
+                tick={{ fontSize: 10 }} 
               />
               <YAxis
                  yAxisId="left"
@@ -144,18 +144,17 @@ export function AnnualPerformanceLineChart({
                  tickLine={false}
                  axisLine={false}
                  tickMargin={4}
-                 tick={{ fontSize: 10 }} // Smaller font size for ticks
-                 // Removed tickFormatter for %
+                 tick={{ fontSize: 10 }} 
               />
                <YAxis
                  yAxisId="right"
                  orientation="right"
-                 stroke="var(--color-avgAdr)" // Can use ADR or RevPAR color
+                 stroke="var(--color-avgAdr)" 
                  tickLine={false}
                  axisLine={false}
                  tickMargin={4}
                  tickFormatter={(value) => `${currencySymbol}${value}`}
-                 tick={{ fontSize: 10 }} // Smaller font size for ticks
+                 tick={{ fontSize: 10 }} 
               />
               <RechartsTooltip
                   cursor={true}
@@ -163,11 +162,14 @@ export function AnnualPerformanceLineChart({
                       <ChartTooltipContent
                            indicator="line"
                            formatter={(value, name) => {
-                              const configEntry = chartConfig[name as keyof typeof chartConfig];
-                              if (!configEntry) return value; // Fallback
+                              const key = name as keyof typeof chartConfig;
+                              const configEntry = chartConfig[key];
+                              
+                              if (!configEntry || typeof configEntry.label !== 'string') { // Type guard for label
+                                return String(value); // Fallback if label is not a string or entry doesn't exist
+                              }
 
-                              if (name === 'avgOccupancyRate') {
-                                  // Format Occupancy without % sign
+                              if (key === 'avgOccupancyRate') {
                                   return [`${Number(value).toFixed(1)}`, configEntry.label];
                               }
                               // For ADR and RevPAR, use the label which includes the currency symbol
@@ -183,7 +185,7 @@ export function AnnualPerformanceLineChart({
                 stroke="var(--color-avgOccupancyRate)"
                 strokeWidth={2}
                 dot={false}
-                name="avgOccupancyRate" // Ensure name matches chartConfig key
+                name="avgOccupancyRate" 
               />
               <Line
                 yAxisId="right"
@@ -192,17 +194,17 @@ export function AnnualPerformanceLineChart({
                 stroke="var(--color-avgAdr)"
                 strokeWidth={2}
                 dot={false}
-                name="avgAdr" // Ensure name matches chartConfig key
+                name="avgAdr" 
               />
                <Line
-                yAxisId="right" // Use the same right axis for RevPAR
+                yAxisId="right" 
                 dataKey="avgRevpar"
                 type="monotone"
                 stroke="var(--color-avgRevpar)"
                 strokeWidth={2}
-                strokeDasharray="5 5" // Dashed line for RevPAR
+                strokeDasharray="5 5" 
                 dot={false}
-                name="avgRevpar" // Ensure name matches chartConfig key
+                name="avgRevpar" 
               />
             </LineChart>
           </ResponsiveContainer>
@@ -211,4 +213,3 @@ export function AnnualPerformanceLineChart({
     </Card>
   );
 }
-

@@ -1,7 +1,7 @@
 "use client";
 
 import type { MonthlyRevenueDataPoint } from "@/services/ezee-pms";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Added useEffect
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
 import {
@@ -45,6 +45,10 @@ export function RevenueChart({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [selectedEntity, setSelectedEntity] = useState(initialSelectedEntityName);
+
+  useEffect(() => {
+    setSelectedEntity(initialSelectedEntityName);
+  }, [initialSelectedEntityName]);
 
   const chartConfig = {
     ...chartConfigBase,
@@ -111,7 +115,7 @@ export function RevenueChart({
             <BarChart data={initialData} accessibilityLayer margin={{ top: 5, bottom: 5, left: 5, right: 20 }}>
               <defs>
                 <filter id="shadow-revenue" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
+                  <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="hsl(var(--foreground))" floodOpacity="0.2"/>
                 </filter>
               </defs>
               <CartesianGrid vertical={false} />
@@ -145,5 +149,3 @@ export function RevenueChart({
     </Card>
   );
 }
-
-    

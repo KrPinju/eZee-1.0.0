@@ -49,7 +49,6 @@ export function DateRangePicker({
         date?.to?.toISOString().split('T')[0] !== currentTo.toISOString().split('T')[0]) {
       setDate({ from: currentFrom, to: currentTo });
     }
-  // Only run on initial mount or when searchParams explicitly change, not 'date'
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, initialStartDate, initialEndDate]);
 
@@ -60,7 +59,7 @@ export function DateRangePicker({
       current.set("startDate", format(date.from, "yyyy-MM-dd"));
       current.set("endDate", format(date.to, "yyyy-MM-dd"));
       const query = current.toString();
-      router.push(`${window.location.pathname}?${query}`);
+      router.replace(`${window.location.pathname}?${query}`, { scroll: false }); // Changed push to replace
       setIsOpen(false);
     }
   };
