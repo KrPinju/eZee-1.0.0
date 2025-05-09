@@ -1,5 +1,3 @@
-
-
 import { DollarSign, Percent, Building, BedDouble, TrendingUp, Coffee } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -173,16 +171,16 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           changePercentage={averageHotelRevPARChange}
         />
         <StatCard
-          title="Monitored Hotels & Resorts"
+          title="Monitored Hotels &amp; Resorts"
           value={SPECIFIC_HOTEL_NAMES.length}
           icon={<Building className="h-5 w-5" />}
-          description="Hotels under Bhutan Hotels & Restaurants,"
+          description="Hotels under Bhutan Hotels &amp; Restaurants,"
         />
          <StatCard
-            title="Monitored Cafe & Restaurants"
+            title="Monitored Cafe &amp; Restaurants"
             value={monitoredCafesRestaurantsCount}
             icon={<Coffee className="h-5 w-5" />}
-            description="Cafes/Restaurants under Bhutan Hotels & Restaurants."
+            description="Cafes/Restaurants under Bhutan Hotels &amp; Restaurants."
          />
       </div>
 
@@ -197,7 +195,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             initialSelectedEntityName={selectedRevenueHotelName}
             currencySymbol={currencySymbol}
             currentYear={currentYear}
-            baseChartTitle="Hotels Revenue Breakdown"
+            baseChartTitle="Hotels &amp; Resort Revenue Breakdown"
             barColor="hsl(var(--chart-1))"
             entityType="hotel"
         />
@@ -207,7 +205,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             initialSelectedEntityName={selectedRevenueCafeName}
             currencySymbol={currencySymbol}
             currentYear={currentYear}
-            baseChartTitle="Cafe & Restaurant Revenue Breakdown"
+            baseChartTitle="Cafes &amp; Restaurants Revenue Breakdown"
             barColor="hsl(var(--chart-3))"
             entityType="cafe"
         />
@@ -232,5 +230,3 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     </>
   );
 }
-
-    

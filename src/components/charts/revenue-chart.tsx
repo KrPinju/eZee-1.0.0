@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { MonthlyRevenueDataPoint } from "@/services/ezee-pms";
@@ -64,14 +63,14 @@ export function RevenueChart({
     router.replace(`${pathname}?${query}`, { scroll: false });
   };
 
-  const dynamicChartTitle = `${selectedEntity} - Monthly Revenue ${currentYear}`;
-  // const dynamicChartDescription = `Showing monthly revenue for ${selectedEntity} for the year ${currentYear}.`; // Removed as per user request
+  const dynamicChartTitle = `${baseChartTitle} - ${selectedEntity} (${currentYear})`;
+
 
   if (!initialData || initialData.length === 0) {
     return (
       <Card className="shadow-lg">
         <CardHeader className="flex flex-col items-center text-center gap-2">
-          <CardTitle>{selectedEntity ? `${selectedEntity} - Monthly Revenue ${currentYear}` : baseChartTitle}</CardTitle>
+          <CardTitle>{baseChartTitle}</CardTitle>
           <CardDescription>No revenue data available for {selectedEntity || 'the selected entity'} for {currentYear}.</CardDescription>
           <Select value={selectedEntity} onValueChange={handleEntityChange}>
             <SelectTrigger className="w-full sm:w-[220px]">
@@ -95,7 +94,6 @@ export function RevenueChart({
     <Card className="shadow-lg">
       <CardHeader className="flex flex-col items-center text-center gap-2">
         <CardTitle>{dynamicChartTitle}</CardTitle>
-        {/* <CardDescription>{dynamicChartDescription}</CardDescription> Removed as per user request */}
         <Select value={selectedEntity} onValueChange={handleEntityChange}>
           <SelectTrigger className="w-full sm:w-[220px]">
             <SelectValue placeholder={`Select ${entityType === 'hotel' ? 'Hotel' : 'Cafe/Restaurant'}`} />
