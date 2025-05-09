@@ -1,10 +1,9 @@
 
 "use client";
 
-import type { Occupancy } from "@/services/ezee-pms";
-// Added LabelList, XAxis, YAxis, CartesianGrid, Label
+import type { Occupancy, DateRange as ApiDateRange } from "@/services/ezee-pms";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Label } from "recharts"; 
-import { IoIosArrowRoundForward } from "react-icons/io"; // Import the arrow icon
+import { IoIosArrowRoundForward } from "react-icons/io";
 import {
   ChartContainer,
   ChartTooltip,
@@ -12,29 +11,39 @@ import {
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { DateRangePicker } from "@/components/date-range-picker"; // Import DateRangePicker
 
 interface OccupancyChartProps {
   data: Occupancy[];
-  dateRange: { startDate: string; endDate: string };
+  dateRange: ApiDateRange; // For CardDescription
+  drpInitialStartDate?: string; // For DateRangePicker initialization
+  drpInitialEndDate?: string;   // For DateRangePicker initialization
 }
 
 const chartConfig = {
   occupancyRate: {
     label: "Occupancy (%)",
-    color: "hsl(var(--primary))", // Changed to use --primary for dark navy blue
+    color: "hsl(var(--primary))", 
   },
 } satisfies ChartConfig;
 
 
-export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
+export function OccupancyChart({ data, dateRange, drpInitialStartDate, drpInitialEndDate }: OccupancyChartProps) {
   if (!data || data.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Occupancy Overview</CardTitle>
-          <CardDescription>
-            For period: {dateRange.startDate} to {dateRange.endDate}
-          </CardDescription>
+      <Card className="shadow-lg">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <CardTitle>Occupancy Overview</CardTitle>
+            <CardDescription>
+              For period: {drpInitialStartDate && drpInitialEndDate ? `${drpInitialStartDate} to ${drpInitialEndDate}` : 'N/A'}
+            </CardDescription>
+          </div>
+          <DateRangePicker 
+            initialStartDate={drpInitialStartDate} 
+            initialEndDate={drpInitialEndDate}
+            className="mt-2 sm:mt-0"
+          />
         </CardHeader>
         <CardContent className="h-[350px] flex items-center justify-center">
           <p className="text-muted-foreground">No occupancy data available for the selected period.</p>
@@ -43,7 +52,6 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
     );
   }
   
-  // Keep original names in formatted data
   const formattedData = data.map(item => ({
     name: item.entityName,
     occupancyRate: item.occupancyRate,
@@ -51,17 +59,22 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
 
   return (
     <Card className="shadow-lg">
-      <CardHeader>
-        <CardTitle>Occupancy Overview</CardTitle>
-        <CardDescription>
-            For period: {dateRange.startDate} to {dateRange.endDate}
-        </CardDescription>
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <CardTitle>Occupancy Overview</CardTitle>
+            <CardDescription>
+                For period: {dateRange.startDate} to {dateRange.endDate}
+            </CardDescription>
+        </div>
+        <DateRangePicker 
+            initialStartDate={drpInitialStartDate} 
+            initialEndDate={drpInitialEndDate}
+            className="mt-2 sm:mt-0"
+        />
       </CardHeader>
       <CardContent>
-        {/* Adjusted height and margin for labels */}
         <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full"> 
           <ResponsiveContainer width="100%" height="100%">
-             {/* Adjusted margin for axis labels, slightly more on left */}
             <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 30, left: 10, right: 5 }}> 
               <defs>
                 <filter id="shadow-occupancy" x="-20%" y="-20%" width="140%" height="140%">
@@ -73,12 +86,10 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                 dataKey="name" 
                 tickLine={false}
                 axisLine={false}
-                tick={false} // Hide ticks and labels below the bar
-                height={40} // Increased height to accommodate label
+                tick={false} 
+                height={40} 
               >
-                {/* Added X-Axis Label with arrow */}
                 <Label 
-                  value="Hotels & Resorts" 
                   offset={0} 
                   position="insideBottom" 
                   dy={10} 
@@ -86,45 +97,45 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                     textAnchor: 'middle', 
                     fill: 'hsl(var(--foreground))', 
                     fontSize: '12px', 
-                    fontWeight: 'bold' // Make bold
+                    fontWeight: 'bold' 
                   }}
-                />
-                {/* Removed arrow component from here */}
+                >
+                  <tspan>Hotels & Resorts </tspan>
+                  <tspan dy="-2px" dx="2px"><IoIosArrowRoundForward size={18} style={{ display: 'inline-block', verticalAlign: 'middle' }} /></tspan>
+                </Label>
               </XAxis>
               <YAxis 
                 domain={[0, 100]}
-                width={50} // Adjusted width slightly for responsiveness
-                tick={{ fontSize: 10 }} // Smaller font size for ticks
+                width={50} 
+                tick={{ fontSize: 10 }} 
               >
-                 {/* Added Y-Axis Label with arrow */}
                  <Label 
-                    value="In Percentage" 
                     angle={-90} 
                     position="insideLeft" 
-                    dx={-5} // Adjusted position slightly
+                    dx={-5} 
                     style={{ 
                       textAnchor: 'middle', 
                       fill: 'hsl(var(--foreground))', 
                       fontSize: '12px', 
-                      fontWeight: 'bold' // Make bold
+                      fontWeight: 'bold' 
                     }}
-                  />
-                   {/* Removed arrow component from here */}
+                  >
+                    <tspan>In Percentage </tspan>
+                    <tspan dy="-2px" dx="2px"><IoIosArrowRoundForward size={18} style={{ display: 'inline-block', verticalAlign: 'middle' }} /></tspan>
+                  </Label>
               </YAxis>
               <ChartTooltip
                 cursor={false}
-                 // Adjusted tooltip formatter to show % sign
                 content={<ChartTooltipContent indicator="dashed" formatter={(value) => [`${value}%`, "Occupancy"]}/>}
               />
               <Bar dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} filter="url(#shadow-occupancy)">
-                 {/* Keep labels inside the bars */}
                  <LabelList
                     dataKey="name"
                     position="center" 
                     angle={-90} 
                     offset={0} 
                     style={{
-                      fill: 'hsl(var(--primary-foreground))', // Use primary-foreground for text on primary bg
+                      fill: 'hsl(var(--primary-foreground))', 
                       fontSize: '10px',
                       textAnchor: 'middle', 
                       fontWeight: 'bold', 
@@ -138,4 +149,3 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
     </Card>
   );
 }
-
