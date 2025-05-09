@@ -1,7 +1,8 @@
 
 "use client";
 
-import type { Occupancy, ADRData, RevPARData, DateRange as ApiDateRange, SPECIFIC_HOTEL_NAMES } from "@/services/ezee-pms";
+import type { Occupancy, ADRData, RevPARData, DateRange as ApiDateRange } from "@/services/ezee-pms";
+import { SPECIFIC_HOTEL_NAMES } from "@/services/ezee-pms"; // Added import
 import { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Tooltip as RechartsTooltip, Legend, Label } from "recharts";
@@ -111,8 +112,8 @@ export function HotelPerformanceComparisonChart({
   const getChartTitle = () => {
     switch (selectedMetric) {
       case "occupancy": return "Hotel Occupancy Comparison";
-      case "adr": return "Hotel Average Daily Rate (ADR) Comparison";
-      case "revpar": return "Hotel RevPAR Comparison";
+      case "adr": return `Hotel Average Daily Rate (ADR) Comparison`;
+      case "revpar": return `Hotel RevPAR Comparison`;
       case "all":
       default: return "Hotel Performance Comparison";
     }
