@@ -1,11 +1,12 @@
 
 
-import { DollarSign, TrendingUp } from "lucide-react";
+import { DollarSign, TrendingUp, Activity } from "lucide-react"; // Added Activity icon
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { RevenueChart } from "@/components/charts/revenue-chart";
 import { CafeRestaurantADRComparisonChart } from "@/components/charts/cafe-restaurant-adr-comparison-chart";
+import { CafeRestaurantPerformanceComparisonChart } from "@/components/charts/cafe-restaurant-performance-comparison-chart"; // New chart
 import {
   getRevenueSummary,
   getMonthlyEntityRevenue,
@@ -22,6 +23,7 @@ interface CafesRestaurantsPageProps {
     startDate?: string;
     endDate?: string;
     revenueCafe?: string;
+    perfMetricCafe?: "adr"; // For the new performance chart metric selection
   };
 }
 
@@ -47,6 +49,7 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
   const startDateParam = searchParams?.startDate;
 
   const selectedRevenueCafeName = searchParams?.revenueCafe ?? SPECIFIC_CAFE_RESTAURANT_NAMES[0];
+  const selectedPerfMetricCafe = searchParams?.perfMetricCafe ?? "adr"; // Default to 'adr'
 
   const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
   const startDate = startDateParam && isValid(parseISO(startDateParam)) ? parseISO(startDateParam) : addDays(endDate, -6);
@@ -61,11 +64,11 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
   const [
     revenueSummaryData,
     monthlyCafeRevenueData,
-    cafeADRData
+    cafeADRData // This data will be used for both ADR and Performance comparison charts
   ] = await Promise.all([
     getRevenueSummary(dateRangeForSummary),
     getMonthlyEntityRevenue(selectedRevenueCafeName, currentYear),
-    getCafeRestaurantADR(dateRangeForSummary),
+    getCafeRestaurantADR(dateRangeForSummary), // Fetches ADR data
   ]);
 
   const cafeRevenueItems = revenueSummaryData.filter(item => SPECIFIC_CAFE_RESTAURANT_NAMES.includes(item.entityName));
@@ -121,6 +124,15 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
           data={cafeADRData}
           dateRange={dateRangeForSummary}
           currencySymbol={currencySymbol}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 mb-6 mt-6">
+        <CafeRestaurantPerformanceComparisonChart
+          data={cafeADRData} // Using ADR data for performance comparison
+          dateRange={dateRangeForSummary}
+          currencySymbol={currencySymbol}
+          initialSelectedMetric={selectedPerfMetricCafe}
         />
       </div>
     </>
