@@ -12,15 +12,10 @@ import {
     type Occupancy, 
     type ADRData, 
     type RevPARData,
-    // Removed imports related to monthly performance for this chart
-    // getMonthlyHotelPerformance, 
-    // getAverageMonthlyPerformance, 
-    // ALL_HOTELS_SELECTOR, 
-    // type AnnualPerformanceChartDataPoint 
 } from "@/services/ezee-pms";
 import { format, addDays, parseISO, isValid } from "date-fns";
 import { Percent, DollarSign, TrendingUp } from 'lucide-react';
-import { DateRangePicker } from "@/components/date-range-picker";
+// Removed DateRangePicker import as it's no longer used at the page level
 import { HotelRevenueComparisonChart } from "@/components/charts/hotel-revenue-comparison-chart";
 import { HotelPerformanceComparisonChart } from "@/components/charts/hotel-performance-comparison-chart";
 
@@ -29,8 +24,6 @@ interface HotelsPageProps {
     startDate?: string;
     endDate?: string;
     metricType?: "all" | "occupancy" | "adr" | "revpar";
-    // Removed hotelForMonthlyView as HotelPerformanceComparisonChart will no longer show monthly data
-    // hotelForMonthlyView?: string; 
   };
 }
 
@@ -39,8 +32,9 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
   const endDateParam = searchParams?.endDate;
   const startDateParam = searchParams?.startDate;
   const selectedMetricType = searchParams?.metricType ?? "occupancy"; 
-  const currentYear = today.getFullYear(); // Still useful for page description or other components
+  // const currentYear = today.getFullYear(); 
 
+  // Default to a 7-day range ending today if no params are provided
   const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
   const startDate = startDateParam && isValid(parseISO(startDateParam)) ? parseISO(startDateParam) : addDays(endDate, -6);
 
@@ -54,13 +48,11 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     allADRData, 
     allRevPARData, 
     detailedHotelRevenueData,
-    // Removed monthlyPerformanceDataForChart fetching
   ] = await Promise.all([
     getOccupancy(dateRangeForSummary),
     getADR(dateRangeForSummary),
     getRevPAR(dateRangeForSummary),
     getDetailedHotelRevenueSummary(dateRangeForSummary),
-    // No longer fetching monthly data here for HotelPerformanceComparisonChart
   ]);
 
   const hotelOccupancyData: Occupancy[] = allOccupancyData.filter(o => SPECIFIC_HOTEL_NAMES.includes(o.entityName));
@@ -94,12 +86,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
       <PageHeader
         title="Hotel Dashboard"
         description={`Key metrics for ${SPECIFIC_HOTEL_NAMES.length} hotel properties. Date range: ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}.`}
-        actions={
-          <DateRangePicker 
-            initialStartDate={dateRangeForSummary.startDate} 
-            initialEndDate={dateRangeForSummary.endDate} 
-          />
-        }
+        // Removed DateRangePicker from actions
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         {hotelStats.map(hotel => (
@@ -147,18 +134,11 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
           occupancyData={hotelOccupancyData} 
           adrData={hotelADRData}
           revparData={hotelRevPARData}
-          dateRange={dateRangeForSummary}
+          dateRange={dateRangeForSummary} // This date range is used for the description
           currencySymbol={pageCurrencySymbol}
           initialSelectedMetric={selectedMetricType as "all" | "occupancy" | "adr" | "revpar"}
-          // Removed props related to monthly view
-          // monthlyPerformanceData={monthlyPerformanceDataForChart}
-          // allHotelNames={SPECIFIC_HOTEL_NAMES}
-          // initialHotelForMonthlyView={hotelForMonthlyView}
-          // currentYearForMonthlyView={currentYear}
-          // paramNameForMonthlyHotelView="hotelForMonthlyView"
         />
       </div>
     </>
   );
 }
-
