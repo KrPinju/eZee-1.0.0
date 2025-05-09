@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { MonthlyRevenueDataPoint } from "@/services/ezee-pms";
@@ -60,8 +61,6 @@ export function RevenueChart({
   const handleEntityChange = (value: string) => {
     setSelectedEntity(value);
     const current = new URLSearchParams(Array.from(searchParams.entries()));
-    // Ensures that paramName is specific to 'hotel' or 'cafe', preventing cross-contamination
-    // of URL parameters between different RevenueChart instances.
     const paramName = entityType === 'hotel' ? "revenueHotel" : "revenueCafe";
     current.set(paramName, value);
     const query = current.toString();
@@ -69,16 +68,20 @@ export function RevenueChart({
   };
 
   const dynamicChartTitle = `${baseChartTitle} - ${selectedEntity}`;
+  const chartDescriptionForNoData = `No revenue data available for ${selectedEntity || 'the selected entity'} in ${currentYear}.`;
+  const chartDescriptionForData = `Monthly revenue for ${selectedEntity} in ${currentYear}.`;
 
 
   if (!initialData || initialData.length === 0) {
     return (
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-col items-center text-center gap-2">
-          <CardTitle>{dynamicChartTitle}</CardTitle> {/* Changed to dynamic title */}
-          <CardDescription>No revenue data available for {selectedEntity || 'the selected entity'}.</CardDescription>
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <div className="flex-1">
+            <CardTitle>{dynamicChartTitle}</CardTitle>
+            <CardDescription>{chartDescriptionForNoData}</CardDescription>
+          </div>
           <Select value={selectedEntity} onValueChange={handleEntityChange}>
-            <SelectTrigger className="w-full sm:w-[220px]">
+            <SelectTrigger className="w-full sm:w-[220px] mt-2 sm:mt-0">
               <SelectValue placeholder={`Select ${entityType === 'hotel' ? 'Hotel' : 'Cafe/Restaurant'}`} />
             </SelectTrigger>
             <SelectContent>
@@ -97,10 +100,13 @@ export function RevenueChart({
 
   return (
     <Card className="shadow-lg">
-      <CardHeader className="flex flex-col items-center text-center gap-2">
-        <CardTitle>{dynamicChartTitle}</CardTitle>
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div className="flex-1">
+          <CardTitle>{dynamicChartTitle}</CardTitle>
+           {/* Removed CardDescription from here for data-present case, handled by dynamicChartTitle itself */}
+        </div>
         <Select value={selectedEntity} onValueChange={handleEntityChange}>
-          <SelectTrigger className="w-full sm:w-[220px]">
+          <SelectTrigger className="w-full sm:w-[220px] mt-2 sm:mt-0">
             <SelectValue placeholder={`Select ${entityType === 'hotel' ? 'Hotel' : 'Cafe/Restaurant'}`} />
           </SelectTrigger>
           <SelectContent>
