@@ -5,12 +5,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, Edit3, Shield, Lock, LogOut, Briefcase, UserCircle } from "lucide-react";
+import { FaUserCircle } from 'react-icons/fa';
 
 export default function ProfilePage() {
   const user = {
     name: "Property Manager",
     email: "manager@ezee.com",
-    avatarUrl: "https://picsum.photos/id/237/200/200",
+    avatarUrl: "", // Set to empty string to demonstrate default icon
     avatarFallback: "PM",
     role: "Administrator",
     phone: "+975-17-XXXXXX", // Placeholder
@@ -27,8 +28,14 @@ export default function ProfilePage() {
         <Card className="shadow-lg md:col-span-1">
           <CardHeader className="items-center text-center">
             <Avatar className="h-24 w-24 mb-4 border-2 border-primary shadow-md">
-              <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="manager photo" />
-              <AvatarFallback className="text-3xl">{user.avatarFallback}</AvatarFallback>
+              {user.avatarUrl ? (
+                <>
+                  <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="manager photo" />
+                  <AvatarFallback className="text-3xl">{user.avatarFallback}</AvatarFallback>
+                </>
+              ) : (
+                <FaUserCircle className="h-full w-full text-muted-foreground" />
+              )}
             </Avatar>
             <CardTitle className="text-2xl">{user.name}</CardTitle>
             <CardDescription className="flex items-center justify-center gap-1 text-sm">
