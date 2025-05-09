@@ -141,6 +141,17 @@ export interface MonthlyCafePerformanceDataPoint {
   currency: string;
 }
 
+/**
+ * Represents a data point for monthly occupancy for a single hotel.
+ */
+export interface MonthlyOccupancyDataPoint {
+  month: string; // "Jan", "Feb", "Mar", ..., "Dec"
+  entityName: string;
+  occupancyRate: number;
+  totalRooms?: number;
+  occupiedRooms?: number;
+}
+
 
 export const SPECIFIC_HOTEL_NAMES = [
   "Hotel Olathang",
@@ -189,13 +200,9 @@ export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
     };
   });
 
-  const cafeRestaurantOccupancy = SPECIFIC_CAFE_RESTAURANT_NAMES.map(name => ({
-    entityName: name,
-    occupancyRate: Math.floor(Math.random() * 41) + 40, // Random rate between 40-80%
-    // occupiedRooms and totalRooms are not applicable for cafes/restaurants
-  }));
-
-  return [...hotelOccupancy, ...cafeRestaurantOccupancy];
+  // Cafe/restaurant occupancy is not typically measured in the same way as hotels (room-based).
+  // For now, returning only hotel occupancy. If cafe occupancy is needed, it would be different metrics.
+  return hotelOccupancy;
 }
 
 /**
@@ -489,4 +496,40 @@ export async function getPropertyComparisonData(dateRange: DateRange): Promise<P
     });
 
     return combinedData;
+}
+
+/**
+ * Retrieves the annual average occupancy for each specified hotel for a given year.
+ * @param year The year for which to retrieve average occupancy data.
+ * @returns A promise that resolves to an array of Occupancy objects, where occupancyRate is the annual average.
+ */
+export async function getAnnualAverageOccupancyPerHotel(year: number): Promise<Occupancy[]> {
+  const annualAverages: Occupancy[] = [];
+
+  for (const hotelName of SPECIFIC_HOTEL_NAMES) {
+    const monthlyRates: number[] = [];
+    // Simulate 12 months of data for averaging
+    for (let i = 0; i < 12; i++) {
+      // Mock monthly occupancy rate (e.g., 50-95% with some seasonality)
+      const baseRate = 50 + (hotelName.length % 10) * 2; // Base rate specific to hotel name
+      const seasonalFluctuation = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 15; // Sin wave for seasonality
+      const randomFluctuation = Math.random() * 10 - 5; // Small random noise
+      let monthRate = baseRate + seasonalFluctuation + randomFluctuation;
+      monthRate = Math.min(98, Math.max(30, monthRate)); // Clamp between 30% and 98%
+      monthlyRates.push(monthRate);
+    }
+
+    const averageOccupancyRate = monthlyRates.reduce((sum, rate) => sum + rate, 0) / monthlyRates.length;
+    const totalRooms = HOTEL_ROOM_COUNTS[hotelName] || 50; // Default if not in map
+    const averageOccupiedRooms = (averageOccupancyRate / 100) * totalRooms;
+
+    annualAverages.push({
+      entityName: hotelName,
+      occupancyRate: parseFloat(averageOccupancyRate.toFixed(1)),
+      occupiedRooms: Math.round(averageOccupiedRooms),
+      totalRooms: totalRooms,
+    });
+  }
+
+  return annualAverages;
 }

@@ -11,29 +11,43 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface OccupancyComparisonChartProps {
-  data: Occupancy[];
-  dateRange: ApiDateRange;
+  data: Occupancy[]; // Can be for a date range or annual averages
+  dateRange: ApiDateRange; // Used for descriptive text
 }
 
 const chartConfig = {
   occupancyRate: {
     label: "Occupancy (%)",
-    color: "hsl(var(--chart-1))", // Using chart-1 (Dark Blue) for consistency
+    color: "hsl(var(--chart-1))", 
   },
 } satisfies ChartConfig;
 
 export function OccupancyComparisonChart({ data, dateRange }: OccupancyComparisonChartProps) {
+  
+  const startDateObj = parseISO(dateRange.startDate);
+  const endDateObj = parseISO(dateRange.endDate);
+  const startYear = getYear(startDateObj);
+  const endYear = getYear(endDateObj);
+
+  let descriptionDatePart;
+  if (startYear === endYear && startYear === getYear(new Date(startYear, 0, 1)) && endYear === getYear(new Date(endYear, 11, 31)) && dateRange.startDate === format(new Date(startYear,0,1), 'yyyy-MM-dd') && dateRange.endDate === format(new Date(endYear,11,31), 'yyyy-MM-dd')) {
+    descriptionDatePart = `Average monthly occupancy rates for the year ${startYear}`;
+  } else {
+    descriptionDatePart = `Occupancy rates from ${format(startDateObj, "MMM d, yyyy")} to ${format(endDateObj, "MMM d, yyyy")}`;
+  }
+
+
   if (!data || data.length === 0) {
     return (
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Hotel Occupancy Comparison</CardTitle>
           <CardDescription>
-            Occupancy rates from {dateRange.startDate} to {dateRange.endDate}
+            {descriptionDatePart}
           </CardDescription>
         </CardHeader>
         <CardContent className="h-[350px] flex items-center justify-center">
-          <p className="text-muted-foreground">No occupancy data available for the selected period.</p>
+          <p className="text-muted-foreground">No occupancy data available for the selected period/year.</p>
         </CardContent>
       </Card>
     );
@@ -58,7 +72,7 @@ export function OccupancyComparisonChart({ data, dateRange }: OccupancyCompariso
       <CardHeader>
         <CardTitle>Hotel Occupancy Comparison</CardTitle>
         <CardDescription>
-          Occupancy rates from {dateRange.startDate} to {dateRange.endDate}
+          {descriptionDatePart}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -144,3 +158,6 @@ export function OccupancyComparisonChart({ data, dateRange }: OccupancyCompariso
     </Card>
   );
 }
+
+// Helper imports for description logic
+import { parseISO, getYear, format } from "date-fns";
