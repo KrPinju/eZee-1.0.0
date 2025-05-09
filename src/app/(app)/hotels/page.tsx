@@ -1,13 +1,24 @@
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getOccupancy, getADR, getRevPAR, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange } from "@/services/ezee-pms";
-import { format, addDays } from "date-fns";
+import { format, addDays, parseISO, isValid } from "date-fns";
 import { Percent, DollarSign, TrendingUp } from 'lucide-react';
+import { DateRangePicker } from "@/components/date-range-picker";
 
-export default async function HotelsPage() {
+interface HotelsPageProps {
+  searchParams?: {
+    startDate?: string;
+    endDate?: string;
+  };
+}
+
+export default async function HotelsPage({ searchParams }: HotelsPageProps) {
   const today = new Date();
-  const endDate = today;
-  const startDate = addDays(endDate, -6); // Last 7 days
+  const endDateParam = searchParams?.endDate;
+  const startDateParam = searchParams?.startDate;
+
+  const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
+  const startDate = startDateParam && isValid(parseISO(startDateParam)) ? parseISO(startDateParam) : addDays(endDate, -6);
 
   const dateRangeForSummary: ApiDateRange = {
     startDate: format(startDate, "yyyy-MM-dd"),
@@ -42,6 +53,7 @@ export default async function HotelsPage() {
       <PageHeader
         title="Hotel Dashboard"
         description={`Key metrics for ${SPECIFIC_HOTEL_NAMES.length} hotel properties. Showing data from ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}.`}
+        actions={<DateRangePicker initialStartDate={dateRangeForSummary.startDate} initialEndDate={dateRangeForSummary.endDate} />}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {hotelStats.map(hotel => (
