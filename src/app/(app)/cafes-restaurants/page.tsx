@@ -123,26 +123,6 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
           currencySymbol={currencySymbol}
         />
       </div>
-
-      <Card className="shadow-lg mt-6">
-        <CardHeader>
-          <CardTitle>Additional Cafe & Restaurant Analytics</CardTitle>
-          <CardDescription>More detailed charts and insights coming soon.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center min-h-[300px]">
-          <Image 
-            src="https://picsum.photos/seed/cafe-analytics-soon/500/300" 
-            alt="Coming Soon illustration" 
-            width={500} 
-            height={300} 
-            className="rounded-lg mb-6 shadow-md"
-            data-ai-hint="analytics chart"
-          />
-          <p className="text-lg text-muted-foreground">
-            Stay tuned for more in-depth cafe and restaurant performance metrics!
-          </p>
-        </CardContent>
-      </Card>
     </>
   );
 }
