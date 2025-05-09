@@ -15,8 +15,8 @@ interface MonthlyOccupancyPerformanceChartProps {
   data: MonthlyOccupancyDataPoint[];
   entityName: string;
   year: number;
-  allEntities: string[]; // New prop
-  paramNameForSelector: string; // New prop
+  allEntities: string[]; 
+  paramNameForSelector: string; 
 }
 
 const chartConfigBase: ChartConfig = {
@@ -30,12 +30,12 @@ export function MonthlyOccupancyPerformanceChart({
   data,
   entityName,
   year,
-  allEntities, // Destructure new prop
-  paramNameForSelector, // Destructure new prop
+  allEntities, 
+  paramNameForSelector, 
 }: MonthlyOccupancyPerformanceChartProps) {
   const chartConfig = { ...chartConfigBase };
 
-  const chartTitle = `${entityName} - Monthly Occupancy ${year}`;
+  const chartTitle = `${entityName} - Occupancy Performance ${year}`;
   const chartDescriptionForNoData = `No occupancy performance data available for ${entityName} in ${year}.`;
 
   if (!data || data.length === 0) {
