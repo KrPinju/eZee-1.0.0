@@ -24,7 +24,7 @@ export default function AnalyticsPage() {
               alt="Advanced Analytics Illustration"
               width={800}
               height={450}
-              className="rounded-lg mb-8 shadow-md object-cover"
+              className="rounded-lg mb-8 shadow-md object-cover w-full max-w-xl"
               data-ai-hint="analytics charts"
             />
             <h2 className="text-2xl font-semibold text-foreground mb-3">
@@ -35,7 +35,7 @@ export default function AnalyticsPage() {
               customizable reports, and deep-dive capabilities into your revenue, occupancy, and performance metrics.
               Stay tuned for a transformative data experience.
             </p>
-            <div className="flex space-x-6 text-accent">
+            <div className="flex flex-wrap justify-center gap-6 text-accent">
               <div className="flex flex-col items-center">
                 <BarChart className="h-10 w-10 mb-1" />
                 <span className="text-xs text-muted-foreground">Trend Analysis</span>
