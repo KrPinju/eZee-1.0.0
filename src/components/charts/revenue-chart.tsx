@@ -1,8 +1,7 @@
-
 "use client";
 
 import type { MonthlyRevenueDataPoint } from "@/services/ezee-pms";
-import { useState, useEffect } from "react"; // Added useEffect
+import { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
 import {
@@ -18,16 +17,15 @@ interface RevenueChartProps {
   allEntityNames: string[];
   initialSelectedEntityName: string;
   currencySymbol: string;
-  currentYear: number; // Keep prop for data fetching, but not for title
-  baseChartTitle: string; // e.g., "Hotel Revenue" or "Cafe & Restaurant Revenue"
+  currentYear: number;
+  baseChartTitle: string;
   barColor?: string;
-  entityType: 'hotel' | 'cafe'; // To manage different query params for routing
+  entityType: 'hotel' | 'cafe'; 
 }
 
 const chartConfigBase = {
   revenueAmount: {
-    label: "Revenue", // Currency symbol added dynamically in tooltip/axis
-    // Default color, can be overridden by barColor prop
+    label: "Revenue", 
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
@@ -37,7 +35,7 @@ export function RevenueChart({
   allEntityNames,
   initialSelectedEntityName,
   currencySymbol,
-  currentYear, // Still needed for data fetching logic if any, or other descriptions
+  currentYear,
   baseChartTitle,
   barColor,
   entityType,
@@ -62,6 +60,8 @@ export function RevenueChart({
   const handleEntityChange = (value: string) => {
     setSelectedEntity(value);
     const current = new URLSearchParams(Array.from(searchParams.entries()));
+    // Ensures that paramName is specific to 'hotel' or 'cafe', preventing cross-contamination
+    // of URL parameters between different RevenueChart instances.
     const paramName = entityType === 'hotel' ? "revenueHotel" : "revenueCafe";
     current.set(paramName, value);
     const query = current.toString();
@@ -75,7 +75,7 @@ export function RevenueChart({
     return (
       <Card className="shadow-lg">
         <CardHeader className="flex flex-col items-center text-center gap-2">
-          <CardTitle>{baseChartTitle}</CardTitle>
+          <CardTitle>{dynamicChartTitle}</CardTitle> {/* Changed to dynamic title */}
           <CardDescription>No revenue data available for {selectedEntity || 'the selected entity'}.</CardDescription>
           <Select value={selectedEntity} onValueChange={handleEntityChange}>
             <SelectTrigger className="w-full sm:w-[220px]">

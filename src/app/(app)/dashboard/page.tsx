@@ -8,15 +8,15 @@ import { AnnualPerformanceLineChart } from "@/components/charts/annual-performan
 import { PropertyComparisonChart } from "@/components/charts/property-comparison-chart";
 import {
   getOccupancy,
-  getRevenueSummary, // Renamed from getRevenue
+  getRevenueSummary,
   getADR,
   getRevPAR,
   type DateRange as ApiDateRange,
   getAverageMonthlyPerformance,
   getMonthlyHotelPerformance,
   getPropertyComparisonData,
-  getMonthlyEntityRevenue, // New import
-  type MonthlyRevenueDataPoint // New import
+  getMonthlyEntityRevenue,
+  type MonthlyRevenueDataPoint
 } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
@@ -65,8 +65,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const startDateParam = searchParams?.startDate;
   
   const selectedAnnualPerfHotelName = searchParams?.chartHotel ?? ALL_HOTELS_SELECTOR;
-  const selectedRevenueHotelName = searchParams?.revenueHotel ?? SPECIFIC_HOTEL_NAMES[0]; // Default to first hotel
-  const selectedRevenueCafeName = searchParams?.revenueCafe ?? SPECIFIC_CAFE_RESTAURANT_NAMES[0]; // Default to first cafe
+
+  // Ensures selectedRevenueHotelName and selectedRevenueCafeName are derived
+  // independently from searchParams.revenueHotel and searchParams.revenueCafe respectively.
+  // This maintains separation of state for the two revenue charts.
+  const selectedRevenueHotelName = searchParams?.revenueHotel ?? SPECIFIC_HOTEL_NAMES[0]; 
+  const selectedRevenueCafeName = searchParams?.revenueCafe ?? SPECIFIC_CAFE_RESTAURANT_NAMES[0];
 
 
   const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
@@ -86,19 +90,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     revparData,
     annualPerformanceData,
     propertyComparisonData,
-    monthlyHotelRevenueData, // New data
-    monthlyCafeRevenueData,   // New data
+    monthlyHotelRevenueData,
+    monthlyCafeRevenueData,
   ] = await Promise.all([
     getOccupancy(dateRangeForSummary),
-    getRevenueSummary(dateRangeForSummary), // Use for summary cards
+    getRevenueSummary(dateRangeForSummary),
     getADR(dateRangeForSummary),
     getRevPAR(dateRangeForSummary),
     selectedAnnualPerfHotelName === ALL_HOTELS_SELECTOR
       ? getAverageMonthlyPerformance(currentYear)
       : getMonthlyHotelPerformance(selectedAnnualPerfHotelName, currentYear),
     getPropertyComparisonData(dateRangeForSummary),
-    getMonthlyEntityRevenue(selectedRevenueHotelName, currentYear), // Fetch monthly for selected hotel
-    getMonthlyEntityRevenue(selectedRevenueCafeName, currentYear),   // Fetch monthly for selected cafe
+    getMonthlyEntityRevenue(selectedRevenueHotelName, currentYear),
+    getMonthlyEntityRevenue(selectedRevenueCafeName, currentYear),
   ]);
 
 
@@ -171,16 +175,16 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           changePercentage={averageHotelRevPARChange}
         />
         <StatCard
-          title="Monitored Hotels &amp; Resorts"
+          title="Monitored Hotels & Resorts"
           value={SPECIFIC_HOTEL_NAMES.length}
           icon={<Building className="h-5 w-5" />}
-          description="Hotels under Bhutan Hotels &amp; Restaurants,"
+          description="Hotels under Bhutan Hotels & Restaurants,"
         />
          <StatCard
-            title="Monitored Cafe &amp; Restaurants"
+            title="Monitored Cafe & Restaurants"
             value={monitoredCafesRestaurantsCount}
             icon={<Coffee className="h-5 w-5" />}
-            description="Cafes/Restaurants under Bhutan Hotels &amp; Restaurants."
+            description="Cafes/Restaurants under Bhutan Hotels & Restaurants."
          />
       </div>
 
@@ -195,7 +199,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             initialSelectedEntityName={selectedRevenueHotelName}
             currencySymbol={currencySymbol}
             currentYear={currentYear}
-            baseChartTitle="Hotels &amp; Resort Revenue Breakdown"
+            baseChartTitle="Hotels & Resort Revenue Breakdown"
             barColor="hsl(var(--chart-1))"
             entityType="hotel"
         />
@@ -205,7 +209,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             initialSelectedEntityName={selectedRevenueCafeName}
             currencySymbol={currencySymbol}
             currentYear={currentYear}
-            baseChartTitle="Cafes &amp; Restaurants Revenue Breakdown"
+            baseChartTitle="Cafes & Restaurants Revenue Breakdown"
             barColor="hsl(var(--chart-3))"
             entityType="cafe"
         />
