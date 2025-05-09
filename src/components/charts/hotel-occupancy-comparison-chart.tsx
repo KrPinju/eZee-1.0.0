@@ -1,8 +1,7 @@
-
 "use client";
 
 import type { Occupancy } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Tooltip as RechartsTooltip } from "recharts";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Tooltip as RechartsTooltip, Label } from "recharts";
 import {
   ChartContainer,
   ChartTooltipContent,
@@ -17,21 +16,23 @@ interface HotelOccupancyComparisonChartProps {
 }
 
 const chartConfig = {
-  occupancyRate: {
-    label: "Occupancy (%)",
-    color: "hsl(var(--chart-2))", // Using chart-2 color for variety
+  occupiedRooms: {
+    label: "Occupied Rooms",
+    color: "hsl(var(--chart-2))", 
   },
 } satisfies ChartConfig;
 
 export function HotelOccupancyComparisonChart({ data, dateRange }: HotelOccupancyComparisonChartProps) {
-  if (!data || data.length === 0) {
+  const hotelData = data.filter(item => item.totalRooms !== undefined && item.occupiedRooms !== undefined);
+
+  if (!hotelData || hotelData.length === 0) {
     return (
       <Card className="shadow-lg">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex-1">
             <CardTitle>Hotel Occupancy Comparison</CardTitle>
             <CardDescription>
-              Occupancy rates from {dateRange.startDate} to {dateRange.endDate}
+              Number of occupied rooms from {dateRange.startDate} to {dateRange.endDate}
             </CardDescription>
           </div>
           <DateRangePicker
@@ -47,9 +48,10 @@ export function HotelOccupancyComparisonChart({ data, dateRange }: HotelOccupanc
     );
   }
   
-  const formattedData = data.map(item => ({
+  const formattedData = hotelData.map(item => ({
     name: item.entityName,
-    occupancyRate: item.occupancyRate,
+    occupiedRooms: item.occupiedRooms!,
+    totalRooms: item.totalRooms!,
   }));
 
   const labelStyle = {
@@ -59,13 +61,15 @@ export function HotelOccupancyComparisonChart({ data, dateRange }: HotelOccupanc
     fontWeight: 'bold',
   };
 
+  const maxTotalRooms = Math.max(...formattedData.map(item => item.totalRooms), 0);
+
   return (
     <Card className="shadow-lg">
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex-1">
             <CardTitle>Hotel Occupancy Comparison</CardTitle>
             <CardDescription>
-             Occupancy rates from {dateRange.startDate} to {dateRange.endDate}
+             Number of occupied rooms from {dateRange.startDate} to {dateRange.endDate}
             </CardDescription>
         </div>
         <DateRangePicker
@@ -92,35 +96,38 @@ export function HotelOccupancyComparisonChart({ data, dateRange }: HotelOccupanc
                 height={0}
               />
               <YAxis 
-                tickFormatter={(value) => `${value}%`} 
+                tickFormatter={(value) => String(Math.round(value))} // Ensure whole numbers for room counts
                 width={50}
                 tick={{ fontSize: 10 }}
                 axisLine={false}
                 tickLine={false} 
-                domain={[0, 100]}
-              />
+                domain={[0, maxTotalRooms > 0 ? dataMax => Math.ceil(Math.max(maxTotalRooms, dataMax) / 10) * 10 : 60]} // Ensure Y-axis covers max total rooms or at least 60
+              >
+                <Label value="Number of Rooms" angle={-90} position="insideLeft" offset={-5} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
+              </YAxis>
               <RechartsTooltip
                 cursor={false}
                 content={
                   <ChartTooltipContent
                     formatter={(value, dataKey, entry) => {
                       const hotelName = entry.payload.name;
-                      const metricLabel = chartConfig[dataKey as keyof typeof chartConfig]?.label || dataKey;
-                      return [`${(value as number).toFixed(1)}%`, `${hotelName} - Occupancy`];
+                      const occupied = entry.payload.occupiedRooms;
+                      const total = entry.payload.totalRooms;
+                      return [`${occupied} / ${total} rooms`, `${hotelName} - Occupancy`];
                     }}
                     indicator="dashed"
                   />
                 }
               />
               <Bar 
-                dataKey="occupancyRate" 
-                fill="var(--color-occupancyRate)" 
+                dataKey="occupiedRooms" 
+                fill="var(--color-occupiedRooms)" 
                 radius={[4, 4, 0, 0]} 
                 filter="url(#shadow-hotel-occupancy)"
-                name="Occupancy Rate"
+                name="Occupied Rooms"
               >
                 <LabelList
-                    dataKey="name"
+                    dataKey="name" // Keep showing hotel name inside the bar
                     position="center" 
                     angle={-90} 
                     offset={0} 

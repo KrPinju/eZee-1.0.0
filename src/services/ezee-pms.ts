@@ -10,6 +10,14 @@ export interface Occupancy {
    * The occupancy rate (0 to 100).
    */
   occupancyRate: number;
+  /**
+   * The number of occupied rooms (for hotels).
+   */
+  occupiedRooms?: number;
+  /**
+   * The total number of rooms (for hotels).
+   */
+  totalRooms?: number;
 }
 
 /**
@@ -143,6 +151,15 @@ export const SPECIFIC_CAFE_RESTAURANT_NAMES = [
   "Druk Wangyel Cafe",
 ];
 
+const HOTEL_ROOM_COUNTS: Record<string, number> = {
+  "Hotel Olathang": 60,
+  "Olathang Cottages": 20,
+  "Gangtey Tent Resort": 10,
+  "Zhingkham Resort": 20,
+  "Hotel Phuntsho Pelri": 47,
+  "Hotel Ugyen Ling": 20,
+};
+
 
 /**
  * Asynchronously retrieves occupancy data for a given date range.
@@ -151,15 +168,22 @@ export const SPECIFIC_CAFE_RESTAURANT_NAMES = [
  */
 export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
   // TODO: Implement this by calling the eZee PMS API.
-  // For now, mock data reflects individual hotels.
-  const hotelOccupancy = SPECIFIC_HOTEL_NAMES.map(name => ({
-    entityName: name,
-    occupancyRate: Math.floor(Math.random() * 31) + 60, // Random rate between 60-90%
-  }));
+  const hotelOccupancy = SPECIFIC_HOTEL_NAMES.map(name => {
+    const occupancyRate = Math.floor(Math.random() * 31) + 60; // Random rate between 60-90%
+    const totalRooms = HOTEL_ROOM_COUNTS[name] || 50; // Default if not in map
+    const occupiedRooms = Math.round((occupancyRate / 100) * totalRooms);
+    return {
+      entityName: name,
+      occupancyRate: occupancyRate,
+      occupiedRooms: occupiedRooms,
+      totalRooms: totalRooms,
+    };
+  });
 
   const cafeRestaurantOccupancy = SPECIFIC_CAFE_RESTAURANT_NAMES.map(name => ({
     entityName: name,
     occupancyRate: Math.floor(Math.random() * 41) + 40, // Random rate between 40-80%
+    // occupiedRooms and totalRooms are not applicable for cafes/restaurants
   }));
 
   return [...hotelOccupancy, ...cafeRestaurantOccupancy];
@@ -221,7 +245,7 @@ export async function getADR(dateRange: DateRange): Promise<ADRData[]> {
   // Mock data for specified hotels.
   return SPECIFIC_HOTEL_NAMES.map(name => ({
     entityName: name,
-    adr: Math.floor(Math.random() * 71) + 80, // Random ADR between 80-150
+    adr: Math.floor(Math.random() * 7001) + 8000, // Random ADR between Nu.8000-Nu.15000
     currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 }
@@ -236,10 +260,10 @@ export async function getRevPAR(dateRange: DateRange): Promise<RevPARData[]> {
   // Mock data for specified hotels.
   // RevPAR is typically ADR * Occupancy Rate. For simplicity, we'll mock it directly,
   // ensuring it's generally lower than ADR and reflects occupancy.
-  // Example: If ADR is 80-150 and Occupancy is 60-90%, RevPAR could be 50-135.
+  // Example: If ADR is 8000-15000 and Occupancy is 60-90%, RevPAR could be 5000-13500.
   return SPECIFIC_HOTEL_NAMES.map(name => ({
     entityName: name,
-    revpar: Math.floor(Math.random() * 86) + 50, // Random RevPAR between 50-135
+    revpar: Math.floor(Math.random() * 8501) + 5000, // Random RevPAR between Nu.5000-Nu.13500
     currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 }
@@ -248,20 +272,20 @@ export async function getRevPAR(dateRange: DateRange): Promise<RevPARData[]> {
 const generateMockHotelData = (hotelName: string): AnnualPerformanceChartDataPoint[] => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const mockData: AnnualPerformanceChartDataPoint[] = [];
-    const baseOcc = 50 + (hotelName.length % 10) * 2;
-    const baseAdr = 100 + (hotelName.length % 15) * 5;
+    const baseOcc = 50 + (hotelName.length % 10) * 2; // Base occupancy %
+    const baseAdr = 10000 + (hotelName.length % 15) * 500; // Base ADR in Nu.
 
     for (let i = 0; i < months.length; i++) {
         const month = months[i];
-        const seasonalFactorOcc = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 15 + 1;
-        const randomFactorOcc = Math.random() * 10 - 5;
+        const seasonalFactorOcc = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 15 + 1; // Seasonal variation for occupancy
+        const randomFactorOcc = Math.random() * 10 - 5; // Random noise for occupancy
         const avgOccupancyRate = Math.min(98, Math.max(30, baseOcc + seasonalFactorOcc + randomFactorOcc));
 
-        const seasonalFactorAdr = Math.sin((i / 12) * Math.PI * 2) * 20 + 1;
-        const randomFactorAdr = Math.random() * 30 - 15;
-        const avgAdr = Math.max(50, baseAdr + seasonalFactorAdr + randomFactorAdr);
+        const seasonalFactorAdr = Math.sin((i / 12) * Math.PI * 2) * 2000 + 1; // Seasonal variation for ADR
+        const randomFactorAdr = Math.random() * 3000 - 1500; // Random noise for ADR
+        const avgAdr = Math.max(5000, baseAdr + seasonalFactorAdr + randomFactorAdr);
 
-        const avgRevpar = Math.max(20, (avgAdr * avgOccupancyRate) / 100 + (Math.random() * 10 - 5));
+        const avgRevpar = Math.max(2000, (avgAdr * avgOccupancyRate) / 100 + (Math.random() * 1000 - 500)); // RevPAR calculation
 
         mockData.push({
             month: month,
@@ -314,9 +338,9 @@ export async function getAverageMonthlyPerformance(
 
     const averageData: AnnualPerformanceChartDataPoint[] = months.map(month => {
         const monthStats = allHotelsData[month];
-        const avgOccupancyRate = monthStats.occ.reduce((a, b) => a + b, 0) / monthStats.occ.length;
-        const avgAdr = monthStats.adr.reduce((a, b) => a + b, 0) / monthStats.adr.length;
-        const avgRevpar = monthStats.revpar.reduce((a, b) => a + b, 0) / monthStats.revpar.length;
+        const avgOccupancyRate = monthStats.occ.length > 0 ? monthStats.occ.reduce((a, b) => a + b, 0) / monthStats.occ.length : 0;
+        const avgAdr = monthStats.adr.length > 0 ? monthStats.adr.reduce((a, b) => a + b, 0) / monthStats.adr.length : 0;
+        const avgRevpar = monthStats.revpar.length > 0 ? monthStats.revpar.reduce((a, b) => a + b, 0) / monthStats.revpar.length : 0;
 
         return {
             month: month,
@@ -338,14 +362,18 @@ export async function getAverageMonthlyPerformance(
 const generateMockMonthlyEntityRevenue = (entityName: string, year: number): MonthlyRevenueDataPoint[] => {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const mockData: MonthlyRevenueDataPoint[] = [];
-  const baseRevenue = (entityName.length % 5 + 1) * 20000; // Base revenue varies per entity (20k to 100k)
+  // Base revenue in Nu. (e.g., from 2,000,000 to 10,000,000 for hotels)
+  const isHotel = SPECIFIC_HOTEL_NAMES.includes(entityName);
+  const baseRevenue = isHotel 
+    ? (entityName.length % 5 + 1) * 2000000 
+    : (entityName.length % 5 + 1) * 200000; // Lower base for cafes
 
   for (let i = 0; i < months.length; i++) {
     const month = months[i];
     // Mock revenue: Trend with seasonality (e.g., higher in mid-year and year-end)
     const seasonalFactor = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 0.3 + 1; // Factor from 0.7 to 1.3
     const randomFactor = (Math.random() * 0.2 - 0.1) + 1; // Factor from 0.9 to 1.1
-    const revenueAmount = Math.max(5000, baseRevenue * seasonalFactor * randomFactor);
+    const revenueAmount = Math.max(isHotel ? 500000 : 50000, baseRevenue * seasonalFactor * randomFactor);
 
     mockData.push({
       month: month,
