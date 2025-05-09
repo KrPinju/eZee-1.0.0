@@ -1,14 +1,16 @@
 
-import { DollarSign, Coffee, TrendingUp } from "lucide-react";
+import { DollarSign, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { RevenueChart } from "@/components/charts/revenue-chart";
+import { CafeRestaurantADRComparisonChart } from "@/components/charts/cafe-restaurant-adr-comparison-chart"; // New import
 import {
   getRevenueSummary,
   getMonthlyEntityRevenue,
   SPECIFIC_CAFE_RESTAURANT_NAMES,
   type DateRange as ApiDateRange,
+  type ADRData, // Import ADRData
 } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +31,15 @@ const calculatePercentageChange = (current: number, previous: number): number | 
   return ((current - previous) / previous) * 100;
 };
 
+// Mock function to get "ADR" (Average Daily Revenue) for cafes/restaurants
+async function getCafeRestaurantADR(dateRange: ApiDateRange): Promise<ADRData[]> {
+  return SPECIFIC_CAFE_RESTAURANT_NAMES.map(name => ({
+    entityName: name,
+    adr: Math.floor(Math.random() * 15000) + 5000, // Random ADR-like value (Nu.5,000 - Nu.20,000)
+    currency: 'BTN',
+  }));
+}
+
 export default async function CafesRestaurantsPage({ searchParams }: CafesRestaurantsPageProps) {
   const today = new Date();
   const endDateParam = searchParams?.endDate;
@@ -46,9 +57,14 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
 
   const currentYear = today.getFullYear();
 
-  const [revenueSummaryData, monthlyCafeRevenueData] = await Promise.all([
+  const [
+    revenueSummaryData,
+    monthlyCafeRevenueData,
+    cafeADRData // New data
+  ] = await Promise.all([
     getRevenueSummary(dateRangeForSummary),
     getMonthlyEntityRevenue(selectedRevenueCafeName, currentYear),
+    getCafeRestaurantADR(dateRangeForSummary), // Fetch new data
   ]);
 
   const cafeRevenueItems = revenueSummaryData.filter(item => SPECIFIC_CAFE_RESTAURANT_NAMES.includes(item.entityName));
@@ -99,6 +115,14 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
         />
       </div>
       
+      <div className="grid grid-cols-1 gap-6 mb-6 mt-6"> {/* Added mt-6 for spacing */}
+        <CafeRestaurantADRComparisonChart
+          data={cafeADRData}
+          dateRange={dateRangeForSummary}
+          currencySymbol={currencySymbol}
+        />
+      </div>
+
       <Card className="shadow-lg mt-6">
         <CardHeader>
           <CardTitle>Additional Cafe & Restaurant Analytics</CardTitle>
