@@ -12,10 +12,11 @@ import {
     type Occupancy, 
     type ADRData, 
     type RevPARData,
-    getMonthlyHotelPerformance, 
-    getAverageMonthlyPerformance, 
-    ALL_HOTELS_SELECTOR, 
-    type AnnualPerformanceChartDataPoint 
+    // Removed imports related to monthly performance for this chart
+    // getMonthlyHotelPerformance, 
+    // getAverageMonthlyPerformance, 
+    // ALL_HOTELS_SELECTOR, 
+    // type AnnualPerformanceChartDataPoint 
 } from "@/services/ezee-pms";
 import { format, addDays, parseISO, isValid } from "date-fns";
 import { Percent, DollarSign, TrendingUp } from 'lucide-react';
@@ -28,7 +29,8 @@ interface HotelsPageProps {
     startDate?: string;
     endDate?: string;
     metricType?: "all" | "occupancy" | "adr" | "revpar";
-    hotelForMonthlyView?: string; 
+    // Removed hotelForMonthlyView as HotelPerformanceComparisonChart will no longer show monthly data
+    // hotelForMonthlyView?: string; 
   };
 }
 
@@ -37,9 +39,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
   const endDateParam = searchParams?.endDate;
   const startDateParam = searchParams?.startDate;
   const selectedMetricType = searchParams?.metricType ?? "occupancy"; 
-  const currentYear = today.getFullYear();
-  const hotelForMonthlyView = searchParams?.hotelForMonthlyView ?? ALL_HOTELS_SELECTOR;
-
+  const currentYear = today.getFullYear(); // Still useful for page description or other components
 
   const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
   const startDate = startDateParam && isValid(parseISO(startDateParam)) ? parseISO(startDateParam) : addDays(endDate, -6);
@@ -54,15 +54,13 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     allADRData, 
     allRevPARData, 
     detailedHotelRevenueData,
-    monthlyPerformanceDataForChart 
+    // Removed monthlyPerformanceDataForChart fetching
   ] = await Promise.all([
     getOccupancy(dateRangeForSummary),
     getADR(dateRangeForSummary),
     getRevPAR(dateRangeForSummary),
     getDetailedHotelRevenueSummary(dateRangeForSummary),
-    hotelForMonthlyView === ALL_HOTELS_SELECTOR 
-      ? getAverageMonthlyPerformance(currentYear) 
-      : getMonthlyHotelPerformance(hotelForMonthlyView, currentYear)
+    // No longer fetching monthly data here for HotelPerformanceComparisonChart
   ]);
 
   const hotelOccupancyData: Occupancy[] = allOccupancyData.filter(o => SPECIFIC_HOTEL_NAMES.includes(o.entityName));
@@ -95,7 +93,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     <>
       <PageHeader
         title="Hotel Dashboard"
-        description={`Key metrics for ${SPECIFIC_HOTEL_NAMES.length} hotel properties. Date range: ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}. Monthly view for ${currentYear}.`}
+        description={`Key metrics for ${SPECIFIC_HOTEL_NAMES.length} hotel properties. Date range: ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}.`}
         actions={
           <DateRangePicker 
             initialStartDate={dateRangeForSummary.startDate} 
@@ -152,13 +150,15 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
           dateRange={dateRangeForSummary}
           currencySymbol={pageCurrencySymbol}
           initialSelectedMetric={selectedMetricType as "all" | "occupancy" | "adr" | "revpar"}
-          monthlyPerformanceData={monthlyPerformanceDataForChart}
-          allHotelNames={SPECIFIC_HOTEL_NAMES}
-          initialHotelForMonthlyView={hotelForMonthlyView}
-          currentYearForMonthlyView={currentYear}
-          paramNameForMonthlyHotelView="hotelForMonthlyView"
+          // Removed props related to monthly view
+          // monthlyPerformanceData={monthlyPerformanceDataForChart}
+          // allHotelNames={SPECIFIC_HOTEL_NAMES}
+          // initialHotelForMonthlyView={hotelForMonthlyView}
+          // currentYearForMonthlyView={currentYear}
+          // paramNameForMonthlyHotelView="hotelForMonthlyView"
         />
       </div>
     </>
   );
 }
+
