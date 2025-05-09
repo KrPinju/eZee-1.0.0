@@ -6,14 +6,13 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Building2,
-  UtensilsCrossed, 
+  UtensilsCrossed,
   BarChart3,
   Settings,
   LifeBuoy,
   Percent,
   DollarSign,
-  ChevronLeft,
-  ChevronRight,
+  User, // Added User icon
 } from 'lucide-react';
 import { IoIosArrowForward } from "react-icons/io";
 
@@ -41,9 +40,10 @@ const navItems = [
   { href: '/analytics', icon: BarChart3, label: 'Analytics', tooltip: 'Analytics' },
 ];
 
-const settingsAndSupportItems = [
+const utilityNavItems = [ // Renamed and added Profile
+     { href: '/profile', icon: User, label: 'Profile', tooltip: "Profile"},
      { href: '/settings', icon: Settings, label: 'Settings', tooltip: "Settings" },
-     { href: '/support', icon: LifeBuoy, label: 'Support', tooltip: "Support" }, // Updated href
+     { href: '/support', icon: LifeBuoy, label: 'Support', tooltip: "Support" },
 ];
 
 export function AppSidebar() {
@@ -67,7 +67,6 @@ export function AppSidebar() {
                 onClick={toggleSidebar}
                 aria-label={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
             >
-                {/* Using IoIosArrowForward and rotating it for collapse state */}
                 {state === 'expanded' ? (
                     <IoIosArrowForward className="h-5 w-5 transform rotate-180" />
                 ) : (
@@ -103,12 +102,12 @@ export function AppSidebar() {
       <SidebarFooter className="mt-auto">
         <SidebarSeparator />
          <SidebarMenu>
-             {settingsAndSupportItems.map((item) => (
+             {utilityNavItems.map((item) => ( // Changed to utilityNavItems
                  <SidebarMenuItem key={item.href}>
                      <Link href={item.href} legacyBehavior passHref>
                          <SidebarMenuButton
                              asChild
-                             isActive={pathname.startsWith(item.href)} 
+                             isActive={pathname.startsWith(item.href)}
                              tooltip={{ children: item.tooltip, className: "bg-primary text-primary-foreground"}}
                              className={cn(
                                 "justify-start",
@@ -125,7 +124,12 @@ export function AppSidebar() {
              ))}
         </SidebarMenu>
         <SidebarSeparator />
-        <div className="flex items-center gap-3 p-3 group-data-[collapsible=icon]:justify-center">
+        <Link href="/profile" passHref legacyBehavior>
+          <a className={cn(
+            "flex items-center gap-3 p-3 group-data-[collapsible=icon]:justify-center hover:bg-sidebar-accent/50 rounded-md transition-colors",
+            pathname === '/profile' && "bg-sidebar-accent/80"
+            )}
+          >
             <Avatar className="h-9 w-9 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
                 <AvatarImage src="https://picsum.photos/id/237/200/200" alt="User Avatar" data-ai-hint="user avatar" />
                 <AvatarFallback>PM</AvatarFallback>
@@ -134,7 +138,8 @@ export function AppSidebar() {
                 <span className="text-sm font-medium text-sidebar-foreground">Property Manager</span>
                 <span className="text-xs text-sidebar-foreground/70">manager@ezee.com</span>
             </div>
-        </div>
+          </a>
+        </Link>
       </SidebarFooter>
     </Sidebar>
   );
