@@ -42,8 +42,8 @@ const navItems = [
 ];
 
 const settingsAndSupportItems = [
-     { href: '/settings', icon: Settings, label: 'Settings', tooltip: "Settings" }, // Updated href
-     { href: '#', icon: LifeBuoy, label: 'Support', tooltip: "Support" },
+     { href: '/settings', icon: Settings, label: 'Settings', tooltip: "Settings" },
+     { href: '/support', icon: LifeBuoy, label: 'Support', tooltip: "Support" }, // Updated href
 ];
 
 export function AppSidebar() {
@@ -104,11 +104,11 @@ export function AppSidebar() {
         <SidebarSeparator />
          <SidebarMenu>
              {settingsAndSupportItems.map((item) => (
-                 <SidebarMenuItem key={item.href}> {/* Ensure key is unique, href should be unique here */}
+                 <SidebarMenuItem key={item.href}>
                      <Link href={item.href} legacyBehavior passHref>
                          <SidebarMenuButton
                              asChild
-                             isActive={pathname.startsWith(item.href)} // Check active state
+                             isActive={pathname.startsWith(item.href)} 
                              tooltip={{ children: item.tooltip, className: "bg-primary text-primary-foreground"}}
                              className={cn(
                                 "justify-start",
