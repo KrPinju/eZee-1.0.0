@@ -231,7 +231,7 @@ export function HotelPerformanceComparisonChart({
                   axisLine={false}
                   tickLine={false}
                 >
-                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" offset={-25} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
+                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" offset={-15} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
                 </YAxis>
               )}
 
@@ -316,3 +316,5 @@ export function HotelPerformanceComparisonChart({
   );
 }
 
+
+    
