@@ -3,9 +3,11 @@
 import type { AnnualPerformanceChartDataPoint } from "@/services/ezee-pms";
 import { useState, useEffect } from "react"; // Added useEffect
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
+// Removed RechartsTooltip as it was causing errors, will use ChartTooltip from shadcn/ui
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid } from "recharts"; 
 import {
   ChartContainer,
+  ChartTooltip, // Import ChartTooltip
   ChartTooltipContent,
   ChartConfig
 } from "@/components/ui/chart";
@@ -75,6 +77,7 @@ export function AnnualPerformanceLineChart({
     : `Monthly Occupancy, ADR, and RevPAR for ${selectedHotel}.`;
 
   const chartConfig = { ...chartConfigBase };
+  // Dynamically set labels with currency symbol
   chartConfig.avgAdr.label = `ADR (${currencySymbol})`;
   chartConfig.avgRevpar.label = `RevPAR (${currencySymbol})`;
 
@@ -140,7 +143,7 @@ export function AnnualPerformanceLineChart({
               <YAxis
                  yAxisId="left"
                  orientation="left"
-                 stroke="var(--color-avgOccupancyRate)"
+                 stroke="hsl(var(--muted-foreground))" // Changed to neutral color
                  tickLine={false}
                  axisLine={false}
                  tickMargin={4}
@@ -149,28 +152,29 @@ export function AnnualPerformanceLineChart({
                <YAxis
                  yAxisId="right"
                  orientation="right"
-                 stroke="var(--color-avgAdr)" 
+                 stroke="hsl(var(--muted-foreground))" // Changed to neutral color
                  tickLine={false}
                  axisLine={false}
                  tickMargin={4}
                  tickFormatter={(value) => `${currencySymbol}${value}`}
                  tick={{ fontSize: 10 }} 
               />
-              <RechartsTooltip
+              {/* Using ChartTooltip from shadcn/ui */}
+              <ChartTooltip
                   cursor={true}
                   content={
                       <ChartTooltipContent
                            indicator="line"
-                           formatter={(value, name) => {
+                           formatter={(value, name) => { // `name` here is the dataKey of the line
                               const key = name as keyof typeof chartConfig;
                               const configEntry = chartConfig[key];
                               
-                              if (!configEntry || typeof configEntry.label !== 'string') { // Type guard for label
-                                return String(value); // Fallback if label is not a string or entry doesn't exist
+                              if (!configEntry || typeof configEntry.label !== 'string') {
+                                return String(value);
                               }
 
                               if (key === 'avgOccupancyRate') {
-                                  return [`${Number(value).toFixed(1)}`, configEntry.label];
+                                  return [`${Number(value).toFixed(1)}`, configEntry.label]; // No % sign as per previous request
                               }
                               // For ADR and RevPAR, use the label which includes the currency symbol
                               return [`${currencySymbol}${Number(value).toLocaleString()}`, configEntry.label];
@@ -179,32 +183,32 @@ export function AnnualPerformanceLineChart({
                   }
               />
               <Line
-                yAxisId="left"
+                yAxisId="left" // Corresponds to left YAxis
                 dataKey="avgOccupancyRate"
                 type="monotone"
                 stroke="var(--color-avgOccupancyRate)"
                 strokeWidth={2}
                 dot={false}
-                name="avgOccupancyRate" 
+                name="avgOccupancyRate" // This name is used by formatter
               />
               <Line
-                yAxisId="right"
+                yAxisId="right" // Corresponds to right YAxis
                 dataKey="avgAdr"
                 type="monotone"
                 stroke="var(--color-avgAdr)"
                 strokeWidth={2}
                 dot={false}
-                name="avgAdr" 
+                name="avgAdr" // This name is used by formatter
               />
                <Line
-                yAxisId="right" 
+                yAxisId="right" // Corresponds to right YAxis
                 dataKey="avgRevpar"
                 type="monotone"
                 stroke="var(--color-avgRevpar)"
                 strokeWidth={2}
                 strokeDasharray="5 5" 
                 dot={false}
-                name="avgRevpar" 
+                name="avgRevpar" // This name is used by formatter
               />
             </LineChart>
           </ResponsiveContainer>
