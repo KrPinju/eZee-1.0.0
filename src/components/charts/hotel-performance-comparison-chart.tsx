@@ -230,8 +230,10 @@ export function HotelPerformanceComparisonChart({
                   tick={{ fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
+                  dx={selectedMetric === 'all' && showOccupancy ? 0 : 5} // Adjust dx when only right axis is shown
                 >
-                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" offset={-5} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
+                  {/* Adjusted Label offset. If only right Y-axis, use larger negative offset. If both, smaller or positive */}
+                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideRight" offset={selectedMetric === 'all' && showOccupancy ? 5 : -5 } style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
                 </YAxis>
               )}
 
@@ -239,8 +241,8 @@ export function HotelPerformanceComparisonChart({
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    formatter={(value, dataKey, entry) => { // dataKey here is the key like 'occupancyRate', 'adr', 'revpar'. entry is the payload item.
-                      const hotelName = entry.payload.name; // This is the X-axis category (hotel name)
+                    formatter={(value, dataKey, entry) => { 
+                      const hotelName = entry.payload.name; 
                       
                       let displayValue = "";
                       const metricConfig = chartConfig[dataKey as keyof typeof chartConfig];
@@ -248,11 +250,14 @@ export function HotelPerformanceComparisonChart({
 
 
                       if (dataKey === 'occupancyRate') {
-                        displayValue = `${Number(value).toFixed(1)}% (${entry.payload.occupiedRooms}/${entry.payload.totalRooms} rooms)`;
-                      } else if (dataKey === 'adr') {
+                        displayValue = `${Number(value).toFixed(1)}%`;
+                        if (entry.payload.occupiedRooms !== undefined && entry.payload.totalRooms !== undefined) {
+                           displayValue += ` (${entry.payload.occupiedRooms}/${entry.payload.totalRooms} rooms)`;
+                        }
+                      } else if (dataKey === 'adr' || dataKey === 'revpar') {
                         displayValue = `${currencySymbol}${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                      } else if (dataKey === 'revpar') {
-                        displayValue = `${currencySymbol}${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                      } else {
+                        displayValue = String(value);
                       }
                       
                       return (
@@ -266,7 +271,7 @@ export function HotelPerformanceComparisonChart({
                       );
                     }}
                     indicator="dashed"
-                    hideLabel={true} // Hide the default label as we are constructing a custom one above
+                    hideLabel={true} 
                   />
                 }
               />
