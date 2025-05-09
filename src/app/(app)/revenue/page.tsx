@@ -7,7 +7,7 @@ export default function RevenuePage() {
   return (
     <>
       <PageHeader
-        title="Revenue Management"
+        title="Revenue Dashboard"
         description="Manage and view property-specific revenue details."
       />
       <Card className="shadow-lg">
@@ -35,3 +35,4 @@ export default function RevenuePage() {
     </>
   );
 }
+
