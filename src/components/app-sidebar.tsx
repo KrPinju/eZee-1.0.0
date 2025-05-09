@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -15,6 +14,7 @@ import {
   User, 
 } from 'lucide-react';
 import { IoIosArrowForward } from "react-icons/io";
+import { FaUserCircle } from 'react-icons/fa'; // Import FaUserCircle
 
 import {
   Sidebar,
@@ -131,11 +131,11 @@ export function AppSidebar() {
             )}
           >
             <Avatar className="h-9 w-9 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
-                <AvatarImage src="https://picsum.photos/id/237/200/200" alt="User Avatar" data-ai-hint="user avatar" />
-                <AvatarFallback>U</AvatarFallback> {/* Changed from PM */}
+                {/* Use FaUserCircle as default avatar */}
+                <FaUserCircle className="h-full w-full text-sidebar-foreground/70" />
             </Avatar>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-medium text-sidebar-foreground">USER</span> {/* Changed from Property Manager */}
+                <span className="text-sm font-medium text-sidebar-foreground">USER</span>
                 <span className="text-xs text-sidebar-foreground/70">manager@ezee.com</span>
             </div>
           </a>
@@ -144,4 +144,3 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
-
