@@ -40,7 +40,7 @@ export default async function HotelsPage() {
   return (
     <>
       <PageHeader
-        title="Hotels Overview"
+        title="Hotel Dashboard"
         description={`Key metrics for ${SPECIFIC_HOTEL_NAMES.length} hotel properties. Showing data from ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}.`}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
