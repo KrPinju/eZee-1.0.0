@@ -77,8 +77,18 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
         }
       />
 
-      {/* Monthly Performance Chart for a single selected entity */}
+      {/* Occupancy Comparison Graph for all hotels for the selected date range */}
       <div className="grid grid-cols-1 gap-6 mb-8">
+        <Suspense fallback={<Skeleton className="h-[450px] w-full" />}>
+           <OccupancyChart 
+              data={hotelOccupancyDataForComparison} 
+              dateRange={dateRangeForComparison} 
+           />
+        </Suspense>
+      </div>
+
+      {/* Monthly Performance Chart for a single selected entity */}
+      <div className="grid grid-cols-1 gap-6">
         <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>
           <MonthlyOccupancyPerformanceChart
             data={monthlyPerformanceData}
@@ -89,16 +99,7 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
           />
         </Suspense>
       </div>
-
-      {/* Occupancy Comparison Graph for all hotels for the selected date range */}
-      <div className="grid grid-cols-1 gap-6">
-        <Suspense fallback={<Skeleton className="h-[450px] w-full" />}>
-           <OccupancyChart 
-              data={hotelOccupancyDataForComparison} 
-              dateRange={dateRangeForComparison} 
-           />
-        </Suspense>
-      </div>
     </>
   );
 }
+
