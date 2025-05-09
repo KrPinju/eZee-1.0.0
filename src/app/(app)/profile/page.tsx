@@ -94,9 +94,7 @@ export default function ProfilePage() {
                   Enable (Soon)
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Enhance your account security. This feature is currently under development.
-              </p>
+              {/* Removed redundant security message for Two-Factor Authentication */}
             </div>
             
             <Separator />
