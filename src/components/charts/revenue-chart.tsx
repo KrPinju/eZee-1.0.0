@@ -70,13 +70,11 @@ export function RevenueChart({
   if (!initialData || initialData.length === 0) {
     return (
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex-1">
-            <CardTitle>{selectedEntity ? `${selectedEntity} - Monthly Revenue` : baseChartTitle}</CardTitle>
-            <CardDescription>No revenue data available for {selectedEntity || 'the selected entity'} for {currentYear}.</CardDescription>
-          </div>
+        <CardHeader className="flex flex-col items-center text-center gap-2">
+          <CardTitle>{selectedEntity ? `${selectedEntity} - Monthly Revenue ${currentYear}` : baseChartTitle}</CardTitle>
+          <CardDescription>No revenue data available for {selectedEntity || 'the selected entity'} for {currentYear}.</CardDescription>
           <Select value={selectedEntity} onValueChange={handleEntityChange}>
-            <SelectTrigger className="w-full sm:w-[220px] mt-2 sm:mt-0">
+            <SelectTrigger className="w-full sm:w-[220px]">
               <SelectValue placeholder={`Select ${entityType === 'hotel' ? 'Hotel' : 'Cafe/Restaurant'}`} />
             </SelectTrigger>
             <SelectContent>
@@ -95,13 +93,11 @@ export function RevenueChart({
 
   return (
     <Card className="shadow-lg">
-      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex-1">
-          <CardTitle>{dynamicChartTitle}</CardTitle>
-          {/* <CardDescription>{dynamicChartDescription}</CardDescription> Removed as per user request */}
-        </div>
+      <CardHeader className="flex flex-col items-center text-center gap-2">
+        <CardTitle>{dynamicChartTitle}</CardTitle>
+        {/* <CardDescription>{dynamicChartDescription}</CardDescription> Removed as per user request */}
         <Select value={selectedEntity} onValueChange={handleEntityChange}>
-          <SelectTrigger className="w-full sm:w-[220px] mt-2 sm:mt-0">
+          <SelectTrigger className="w-full sm:w-[220px]">
             <SelectValue placeholder={`Select ${entityType === 'hotel' ? 'Hotel' : 'Cafe/Restaurant'}`} />
           </SelectTrigger>
           <SelectContent>
