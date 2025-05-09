@@ -1,12 +1,13 @@
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getOccupancy, getADR, getRevPAR, getDetailedHotelRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange, type DetailedRevenue, type Occupancy, type ADRData } from "@/services/ezee-pms";
+import { getOccupancy, getADR, getRevPAR, getDetailedHotelRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange, type DetailedRevenue, type Occupancy, type ADRData, type RevPARData } from "@/services/ezee-pms"; // Added RevPARData
 import { format, addDays, parseISO, isValid } from "date-fns";
 import { Percent, DollarSign, TrendingUp } from 'lucide-react';
 import { DateRangePicker } from "@/components/date-range-picker";
 import { HotelRevenueComparisonChart } from "@/components/charts/hotel-revenue-comparison-chart";
 import { HotelOccupancyComparisonChart } from "@/components/charts/hotel-occupancy-comparison-chart";
-import { HotelADRComparisonChart } from "@/components/charts/hotel-adr-comparison-chart"; // Added import
+import { HotelADRComparisonChart } from "@/components/charts/hotel-adr-comparison-chart";
+import { HotelRevPARComparisonChart } from "@/components/charts/hotel-revpar-comparison-chart"; // Added import
 
 interface HotelsPageProps {
   searchParams?: {
@@ -28,7 +29,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     endDate: format(endDate, "yyyy-MM-dd"),
   };
 
-  const [allOccupancyData, allADRData, revparData, detailedHotelRevenueData] = await Promise.all([
+  const [allOccupancyData, allADRData, allRevPARData, detailedHotelRevenueData] = await Promise.all([
     getOccupancy(dateRangeForSummary),
     getADR(dateRangeForSummary),
     getRevPAR(dateRangeForSummary),
@@ -37,11 +38,12 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
 
   const hotelOccupancyData: Occupancy[] = allOccupancyData.filter(o => SPECIFIC_HOTEL_NAMES.includes(o.entityName));
   const hotelADRData: ADRData[] = allADRData.filter(a => SPECIFIC_HOTEL_NAMES.includes(a.entityName));
+  const hotelRevPARData: RevPARData[] = allRevPARData.filter(r => SPECIFIC_HOTEL_NAMES.includes(r.entityName)); // Filter RevPAR data for hotels
 
   const hotelStats = SPECIFIC_HOTEL_NAMES.map(hotelName => {
     const occupancy = hotelOccupancyData.find(o => o.entityName === hotelName)?.occupancyRate ?? 0;
     const adrItem = hotelADRData.find(a => a.entityName === hotelName);
-    const revparItem = revparData.find(r => r.entityName === hotelName && SPECIFIC_HOTEL_NAMES.includes(r.entityName));
+    const revparItem = hotelRevPARData.find(r => r.entityName === hotelName); // Use filtered hotelRevPARData
     
     const currency = adrItem?.currency ?? 'BTN';
     const currencySymbol = currency === 'BTN' ? 'Nu.' : currency;
@@ -115,9 +117,17 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 mb-6"> {/* New section for ADR Comparison */}
+      <div className="grid grid-cols-1 gap-6 mb-6">
         <HotelADRComparisonChart
           data={hotelADRData}
+          dateRange={dateRangeForSummary}
+          currencySymbol={pageCurrencySymbol}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 mb-6"> {/* New section for RevPAR Comparison */}
+        <HotelRevPARComparisonChart
+          data={hotelRevPARData}
           dateRange={dateRangeForSummary}
           currencySymbol={pageCurrencySymbol}
         />
