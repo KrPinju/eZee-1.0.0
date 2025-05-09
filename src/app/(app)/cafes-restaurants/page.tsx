@@ -61,6 +61,7 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
 
   const monitoredCafesRestaurantsCount = SPECIFIC_CAFE_RESTAURANT_NAMES.length;
 
+
   return (
     <>
       <PageHeader
@@ -69,19 +70,13 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
         actions={<DateRangePicker initialStartDate={dateRangeForSummary.startDate} initialEndDate={dateRangeForSummary.endDate} />}
       />
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 mb-6"> {/* Adjusted grid-cols */}
         <StatCard
           title="Total Cafe/Restaurant Revenue"
           value={`${currencySymbol}${totalCafeRevenue.toLocaleString()}`}
           icon={<DollarSign className="h-5 w-5" />}
           description="Across all monitored cafes & restaurants"
           changePercentage={totalCafeRevenueChange}
-        />
-        <StatCard
-          title="Monitored Cafes & Restaurants"
-          value={monitoredCafesRestaurantsCount}
-          icon={<Coffee className="h-5 w-5" />}
-          description="Cafes/Restaurants under Bhutan Hotels & Restaurants."
         />
          <StatCard
           title="Average Revenue per Cafe/Restaurant"
