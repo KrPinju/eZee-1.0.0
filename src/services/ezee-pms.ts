@@ -102,7 +102,7 @@ export interface MonthlyRevenueDataPoint {
 }
 
 
-const SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA = [
+export const SPECIFIC_HOTEL_NAMES = [
   "Hotel Olathang",
   "Olathang Cottages",
   "Gangtey Tent Resort",
@@ -111,7 +111,7 @@ const SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA = [
   "Hotel Ugyen Ling",
 ];
 
-const SPECIFIC_CAFE_RESTAURANT_NAMES_FOR_MOCK_DATA = [
+export const SPECIFIC_CAFE_RESTAURANT_NAMES = [
   "Airport Cafe",
   "Airport Restaurants",
   "Taktshang Cafe",
@@ -129,12 +129,12 @@ const SPECIFIC_CAFE_RESTAURANT_NAMES_FOR_MOCK_DATA = [
 export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
   // TODO: Implement this by calling the eZee PMS API.
   // For now, mock data reflects individual hotels.
-  const hotelOccupancy = SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
+  const hotelOccupancy = SPECIFIC_HOTEL_NAMES.map(name => ({
     entityName: name,
     occupancyRate: Math.floor(Math.random() * 31) + 60, // Random rate between 60-90%
   }));
 
-  const cafeRestaurantOccupancy = SPECIFIC_CAFE_RESTAURANT_NAMES_FOR_MOCK_DATA.map(name => ({
+  const cafeRestaurantOccupancy = SPECIFIC_CAFE_RESTAURANT_NAMES.map(name => ({
     entityName: name,
     occupancyRate: Math.floor(Math.random() * 41) + 40, // Random rate between 40-80%
   }));
@@ -150,13 +150,13 @@ export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
 export async function getRevenueSummary(dateRange: DateRange): Promise<Revenue[]> {
   // TODO: Implement this by calling the eZee PMS API.
   // For now, mock data reflects individual hotels, cafes, and restaurants.
-  const hotelRevenue = SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
+  const hotelRevenue = SPECIFIC_HOTEL_NAMES.map(name => ({
     entityName: name,
     revenueAmount: Math.floor(Math.random() * 10000) + 5000, // Random revenue between 5000-15000
     currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 
-  const cafeRestaurantRevenue = SPECIFIC_CAFE_RESTAURANT_NAMES_FOR_MOCK_DATA.map(name => ({
+  const cafeRestaurantRevenue = SPECIFIC_CAFE_RESTAURANT_NAMES.map(name => ({
     entityName: name,
     revenueAmount: Math.floor(Math.random() * 3000) + 1000, // Random revenue between 1000-4000
     currency: 'BTN', // Use Bhutanese Ngultrum
@@ -173,7 +173,7 @@ export async function getRevenueSummary(dateRange: DateRange): Promise<Revenue[]
 export async function getADR(dateRange: DateRange): Promise<ADRData[]> {
   // TODO: Implement this by calling the eZee PMS API.
   // Mock data for specified hotels.
-  return SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
+  return SPECIFIC_HOTEL_NAMES.map(name => ({
     entityName: name,
     adr: Math.floor(Math.random() * 71) + 80, // Random ADR between 80-150
     currency: 'BTN', // Use Bhutanese Ngultrum
@@ -191,7 +191,7 @@ export async function getRevPAR(dateRange: DateRange): Promise<RevPARData[]> {
   // RevPAR is typically ADR * Occupancy Rate. For simplicity, we'll mock it directly,
   // ensuring it's generally lower than ADR and reflects occupancy.
   // Example: If ADR is 80-150 and Occupancy is 60-90%, RevPAR could be 50-135.
-  return SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
+  return SPECIFIC_HOTEL_NAMES.map(name => ({
     entityName: name,
     revpar: Math.floor(Math.random() * 86) + 50, // Random RevPAR between 50-135
     currency: 'BTN', // Use Bhutanese Ngultrum
@@ -257,7 +257,7 @@ export async function getAverageMonthlyPerformance(
         allHotelsData[month] = { occ: [], adr: [], revpar: [] };
     });
 
-    for (const hotelName of SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA) {
+    for (const hotelName of SPECIFIC_HOTEL_NAMES) {
         const hotelData = await getMonthlyHotelPerformance(hotelName, year); 
         hotelData.forEach(dataPoint => {
             allHotelsData[dataPoint.month].occ.push(dataPoint.avgOccupancyRate);
@@ -346,11 +346,11 @@ export async function getPropertyComparisonData(dateRange: DateRange): Promise<P
         getRevPAR(dateRange),
     ]);
 
-    const hotelOccupancy = occupancyData.filter(item => SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.includes(item.entityName));
-    const hotelAdr = adrData.filter(item => SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.includes(item.entityName));
-    const hotelRevpar = revparData.filter(item => SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.includes(item.entityName));
+    const hotelOccupancy = occupancyData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
+    const hotelAdr = adrData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
+    const hotelRevpar = revparData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
 
-    const combinedData: PropertyComparisonData[] = SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(hotelName => {
+    const combinedData: PropertyComparisonData[] = SPECIFIC_HOTEL_NAMES.map(hotelName => {
         const occ = hotelOccupancy.find(o => o.entityName === hotelName)?.occupancyRate ?? 0;
         const adrItem = hotelAdr.find(a => a.entityName === hotelName);
         const revparItem = hotelRevpar.find(r => r.entityName === hotelName);

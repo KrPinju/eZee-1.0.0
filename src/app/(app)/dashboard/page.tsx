@@ -16,6 +16,8 @@ import {
   getMonthlyHotelPerformance,
   getPropertyComparisonData,
   getMonthlyEntityRevenue,
+  SPECIFIC_HOTEL_NAMES, // Import from ezee-pms
+  SPECIFIC_CAFE_RESTAURANT_NAMES, // Import from ezee-pms
 } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
@@ -30,25 +32,8 @@ interface DashboardPageProps {
   };
 }
 
-const SPECIFIC_HOTEL_NAMES = [
-  "Hotel Olathang",
-  "Olathang Cottages",
-  "Gangtey Tent Resort",
-  "Zhingkham Resort",
-  "Hotel Phuntsho Pelri",
-  "Hotel Ugyen Ling",
-];
 const ALL_HOTELS_SELECTOR = "__ALL_HOTELS__";
 
-
-const SPECIFIC_CAFE_RESTAURANT_NAMES = [
-  "Airport Cafe",
-  "Airport Restaurants",
-  "Taktshang Cafe",
-  "Cafe Phuntsho Pelri",
-  "60th Cafe",
-  "Druk Wangyel Cafe",
-];
 
 const calculatePercentageChange = (current: number, previous: number): number | undefined => {
   if (previous === 0) {
@@ -232,3 +217,4 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     </>
   );
 }
+
