@@ -112,7 +112,7 @@ export function HotelPerformanceComparisonChart({
   const getChartTitle = () => {
     switch (selectedMetric) {
       case "occupancy": return "Hotel Occupancy Comparison";
-      case "adr": return `Hotel Average Daily Rate (ADR) Comparison`;
+      case "adr": return `Hotel Comparison`; // Changed title for ADR
       case "revpar": return `Hotel RevPAR Comparison`;
       case "all":
       default: return "Hotel Performance Comparison";
@@ -123,7 +123,7 @@ export function HotelPerformanceComparisonChart({
      const dateStr = `from ${dateRange.startDate} to ${dateRange.endDate}`;
      switch (selectedMetric) {
       case "occupancy": return `Occupancy rates ${dateStr}`;
-      case "adr": return `Average Daily Rates (ADR) ${dateStr}`;
+      case "adr": return `Average Daily Rates (ADR) ${dateStr}`; // Description still clarifies it's ADR
       case "revpar": return `Revenue Per Available Room (RevPAR) ${dateStr}`;
       case "all":
       default: return `Key performance indicators ${dateStr}`;
@@ -239,24 +239,30 @@ export function HotelPerformanceComparisonChart({
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    formatter={(value, dataKey, entry) => {
-                      const hotelName = entry.payload.name;
-                      let metricLabel = "";
+                    formatter={(value, dataKey, entry) => { // dataKey here is the key like 'occupancyRate', 'adr', 'revpar'. entry is the payload item.
+                      const hotelName = entry.payload.name; // This is the X-axis category (hotel name)
+                      
                       let displayValue = "";
 
                       if (dataKey === 'occupancyRate') {
-                        metricLabel = `${hotelName} - Occupancy`;
                         displayValue = `${Number(value).toFixed(1)}% (${entry.payload.occupiedRooms}/${entry.payload.totalRooms} rooms)`;
                       } else if (dataKey === 'adr') {
-                        metricLabel = `${hotelName} - ADR`;
                         displayValue = `${currencySymbol}${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                       } else if (dataKey === 'revpar') {
-                         metricLabel = `${hotelName} - RevPAR`;
                         displayValue = `${currencySymbol}${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                       }
-                      return [displayValue, metricLabel];
+                      
+                      // The default title of the tooltip box (from ChartTooltipContent's label logic) will be the metric name (e.g., "ADR (Nu.)")
+                      // This formatter provides the content for the line item below that title.
+                      return (
+                        <div className="flex justify-between items-center w-full text-xs">
+                          <span className="text-muted-foreground">{hotelName}:</span>
+                          <span className="font-semibold ml-2 text-foreground">{displayValue}</span>
+                        </div>
+                      );
                     }}
                     indicator="dashed"
+                    // hideLabel={false} is default, ensures metric name title is shown
                   />
                 }
               />
@@ -305,3 +311,4 @@ export function HotelPerformanceComparisonChart({
     </Card>
   );
 }
+
