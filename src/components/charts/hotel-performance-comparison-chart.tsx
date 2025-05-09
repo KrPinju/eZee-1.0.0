@@ -19,15 +19,14 @@ import { DateRangePicker } from "@/components/date-range-picker";
 type MetricSelection = "all" | "occupancy" | "adr" | "revpar";
 
 interface HotelPerformanceComparisonChartProps {
-  occupancyData: Occupancy[]; // For date-range comparison of ADR/RevPAR (uses entityName)
+  occupancyData: Occupancy[]; 
   adrData: ADRData[];
   revparData: RevPARData[];
   dateRange: ApiDateRange;
   currencySymbol: string;
   initialSelectedMetric: MetricSelection;
 
-  // Props for monthly occupancy view
-  monthlyPerformanceData?: AnnualPerformanceChartDataPoint[]; // Contains avgOccupancyRate, avgAdr, avgRevpar monthly
+  monthlyPerformanceData?: AnnualPerformanceChartDataPoint[]; 
   allHotelNames?: string[];
   initialHotelForMonthlyView?: string;
   currentYearForMonthlyView?: number;
@@ -35,12 +34,12 @@ interface HotelPerformanceComparisonChartProps {
 }
 
 const baseChartConfig: ChartConfig = {
-  avgOccupancyRate: { // For monthly occupancy view
-    label: "Occupancy", 
-    color: "hsl(var(--chart-1))", // Using chart-1 for monthly occupancy
+  avgOccupancyRate: { 
+    label: "Occupancy (%)", 
+    color: "hsl(var(--chart-1))", 
   },
-  occupancyRate: { // For date-range comparison view (if "all" includes it)
-    label: "Occupancy",
+  occupancyRate: { 
+    label: "Occupancy (%)",
     color: "hsl(var(--chart-2))", 
   },
   adr: {
@@ -85,7 +84,6 @@ export function HotelPerformanceComparisonChart({
     setSelectedMetric(newMetric);
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     current.set("metricType", newMetric);
-    // If switching away from occupancy, remove the monthly hotel param
     if (newMetric !== "occupancy" && current.has(paramNameForMonthlyHotelView)) {
         current.delete(paramNameForMonthlyHotelView);
     }
@@ -101,7 +99,6 @@ export function HotelPerformanceComparisonChart({
     router.replace(`${pathname}?${query}`, { scroll: false });
   };
   
-  // Data for ADR/RevPAR/All (date range comparison)
   const comparisonFormattedData = SPECIFIC_HOTEL_NAMES.map(hotelName => {
     const occItem = occupancyData.find(o => o.entityName === hotelName);
     const adrItem = adrData.find(a => a.entityName === hotelName);
@@ -117,7 +114,6 @@ export function HotelPerformanceComparisonChart({
     };
   });
 
-  // Data for Monthly Occupancy view
   const monthlyOccupancyChartData = monthlyPerformanceData?.map(item => ({
     month: item.month,
     avgOccupancyRate: item.avgOccupancyRate,
@@ -125,7 +121,7 @@ export function HotelPerformanceComparisonChart({
 
 
   let chartConfig: ChartConfig = {};
-  let cardTitle = "Hotel Performance";
+  let cardTitle = "Hotel Comparison";
   let cardDescription = "";
 
   if (selectedMetric === "occupancy") {
@@ -140,11 +136,9 @@ export function HotelPerformanceComparisonChart({
     if (selectedMetric === 'all' || selectedMetric === 'revpar') {
       chartConfig.revpar = { ...baseChartConfig.revpar, label: `RevPAR (${currencySymbol})` };
     }
-    // If 'all' includes occupancy comparison (original behavior for 'all')
     if (selectedMetric === 'all') {
         chartConfig.occupancyRate = { ...baseChartConfig.occupancyRate, label: `Occupancy (%)` };
     }
-
 
     switch (selectedMetric) {
       case "adr": 
@@ -206,7 +200,6 @@ export function HotelPerformanceComparisonChart({
               </SelectContent>
             </Select>
           )}
-           {/* DateRangePicker is relevant for ADR/RevPAR/All comparison views */}
            {selectedMetric !== "occupancy" && (
              <DateRangePicker
                 initialStartDate={dateRange.startDate}
@@ -222,7 +215,6 @@ export function HotelPerformanceComparisonChart({
             <p className="text-muted-foreground">No data available for the selected period or metric.</p>
           </div>
         ) : selectedMetric === "occupancy" ? (
-          // Monthly Occupancy Bar Chart
           <ChartContainer config={chartConfig} className="h-[350px] sm:h-[450px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyOccupancyChartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
@@ -242,20 +234,22 @@ export function HotelPerformanceComparisonChart({
                     <ChartTooltipContent
                       formatter={(value, nameKey, entry) => {
                         const month = entry.payload.month;
-                        return [`${Number(value).toFixed(1)}%`, `Occupancy - ${month}`];
+                        const occRate = Number(value).toFixed(1);
+                        let tooltipText = `${occRate}%`;
+                        if (entry.payload.occupiedRooms !== undefined && entry.payload.totalRooms !== undefined) {
+                           tooltipText += ` (${entry.payload.occupiedRooms}/${entry.payload.totalRooms} rooms)`;
+                        }
+                        return [tooltipText, `Occupancy - ${month}`];
                       }}
                       indicator="dashed"
                     />
                   }
                 />
-                <Bar dataKey="avgOccupancyRate" fill="var(--color-avgOccupancyRate)" radius={[4, 4, 0, 0]} name="Occupancy">
-                    {/* <LabelList dataKey="avgOccupancyRate" position="top" formatter={(value:number) => `${value}%`} style={{fill: 'hsl(var(--foreground))', fontSize: '10px'}} /> */}
-                </Bar>
+                <Bar dataKey="avgOccupancyRate" fill="var(--color-avgOccupancyRate)" radius={[4, 4, 0, 0]} name="Occupancy"/>
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
         ) : (
-          // ADR/RevPAR/All Comparison Bar Chart
           <ChartContainer config={chartConfig} className="h-[350px] sm:h-[450px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonFormattedData} margin={{ top: 20, bottom: 5, left: 10, right: 20 }} barGap={selectedMetric === 'all' ? 2 : 4}>
@@ -278,7 +272,7 @@ export function HotelPerformanceComparisonChart({
                     tickLine={false}
                     stroke={chartConfig.occupancyRate.color}
                   >
-                     <Label value="Occupancy (%)" angle={-90} position="insideLeft" offset={selectedMetric === 'all' ? -10 : -20} style={{ textAnchor: 'middle', fill: chartConfig.occupancyRate.color, fontSize: '12px' }} />
+                     <Label value="Occupancy (%)" angle={-90} position="insideLeft" offset={selectedMetric === 'all' ? -10 : -20} style={{ textAnchor: 'middle', fill: chartConfig.occupancyRate.color as string, fontSize: '12px' }} />
                   </YAxis>
                 )}
                 {(selectedMetric === 'all' || selectedMetric === 'adr' || selectedMetric === 'revpar') && (chartConfig.adr || chartConfig.revpar) &&(
@@ -289,10 +283,10 @@ export function HotelPerformanceComparisonChart({
                     tick={{ fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
-                    dx={(selectedMetric === 'all' && chartConfig.occupancyRate) ? 0 : 5} 
+                    dx={0} 
                     stroke={selectedMetric === 'adr' ? chartConfig.adr?.color : chartConfig.revpar?.color || baseChartConfig.adr.color}
                   >
-                     <Label value={`Value (${currencySymbol})`} angle={-90} position="insideRight" offset={(selectedMetric === 'all' && chartConfig.occupancyRate) ? 5 : -5 } style={{ textAnchor: 'middle', fill: selectedMetric === 'adr' ? chartConfig.adr?.color : chartConfig.revpar?.color || baseChartConfig.adr.color, fontSize: '12px' }} />
+                     <Label value={`Value (${currencySymbol})`} angle={-90} position="insideRight" offset={-5} style={{ textAnchor: 'middle', fill: (selectedMetric === 'adr' ? chartConfig.adr?.color : chartConfig.revpar?.color || baseChartConfig.adr.color) as string, fontSize: '12px' }} />
                   </YAxis>
                 )}
 
@@ -307,7 +301,7 @@ export function HotelPerformanceComparisonChart({
                         const metricLabel = metricConfig?.label || dataKey;
 
                         if (dataKey === 'occupancyRate') {
-                          displayValue = `${Number(value).toFixed(1)}%`;
+                          displayValue = `${Number(value).toFixed(1)}%`; // Tooltip shows %
                           if (entry.payload.occupiedRooms !== undefined && entry.payload.totalRooms !== undefined) {
                              displayValue += ` (${entry.payload.occupiedRooms}/${entry.payload.totalRooms} rooms)`;
                           }
@@ -341,7 +335,7 @@ export function HotelPerformanceComparisonChart({
                     fill="var(--color-occupancyRate)"
                     radius={[4, 4, 0, 0]}
                     filter="url(#shadow-hotel-performance)"
-                    name={chartConfig.occupancyRate.label}
+                    name={chartConfig.occupancyRate.label as string}
                   >
                     <LabelList dataKey="name" position="center" angle={-90} offset={0} style={labelStyle} />
                   </Bar>
@@ -353,7 +347,7 @@ export function HotelPerformanceComparisonChart({
                     fill="var(--color-adr)"
                     radius={[4, 4, 0, 0]}
                     filter="url(#shadow-hotel-performance)"
-                    name={chartConfig.adr.label}
+                    name={chartConfig.adr.label as string}
                   >
                     <LabelList dataKey="name" position="center" angle={-90} offset={0} style={labelStyle} />
                   </Bar>
@@ -365,7 +359,7 @@ export function HotelPerformanceComparisonChart({
                     fill="var(--color-revpar)"
                     radius={[4, 4, 0, 0]}
                     filter="url(#shadow-hotel-performance)"
-                    name={chartConfig.revpar.label}
+                    name={chartConfig.revpar.label as string}
                   >
                     <LabelList dataKey="name" position="center" angle={-90} offset={0} style={labelStyle} />
                   </Bar>
@@ -378,4 +372,3 @@ export function HotelPerformanceComparisonChart({
     </Card>
   );
 }
-```
