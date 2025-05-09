@@ -20,25 +20,24 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
   let effectiveStartDate: Date;
   let effectiveEndDate: Date;
 
-  if (searchParams?.startDate && isValid(parseISO(searchParams.startDate))) {
-    effectiveStartDate = parseISO(searchParams.startDate);
-  } else {
-    // Default to the start of the current year if no startDate
-    effectiveStartDate = startOfMonth(new Date(currentYear, 0, 1));
-  }
+  const parsedStartDateParam = searchParams?.startDate ? parseISO(searchParams.startDate) : null;
+  const parsedEndDateParam = searchParams?.endDate ? parseISO(searchParams.endDate) : null;
 
-  if (searchParams?.endDate && isValid(parseISO(searchParams.endDate))) {
-    effectiveEndDate = parseISO(searchParams.endDate);
-  } else {
-    // If startDate is provided, default endDate to end of startDate's month, else end of current month
-    if (searchParams?.startDate && isValid(parseISO(searchParams.startDate))) {
-         effectiveEndDate = endOfMonth(effectiveStartDate);
+  if (parsedStartDateParam && isValid(parsedStartDateParam)) {
+    effectiveStartDate = parsedStartDateParam;
+    if (parsedEndDateParam && isValid(parsedEndDateParam)) {
+      effectiveEndDate = parsedEndDateParam;
     } else {
-        effectiveEndDate = endOfMonth(today);
+      // If only startDate is provided, default endDate to end of startDate's month
+      effectiveEndDate = endOfMonth(effectiveStartDate);
     }
+  } else {
+    // Default to the current month if no startDate or if startDate is invalid
+    effectiveStartDate = startOfMonth(today);
+    effectiveEndDate = endOfMonth(today);
   }
   
-  // Ensure startDate is not after endDate
+  // Ensure startDate is not after endDate; if so, adjust startDate to be start of endDate's month
   if (effectiveStartDate > effectiveEndDate) {
     effectiveStartDate = startOfMonth(effectiveEndDate);
   }
@@ -51,22 +50,26 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
   const dayDifference = differenceInDays(effectiveEndDate, effectiveStartDate);
 
   // Condition to fetch data for a specific month/short range
-  if (isSameMonth(effectiveStartDate, effectiveEndDate) && isSameYear(effectiveStartDate, effectiveEndDate) && dayDifference < 35 ) { // Allow slightly more than 31 for month selection flexibility
+  // If the range is effectively a single month or shorter.
+  if (isSameMonth(effectiveStartDate, effectiveEndDate) && isSameYear(effectiveStartDate, effectiveEndDate) && dayDifference < 35 ) { 
     const rangeForQuery: ApiDateRange = {
       startDate: format(effectiveStartDate, "yyyy-MM-dd"),
       endDate: format(effectiveEndDate, "yyyy-MM-dd"),
     };
     occupancyDataSource = await getOccupancy(rangeForQuery);
     dateRangeForChartDisplay = rangeForQuery;
-    if (format(effectiveStartDate, "yyyy-MM-dd") === format(startOfMonth(effectiveStartDate), "yyyy-MM-dd") && format(effectiveEndDate, "yyyy-MM-dd") === format(endOfMonth(effectiveEndDate), "yyyy-MM-dd")) {
+    // Check if the range is exactly a full month
+    if (format(effectiveStartDate, "yyyy-MM-dd") === format(startOfMonth(effectiveStartDate), "yyyy-MM-dd") && 
+        format(effectiveEndDate, "yyyy-MM-dd") === format(endOfMonth(effectiveEndDate), "yyyy-MM-dd")) {
       pageDescription = `Hotel occupancy for ${format(effectiveStartDate, "MMMM yyyy")}.`;
     } else {
       pageDescription = `Hotel occupancy from ${format(effectiveStartDate, "MMM d, yyyy")} to ${format(effectiveEndDate, "MMM d, yyyy")}.`;
     }
   } else {
-    // Fetch annual average data for the year of the start date
+    // Fetch annual average data for the year of the start date if range is longer / multi-month / year
     const selectedYear = getYear(effectiveStartDate);
     occupancyDataSource = await getAnnualAverageOccupancyPerHotel(selectedYear);
+    // The chart display range should reflect the full year for which averages are shown
     dateRangeForChartDisplay = {
       startDate: format(new Date(selectedYear, 0, 1), "yyyy-MM-dd"),
       endDate: format(new Date(selectedYear, 11, 31), "yyyy-MM-dd"),
@@ -87,7 +90,7 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
       <div className="grid grid-cols-1 gap-6">
         <OccupancyComparisonChart
           data={occupancyDataSource}
-          dateRange={dateRangeForChartDisplay}
+          dateRange={dateRangeForChartDisplay} // Pass the potentially adjusted range for chart's own description
         />
       </div>
     </>
