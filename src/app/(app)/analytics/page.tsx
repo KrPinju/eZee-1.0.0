@@ -6,7 +6,7 @@ export default function AnalyticsPage() {
   return (
     <>
       <PageHeader
-        title="Advanced Analytics"
+        title="Analytics Dashboard"
         description="Deep dive into your property data with interactive reports."
       />
       <Card className="shadow-lg">
@@ -34,3 +34,4 @@ export default function AnalyticsPage() {
     </>
   );
 }
+
