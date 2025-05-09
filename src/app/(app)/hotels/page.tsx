@@ -1,18 +1,17 @@
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getOccupancy, getADR, getRevPAR, getDetailedHotelRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange, type DetailedRevenue, type Occupancy, type ADRData, type RevPARData } from "@/services/ezee-pms"; // Added RevPARData
+import { getOccupancy, getADR, getRevPAR, getDetailedHotelRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange, type DetailedRevenue, type Occupancy, type ADRData, type RevPARData } from "@/services/ezee-pms";
 import { format, addDays, parseISO, isValid } from "date-fns";
 import { Percent, DollarSign, TrendingUp } from 'lucide-react';
 import { DateRangePicker } from "@/components/date-range-picker";
 import { HotelRevenueComparisonChart } from "@/components/charts/hotel-revenue-comparison-chart";
-import { HotelOccupancyComparisonChart } from "@/components/charts/hotel-occupancy-comparison-chart";
-import { HotelADRComparisonChart } from "@/components/charts/hotel-adr-comparison-chart";
-import { HotelRevPARComparisonChart } from "@/components/charts/hotel-revpar-comparison-chart"; // Added import
+import { HotelPerformanceComparisonChart } from "@/components/charts/hotel-performance-comparison-chart"; // New combined chart
 
 interface HotelsPageProps {
   searchParams?: {
     startDate?: string;
     endDate?: string;
+    metricType?: "all" | "occupancy" | "adr" | "revpar";
   };
 }
 
@@ -20,6 +19,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
   const today = new Date();
   const endDateParam = searchParams?.endDate;
   const startDateParam = searchParams?.startDate;
+  const selectedMetricType = searchParams?.metricType ?? "all";
 
   const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
   const startDate = startDateParam && isValid(parseISO(startDateParam)) ? parseISO(startDateParam) : addDays(endDate, -6);
@@ -38,12 +38,12 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
 
   const hotelOccupancyData: Occupancy[] = allOccupancyData.filter(o => SPECIFIC_HOTEL_NAMES.includes(o.entityName));
   const hotelADRData: ADRData[] = allADRData.filter(a => SPECIFIC_HOTEL_NAMES.includes(a.entityName));
-  const hotelRevPARData: RevPARData[] = allRevPARData.filter(r => SPECIFIC_HOTEL_NAMES.includes(r.entityName)); // Filter RevPAR data for hotels
+  const hotelRevPARData: RevPARData[] = allRevPARData.filter(r => SPECIFIC_HOTEL_NAMES.includes(r.entityName));
 
   const hotelStats = SPECIFIC_HOTEL_NAMES.map(hotelName => {
     const occupancy = hotelOccupancyData.find(o => o.entityName === hotelName)?.occupancyRate ?? 0;
     const adrItem = hotelADRData.find(a => a.entityName === hotelName);
-    const revparItem = hotelRevPARData.find(r => r.entityName === hotelName); // Use filtered hotelRevPARData
+    const revparItem = hotelRevPARData.find(r => r.entityName === hotelName);
     
     const currency = adrItem?.currency ?? 'BTN';
     const currencySymbol = currency === 'BTN' ? 'Nu.' : currency;
@@ -111,25 +111,13 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-6 mb-6">
-        <HotelOccupancyComparisonChart
-          data={hotelOccupancyData}
-          dateRange={dateRangeForSummary}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 mb-6">
-        <HotelADRComparisonChart
-          data={hotelADRData}
+        <HotelPerformanceComparisonChart
+          occupancyData={hotelOccupancyData}
+          adrData={hotelADRData}
+          revparData={hotelRevPARData}
           dateRange={dateRangeForSummary}
           currencySymbol={pageCurrencySymbol}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 mb-6"> {/* New section for RevPAR Comparison */}
-        <HotelRevPARComparisonChart
-          data={hotelRevPARData}
-          dateRange={dateRangeForSummary}
-          currencySymbol={pageCurrencySymbol}
+          initialSelectedMetric={selectedMetricType}
         />
       </div>
     </>
