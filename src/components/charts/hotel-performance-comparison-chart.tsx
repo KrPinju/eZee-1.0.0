@@ -2,7 +2,7 @@
 "use client";
 
 import type { Occupancy, ADRData, RevPARData, DateRange as ApiDateRange, AnnualPerformanceChartDataPoint } from "@/services/ezee-pms";
-import { SPECIFIC_HOTEL_NAMES, ALL_HOTELS_SELECTOR } from "@/services/ezee-pms";
+import { SPECIFIC_HOTEL_NAMES, ALL_HOTELS_SELECTOR } from "@/services/ezee-pms"; // Import directly
 import { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Tooltip as RechartsTooltip, Legend, Label } from "recharts";
@@ -27,7 +27,7 @@ interface HotelPerformanceComparisonChartProps {
   initialSelectedMetric: MetricSelection;
 
   monthlyPerformanceData?: AnnualPerformanceChartDataPoint[]; 
-  allHotelNames?: string[];
+  allHotelNames?: string[]; // Kept for flexibility, but defaults to SPECIFIC_HOTEL_NAMES
   initialHotelForMonthlyView?: string;
   currentYearForMonthlyView?: number;
   paramNameForMonthlyHotelView?: string;
@@ -40,7 +40,7 @@ const baseChartConfig: ChartConfig = {
   },
   occupancyRate: { 
     label: "Occupancy (%)",
-    color: "hsl(var(--chart-2))", 
+    color: "hsl(var(--primary))", // Dark Navy Blue for occupancyRate in "all" view
   },
   adr: {
     label: "ADR", 
@@ -60,7 +60,7 @@ export function HotelPerformanceComparisonChart({
   currencySymbol,
   initialSelectedMetric,
   monthlyPerformanceData,
-  allHotelNames = SPECIFIC_HOTEL_NAMES,
+  allHotelNames = SPECIFIC_HOTEL_NAMES, // Default to imported SPECIFIC_HOTEL_NAMES
   initialHotelForMonthlyView = ALL_HOTELS_SELECTOR,
   currentYearForMonthlyView = new Date().getFullYear(),
   paramNameForMonthlyHotelView = "hotelForMonthlyView"
@@ -99,15 +99,16 @@ export function HotelPerformanceComparisonChart({
     router.replace(`${pathname}?${query}`, { scroll: false });
   };
   
-  const comparisonFormattedData = SPECIFIC_HOTEL_NAMES.map(hotelName => {
+  // Use allHotelNames (which defaults to SPECIFIC_HOTEL_NAMES) for mapping
+  const comparisonFormattedData = allHotelNames.map(hotelName => {
     const occItem = occupancyData.find(o => o.entityName === hotelName);
     const adrItem = adrData.find(a => a.entityName === hotelName);
     const revparItem = revparData.find(r => r.entityName === hotelName);
     return {
       name: hotelName,
       occupancyRate: occItem?.occupancyRate ?? 0,
-      totalRooms: occItem?.totalRooms,
-      occupiedRooms: occItem?.occupiedRooms,
+      totalRooms: occItem?.totalRooms, // Ensure totalRooms is part of the data
+      occupiedRooms: occItem?.occupiedRooms, // Ensure occupiedRooms is part of the data
       adr: adrItem?.adr ?? 0,
       revpar: revparItem?.revpar ?? 0,
       currency: adrItem?.currency ?? revparItem?.currency ?? currencySymbol,
@@ -222,12 +223,14 @@ export function HotelPerformanceComparisonChart({
                 <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} tick={{ fontSize: 10 }} />
                 <YAxis 
                   domain={[0, 100]} 
-                  tickFormatter={(value) => `${value}%`} 
+                  tickFormatter={(value) => `${value}`}  // Removed % from Y-axis
                   width={60} 
                   tick={{ fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
-                />
+                >
+                   <Label value="Occupancy (%)" angle={-90} position="insideLeft" dx={-25} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
+                </YAxis>
                 <RechartsTooltip
                   cursor={false}
                   content={
@@ -235,8 +238,9 @@ export function HotelPerformanceComparisonChart({
                       formatter={(value, nameKey, entry) => {
                         const month = entry.payload.month;
                         const occRate = Number(value).toFixed(1);
-                        let tooltipText = `${occRate}%`;
-                        if (entry.payload.occupiedRooms !== undefined && entry.payload.totalRooms !== undefined) {
+                        // Display totalRooms and occupiedRooms if available in the data
+                        let tooltipText = `${occRate}%`; // Keep % in tooltip for clarity
+                         if (entry.payload.occupiedRooms !== undefined && entry.payload.totalRooms !== undefined) {
                            tooltipText += ` (${entry.payload.occupiedRooms}/${entry.payload.totalRooms} rooms)`;
                         }
                         return [tooltipText, `Occupancy - ${month}`];
@@ -264,7 +268,7 @@ export function HotelPerformanceComparisonChart({
                 {(selectedMetric === 'all' || selectedMetric === 'occupancyRate') && chartConfig.occupancyRate && (
                   <YAxis yAxisId="leftOccupancy" 
                     orientation="left" 
-                    tickFormatter={(value) => `${value}%`} 
+                    tickFormatter={(value) => `${value}`} // Removed % from Y-axis
                     domain={[0, 100]} 
                     width={selectedMetric === 'all' ? 50 : 70} 
                     tick={{ fontSize: 10 }}
@@ -272,7 +276,7 @@ export function HotelPerformanceComparisonChart({
                     tickLine={false}
                     stroke={chartConfig.occupancyRate.color}
                   >
-                     <Label value="Occupancy (%)" angle={-90} position="insideLeft" offset={selectedMetric === 'all' ? -10 : -20} style={{ textAnchor: 'middle', fill: chartConfig.occupancyRate.color as string, fontSize: '12px' }} />
+                     <Label value="Occupancy (%)" angle={-90} position="insideLeft" offset={selectedMetric === 'all' ? -10 : -25} style={{ textAnchor: 'middle', fill: chartConfig.occupancyRate.color as string, fontSize: '12px' }} />
                   </YAxis>
                 )}
                 {(selectedMetric === 'all' || selectedMetric === 'adr' || selectedMetric === 'revpar') && (chartConfig.adr || chartConfig.revpar) &&(
@@ -283,10 +287,10 @@ export function HotelPerformanceComparisonChart({
                     tick={{ fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
-                    dx={0} 
+                    dx={5} // Adjusted dx for better positioning
                     stroke={selectedMetric === 'adr' ? chartConfig.adr?.color : chartConfig.revpar?.color || baseChartConfig.adr.color}
                   >
-                     <Label value={`Value (${currencySymbol})`} angle={-90} position="insideRight" offset={-5} style={{ textAnchor: 'middle', fill: (selectedMetric === 'adr' ? chartConfig.adr?.color : chartConfig.revpar?.color || baseChartConfig.adr.color) as string, fontSize: '12px' }} />
+                     <Label value={`Value (${currencySymbol})`} angle={-90} position="insideRight" offset={-5} dx={-5} style={{ textAnchor: 'middle', fill: (selectedMetric === 'adr' ? chartConfig.adr?.color : chartConfig.revpar?.color || baseChartConfig.adr.color) as string, fontSize: '12px' }} />
                   </YAxis>
                 )}
 
@@ -372,3 +376,5 @@ export function HotelPerformanceComparisonChart({
     </Card>
   );
 }
+
+    

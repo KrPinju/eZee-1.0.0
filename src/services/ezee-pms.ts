@@ -196,7 +196,7 @@ export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
   // TODO: Implement this by calling the eZee PMS API.
   const hotelOccupancy = SPECIFIC_HOTEL_NAMES.map(name => {
     const occupancyRate = Math.floor(Math.random() * 31) + 60; // Random rate between 60-90%
-    const totalRooms = HOTEL_ROOM_COUNTS[name] || 50; // Default if not in map
+    const totalRooms = HOTEL_ROOM_COUNTS[name] || 50; // Use actual room count, fallback if somehow not in map
     const occupiedRooms = Math.round((occupancyRate / 100) * totalRooms);
     return {
       entityName: name,
@@ -222,7 +222,7 @@ export async function getIndividualEntityOccupancy(entityName: string, dateRange
   // TODO: Implement this by calling the eZee PMS API for the specific entity.
   if (SPECIFIC_HOTEL_NAMES.includes(entityName)) {
     const occupancyRate = Math.floor(Math.random() * 31) + 60; // Random rate between 60-90%
-    const totalRooms = HOTEL_ROOM_COUNTS[entityName] || 50; // Default if not in map
+    const totalRooms = HOTEL_ROOM_COUNTS[entityName] || 50; // Use actual room count
     const occupiedRooms = Math.round((occupancyRate / 100) * totalRooms);
     return {
       entityName: entityName,
@@ -510,7 +510,7 @@ export interface PropertyComparisonData {
 
 export async function getPropertyComparisonData(dateRange: DateRange): Promise<PropertyComparisonData[]> {
     const [occupancyData, adrData, revparData] = await Promise.all([
-        getOccupancy(dateRange),
+        getOccupancy(dateRange), // This will now use updated HOTEL_ROOM_COUNTS
         getADR(dateRange),
         getRevPAR(dateRange),
     ]);
@@ -558,7 +558,7 @@ export async function getAnnualAverageOccupancyPerHotel(year: number): Promise<O
     }
 
     const averageOccupancyRate = monthlyRates.reduce((sum, rate) => sum + rate, 0) / monthlyRates.length;
-    const totalRooms = HOTEL_ROOM_COUNTS[hotelName] || 50; // Default if not in map
+    const totalRooms = HOTEL_ROOM_COUNTS[hotelName] || 50; // Use actual room count
     const averageOccupiedRooms = (averageOccupancyRate / 100) * totalRooms;
 
     annualAverages.push({
@@ -584,7 +584,7 @@ const generateMockMonthlyEntityOccupancy = (entityName: string, year: number): M
   const mockData: MonthlyOccupancyDataPoint[] = [];
   const isHotel = SPECIFIC_HOTEL_NAMES.includes(entityName);
   const baseOcc = isHotel ? (50 + (entityName.length % 10) * 2) : (40 + (entityName.length % 10) * 3); // Base occupancy %
-  const totalRooms = isHotel ? (HOTEL_ROOM_COUNTS[entityName] || 50) : undefined;
+  const totalRooms = isHotel ? (HOTEL_ROOM_COUNTS[entityName] || 50) : undefined; // Use actual room count for hotels
 
   for (let i = 0; i < months.length; i++) {
     const month = months[i];
@@ -616,3 +616,5 @@ export async function getMonthlyEntityOccupancyPerformance(
 ): Promise<MonthlyOccupancyDataPoint[]> {
   return generateMockMonthlyEntityOccupancy(entityName, year);
 }
+
+    

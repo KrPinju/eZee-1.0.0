@@ -1,21 +1,19 @@
 
 import { PageHeader } from "@/components/page-header";
-// DateRangePicker import removed from here, will be used in OccupancyChart
 import { MonthlyOccupancyPerformanceChart } from "@/components/charts/monthly-occupancy-performance-chart"; 
 import { OccupancyChart } from "@/components/charts/occupancy-chart";
 import { 
-  ALL_SELECTABLE_ENTITIES, 
+  SPECIFIC_HOTEL_NAMES, // Changed from ALL_SELECTABLE_ENTITIES to be specific for hotel occupancy
   type DateRange as ApiDateRange,
   getMonthlyEntityOccupancyPerformance, 
   type MonthlyOccupancyDataPoint,
-  SPECIFIC_HOTEL_NAMES,
   getOccupancy, 
   type Occupancy 
 } from "@/services/ezee-pms";
-import { format, parseISO, isValid, getYear, startOfYear, endOfYear } from "date-fns"; // Removed addDays as it's not used
+import { format, parseISO, isValid, getYear, startOfYear, endOfYear } from "date-fns";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-// EntitySelector import removed as it's handled within MonthlyOccupancyPerformanceChart
+import { DateRangePicker } from "@/components/date-range-picker"; // Re-added for the page-level date range
 
 export interface OccupancyPageSearchParams {
   startDate?: string;
@@ -29,59 +27,55 @@ interface OccupancyPageProps {
 export default async function OccupancyPage({ searchParams }: OccupancyPageProps) {
   const today = new Date();
 
-  const parsedStartDateParam = searchParams?.startDate ? parseISO(searchParams.startDate) : null;
-  const yearForMonthlyChart = parsedStartDateParam && isValid(parsedStartDateParam)
-    ? getYear(parsedStartDateParam)
-    : getYear(today);
-
-  // These are used as fallback if startDate/endDate are not in searchParams
-  const defaultRangeStartDateForComparison = format(startOfYear(new Date(yearForMonthlyChart, 0, 1)), "yyyy-MM-dd");
-  const defaultRangeEndDateForComparison = format(endOfYear(new Date(yearForMonthlyChart, 11, 31)), "yyyy-MM-dd");
+  // Date range for the top Occupancy Comparison Chart
+  const comparisonStartDateParam = searchParams?.startDate;
+  const comparisonEndDateParam = searchParams?.endDate;
   
+  const comparisonEndDate = comparisonEndDateParam && isValid(parseISO(comparisonEndDateParam)) 
+    ? parseISO(comparisonEndDateParam) 
+    : endOfYear(today); // Default to end of current year for comparison
+  const comparisonStartDate = comparisonStartDateParam && isValid(parseISO(comparisonStartDateParam)) 
+    ? parseISO(comparisonStartDateParam) 
+    : startOfYear(comparisonEndDate); // Default to start of comparison year
+
+  const dateRangeForComparisonApi: ApiDateRange = {
+    startDate: format(comparisonStartDate, "yyyy-MM-dd"),
+    endDate: format(comparisonEndDate, "yyyy-MM-dd"),
+  };
+  
+  const allOccupancyDataForComparison: Occupancy[] = await getOccupancy(dateRangeForComparisonApi);
+  // Filter only hotel data for the OccupancyChart as it's hotel-specific
+  const hotelOccupancyDataForComparison = allOccupancyDataForComparison.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
+
+
+  // Date range and entity for the Monthly Performance Chart
+  // Use the start date of the comparison range to determine the year for the monthly chart, or current year if not set.
+  const yearForMonthlyChart = getYear(comparisonStartDate); 
   const selectedEntityName = searchParams?.entityForPerformance ?? SPECIFIC_HOTEL_NAMES[0]; 
   
   const monthlyPerformanceData: MonthlyOccupancyDataPoint[] = await getMonthlyEntityOccupancyPerformance(selectedEntityName, yearForMonthlyChart);
   
-  const entityType = SPECIFIC_HOTEL_NAMES.includes(selectedEntityName) ? 'hotel' : 'restaurant'; // Assuming only hotels for now
-  const performanceTerm = entityType === 'hotel' ? 'Occupancy' : 'Utilization'; // Simplified based on assumption
-  const pageDescription = `Monthly ${performanceTerm.toLowerCase()} rates for ${selectedEntityName} in ${yearForMonthlyChart}. Select an entity and year range.`;
-
-  const comparisonEndDateStr = searchParams?.endDate;
-  const comparisonStartDateStr = searchParams?.startDate;
-
-  const comparisonStartDate = comparisonStartDateStr && isValid(parseISO(comparisonStartDateStr)) 
-    ? comparisonStartDateStr 
-    : defaultRangeStartDateForComparison;
-  const comparisonEndDate = comparisonEndDateStr && isValid(parseISO(comparisonEndDateStr)) 
-    ? comparisonEndDateStr 
-    : defaultRangeEndDateForComparison;
-
-  const dateRangeForComparisonApi: ApiDateRange = {
-    startDate: comparisonStartDate,
-    endDate: comparisonEndDate,
-  };
-  const allOccupancyDataForComparison: Occupancy[] = await getOccupancy(dateRangeForComparisonApi);
-  const hotelOccupancyDataForComparison = allOccupancyDataForComparison.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
-
+  const pageDescription = `Hotel occupancy rates. Comparison for ${format(comparisonStartDate, "MMM d, yyyy")} to ${format(comparisonEndDate, "MMM d, yyyy")}. Monthly performance for ${selectedEntityName} in ${yearForMonthlyChart}.`;
 
   return (
     <>
       <PageHeader
         title="Occupancy Dashboard"
         description={pageDescription}
-        // Actions prop is now empty or can be removed if no other actions
-        // Removed the div wrapper for actions as it's empty now.
+        actions={
+            <DateRangePicker 
+                initialStartDate={dateRangeForComparisonApi.startDate} 
+                initialEndDate={dateRangeForComparisonApi.endDate}
+            />
+        }
       />
 
       <div className="grid grid-cols-1 gap-6 mb-8">
         <Suspense fallback={<Skeleton className="h-[450px] w-full" />}>
            <OccupancyChart 
-              data={hotelOccupancyDataForComparison} 
-              // Pass the date strings directly for DRP initialization inside OccupancyChart
-              drpInitialStartDate={comparisonStartDate} 
-              drpInitialEndDate={comparisonEndDate}
-              // dateRange prop for chart's internal display (CardDescription)
-              dateRange={dateRangeForComparisonApi}
+              data={hotelOccupancyDataForComparison} // Pass only hotel data
+              dateRange={dateRangeForComparisonApi} // For CardDescription
+              // drpInitialStartDate and drpInitialEndDate are handled by page-level DRP
            />
         </Suspense>
       </div>
@@ -92,7 +86,7 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
             data={monthlyPerformanceData}
             entityName={selectedEntityName}
             year={yearForMonthlyChart}
-            allEntities={SPECIFIC_HOTEL_NAMES} 
+            allEntities={SPECIFIC_HOTEL_NAMES} // Ensure this lists only hotels
             paramNameForSelector="entityForPerformance"
           />
         </Suspense>
@@ -100,3 +94,5 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
     </>
   );
 }
+
+    

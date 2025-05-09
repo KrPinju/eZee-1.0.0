@@ -103,11 +103,11 @@ export function MonthlyOccupancyPerformanceChart({
                 content={<ChartTooltipContent
                   formatter={(value, name, props) => {
                     const rate = Number(value).toFixed(1);
-                    let tooltipValue = `${rate}`; 
+                    let tooltipValue = `${rate}%`; // Keep % in tooltip for clarity
+                    // Check if occupiedRooms and totalRooms exist in the payload
                     if (props.payload.occupiedRooms !== undefined && props.payload.totalRooms !== undefined) {
                         tooltipValue += ` (${props.payload.occupiedRooms}/${props.payload.totalRooms} rooms)`;
                     }
-                    // Ensure chartConfig.occupancyRate.label is correctly accessed and is a string
                     const label = typeof chartConfig.occupancyRate.label === 'string' ? chartConfig.occupancyRate.label : "Rate";
                     return [tooltipValue, label];
                   }}
@@ -128,3 +128,5 @@ export function MonthlyOccupancyPerformanceChart({
     </Card>
   );
 }
+
+    

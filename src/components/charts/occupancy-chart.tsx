@@ -2,22 +2,19 @@
 "use client";
 
 import type { Occupancy, DateRange as ApiDateRange } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Label } from "recharts"; 
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Label, Tooltip as RechartsTooltip } from "recharts"; 
 import { IoIosArrowRoundForward } from "react-icons/io";
 import {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
+  ChartTooltipContent, // Use ChartTooltipContent for custom tooltip
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DateRangePicker } from "@/components/date-range-picker"; // Import DateRangePicker
+// DateRangePicker is removed from here, will be controlled by the page
 
 interface OccupancyChartProps {
   data: Occupancy[];
   dateRange: ApiDateRange; // For CardDescription
-  drpInitialStartDate?: string; // For DateRangePicker initialization
-  drpInitialEndDate?: string;   // For DateRangePicker initialization
 }
 
 const chartConfig = {
@@ -28,22 +25,15 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 
-export function OccupancyChart({ data, dateRange, drpInitialStartDate, drpInitialEndDate }: OccupancyChartProps) {
+export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
   if (!data || data.length === 0) {
     return (
       <Card className="shadow-lg">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <CardTitle>Occupancy Overview</CardTitle>
-            <CardDescription>
-              For period: {drpInitialStartDate && drpInitialEndDate ? `${drpInitialStartDate} to ${drpInitialEndDate}` : 'N/A'}
-            </CardDescription>
-          </div>
-          <DateRangePicker 
-            initialStartDate={drpInitialStartDate} 
-            initialEndDate={drpInitialEndDate}
-            className="mt-2 sm:mt-0"
-          />
+        <CardHeader>
+          <CardTitle>Occupancy Overview</CardTitle>
+          <CardDescription>
+            For period: {dateRange.startDate} to {dateRange.endDate}
+          </CardDescription>
         </CardHeader>
         <CardContent className="h-[350px] flex items-center justify-center">
           <p className="text-muted-foreground">No occupancy data available for the selected period.</p>
@@ -55,22 +45,17 @@ export function OccupancyChart({ data, dateRange, drpInitialStartDate, drpInitia
   const formattedData = data.map(item => ({
     name: item.entityName,
     occupancyRate: item.occupancyRate,
+    occupiedRooms: item.occupiedRooms, // Pass through for tooltip
+    totalRooms: item.totalRooms,       // Pass through for tooltip
   }));
 
   return (
     <Card className="shadow-lg">
-      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
+      <CardHeader>
             <CardTitle>Occupancy Overview</CardTitle>
             <CardDescription>
                 For period: {dateRange.startDate} to {dateRange.endDate}
             </CardDescription>
-        </div>
-        <DateRangePicker 
-            initialStartDate={drpInitialStartDate} 
-            initialEndDate={drpInitialEndDate}
-            className="mt-2 sm:mt-0"
-        />
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full"> 
@@ -108,6 +93,7 @@ export function OccupancyChart({ data, dateRange, drpInitialStartDate, drpInitia
                 domain={[0, 100]}
                 width={50} 
                 tick={{ fontSize: 10 }} 
+                tickFormatter={(value) => `${value}`} // Removed %
               >
                  <Label 
                     angle={-90} 
@@ -124,9 +110,20 @@ export function OccupancyChart({ data, dateRange, drpInitialStartDate, drpInitia
                     <tspan dy="-2px" dx="2px"><IoIosArrowRoundForward size={18} style={{ display: 'inline-block', verticalAlign: 'middle' }} /></tspan>
                   </Label>
               </YAxis>
-              <ChartTooltip
+              <RechartsTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="dashed" formatter={(value) => [`${value}%`, "Occupancy"]}/>}
+                content={<ChartTooltipContent 
+                            indicator="dashed" 
+                            formatter={(value, name, props) => {
+                                const rate = Number(value).toFixed(1);
+                                // Display totalRooms and occupiedRooms if available in the data
+                                let tooltipValue = `${rate}%`; // Keep % in tooltip for clarity
+                                if (props.payload.occupiedRooms !== undefined && props.payload.totalRooms !== undefined) {
+                                    tooltipValue += ` (${props.payload.occupiedRooms}/${props.payload.totalRooms} rooms)`;
+                                }
+                                return [tooltipValue, "Occupancy"];
+                            }}
+                        />}
               />
               <Bar dataKey="occupancyRate" fill="var(--color-occupancyRate)" radius={4} filter="url(#shadow-occupancy)">
                  <LabelList
@@ -149,3 +146,5 @@ export function OccupancyChart({ data, dateRange, drpInitialStartDate, drpInitia
     </Card>
   );
 }
+
+    
