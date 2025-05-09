@@ -7,13 +7,13 @@ export default function OccupancyPage() {
   return (
     <>
       <PageHeader
-        title="Occupancy Management"
-        description="Manage and view property-specific occupancy details."
+        title="Occupancy Dashboard"
+        description="View and analyze property-specific occupancy details."
       />
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Occupancy Data Overview</CardTitle>
-          <CardDescription>Detailed occupancy analytics will be displayed here.</CardDescription>
+          <CardDescription>Detailed occupancy analytics and visualizations are presented here.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center min-h-[400px]">
           <Image
@@ -35,3 +35,4 @@ export default function OccupancyPage() {
     </>
   );
 }
+
