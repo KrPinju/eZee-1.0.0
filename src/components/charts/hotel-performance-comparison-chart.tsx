@@ -231,7 +231,7 @@ export function HotelPerformanceComparisonChart({
                   axisLine={false}
                   tickLine={false}
                 >
-                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" offset={-15} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
+                   <Label value={`Value (${currencySymbol})`} angle={-90} position="insideLeft" offset={-20} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
                 </YAxis>
               )}
 
@@ -243,6 +243,9 @@ export function HotelPerformanceComparisonChart({
                       const hotelName = entry.payload.name; // This is the X-axis category (hotel name)
                       
                       let displayValue = "";
+                      const metricConfig = chartConfig[dataKey as keyof typeof chartConfig];
+                      const metricLabel = metricConfig?.label || dataKey;
+
 
                       if (dataKey === 'occupancyRate') {
                         displayValue = `${Number(value).toFixed(1)}% (${entry.payload.occupiedRooms}/${entry.payload.totalRooms} rooms)`;
@@ -252,17 +255,18 @@ export function HotelPerformanceComparisonChart({
                         displayValue = `${currencySymbol}${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                       }
                       
-                      // The default title of the tooltip box (from ChartTooltipContent's label logic) will be the metric name (e.g., "ADR (Nu.)")
-                      // This formatter provides the content for the line item below that title.
                       return (
-                        <div className="flex justify-between items-center w-full text-xs">
-                          <span className="text-muted-foreground">{hotelName}:</span>
-                          <span className="font-semibold ml-2 text-foreground">{displayValue}</span>
+                        <div className="grid gap-0.5">
+                           <div className="font-semibold">{metricLabel}</div>
+                           <div className="flex justify-between items-center w-full text-xs">
+                                <span className="text-muted-foreground">{hotelName}:</span>
+                                <span className="font-semibold ml-2 text-foreground">{displayValue}</span>
+                           </div>
                         </div>
                       );
                     }}
                     indicator="dashed"
-                    // hideLabel={false} is default, ensures metric name title is shown
+                    hideLabel={true} // Hide the default label as we are constructing a custom one above
                   />
                 }
               />
