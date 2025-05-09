@@ -1,16 +1,17 @@
 
+
 import { DollarSign, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
 import { RevenueChart } from "@/components/charts/revenue-chart";
-import { CafeRestaurantADRComparisonChart } from "@/components/charts/cafe-restaurant-adr-comparison-chart"; // New import
+import { CafeRestaurantADRComparisonChart } from "@/components/charts/cafe-restaurant-adr-comparison-chart";
 import {
   getRevenueSummary,
   getMonthlyEntityRevenue,
   SPECIFIC_CAFE_RESTAURANT_NAMES,
   type DateRange as ApiDateRange,
-  type ADRData, // Import ADRData
+  type ADRData,
 } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,11 +61,11 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
   const [
     revenueSummaryData,
     monthlyCafeRevenueData,
-    cafeADRData // New data
+    cafeADRData
   ] = await Promise.all([
     getRevenueSummary(dateRangeForSummary),
     getMonthlyEntityRevenue(selectedRevenueCafeName, currentYear),
-    getCafeRestaurantADR(dateRangeForSummary), // Fetch new data
+    getCafeRestaurantADR(dateRangeForSummary),
   ]);
 
   const cafeRevenueItems = revenueSummaryData.filter(item => SPECIFIC_CAFE_RESTAURANT_NAMES.includes(item.entityName));
@@ -86,7 +87,7 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
         actions={<DateRangePicker initialStartDate={dateRangeForSummary.startDate} initialEndDate={dateRangeForSummary.endDate} />}
       />
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 mb-6"> {/* Adjusted grid-cols */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 mb-6">
         <StatCard
           title="Total Cafe/Restaurant Revenue"
           value={`${currencySymbol}${totalCafeRevenue.toLocaleString()}`}
@@ -115,7 +116,7 @@ export default async function CafesRestaurantsPage({ searchParams }: CafesRestau
         />
       </div>
       
-      <div className="grid grid-cols-1 gap-6 mb-6 mt-6"> {/* Added mt-6 for spacing */}
+      <div className="grid grid-cols-1 gap-6 mb-6 mt-6">
         <CafeRestaurantADRComparisonChart
           data={cafeADRData}
           dateRange={dateRangeForSummary}

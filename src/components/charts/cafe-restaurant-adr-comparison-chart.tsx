@@ -45,7 +45,7 @@ export function CafeRestaurantADRComparisonChart({
     return (
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Cafe & Restaurant ADR Comparison</CardTitle>
+          <CardTitle>Cafe &amp; Restaurant Average Daily Revenue Comparison</CardTitle>
           <CardDescription>
             Average Daily Revenue from {dateRange.startDate} to {dateRange.endDate}
           </CardDescription>
@@ -72,7 +72,7 @@ export function CafeRestaurantADRComparisonChart({
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle>Cafe & Restaurant ADR Comparison</CardTitle>
+        <CardTitle>Cafe &amp; Restaurant Average Daily Revenue Comparison</CardTitle>
         <CardDescription>
           Average Daily Revenue from {dateRange.startDate} to {dateRange.endDate}
         </CardDescription>
