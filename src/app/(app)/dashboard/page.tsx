@@ -16,7 +16,6 @@ import {
   getMonthlyHotelPerformance,
   getPropertyComparisonData,
   getMonthlyEntityRevenue,
-  type MonthlyRevenueDataPoint
 } from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
@@ -26,8 +25,8 @@ interface DashboardPageProps {
     startDate?: string;
     endDate?: string;
     chartHotel?: string;
-    revenueHotel?: string; // For Hotel Revenue Chart selection
-    revenueCafe?: string;  // For Cafe Revenue Chart selection
+    revenueHotel?: string; 
+    revenueCafe?: string;  
   };
 }
 
@@ -66,9 +65,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   
   const selectedAnnualPerfHotelName = searchParams?.chartHotel ?? ALL_HOTELS_SELECTOR;
 
-  // Ensures selectedRevenueHotelName and selectedRevenueCafeName are derived
-  // independently from searchParams.revenueHotel and searchParams.revenueCafe respectively.
-  // This maintains separation of state for the two revenue charts.
   const selectedRevenueHotelName = searchParams?.revenueHotel ?? SPECIFIC_HOTEL_NAMES[0]; 
   const selectedRevenueCafeName = searchParams?.revenueCafe ?? SPECIFIC_CAFE_RESTAURANT_NAMES[0];
 
@@ -192,7 +188,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <OccupancyChart data={hotelOccupancyData} dateRange={dateRangeForSummary} />
        </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
+      <div className="grid grid-cols-1 gap-6 mb-6">
         <RevenueChart
             initialData={monthlyHotelRevenueData}
             allEntityNames={SPECIFIC_HOTEL_NAMES}
@@ -203,6 +199,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             barColor="hsl(var(--chart-1))"
             entityType="hotel"
         />
+      </div>
+      <div className="grid grid-cols-1 gap-6 mb-6">
         <RevenueChart
             initialData={monthlyCafeRevenueData}
             allEntityNames={SPECIFIC_CAFE_RESTAURANT_NAMES}
