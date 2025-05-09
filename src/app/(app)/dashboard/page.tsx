@@ -1,6 +1,6 @@
 
 
-import { DollarSign, Percent, Building, BedDouble, TrendingUp, Coffee } from "lucide-react"; // Added Coffee icon
+import { DollarSign, Percent, Building, BedDouble, TrendingUp, Coffee } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { StatCard } from "@/components/stat-card";
@@ -8,7 +8,18 @@ import { OccupancyChart } from "@/components/charts/occupancy-chart";
 import { RevenueChart } from "@/components/charts/revenue-chart";
 import { AnnualPerformanceLineChart } from "@/components/charts/annual-performance-line-chart";
 import { PropertyComparisonChart } from "@/components/charts/property-comparison-chart";
-import { getOccupancy, getRevenue, getADR, getRevPAR, type DateRange as ApiDateRange, getAverageMonthlyPerformance, getMonthlyHotelPerformance, getPropertyComparisonData } from "@/services/ezee-pms";
+import {
+  getOccupancy,
+  getRevenueSummary, // Renamed from getRevenue
+  getADR,
+  getRevPAR,
+  type DateRange as ApiDateRange,
+  getAverageMonthlyPerformance,
+  getMonthlyHotelPerformance,
+  getPropertyComparisonData,
+  getMonthlyEntityRevenue, // New import
+  type MonthlyRevenueDataPoint // New import
+} from "@/services/ezee-pms";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
 
@@ -16,11 +27,12 @@ interface DashboardPageProps {
   searchParams?: {
     startDate?: string;
     endDate?: string;
-    chartHotel?: string; // For Annual Performance Chart hotel selection
+    chartHotel?: string;
+    revenueHotel?: string; // For Hotel Revenue Chart selection
+    revenueCafe?: string;  // For Cafe Revenue Chart selection
   };
 }
 
-// Define the list of specific hotel names to display
 const SPECIFIC_HOTEL_NAMES = [
   "Hotel Olathang",
   "Olathang Cottages",
@@ -29,7 +41,7 @@ const SPECIFIC_HOTEL_NAMES = [
   "Hotel Phuntsho Pelri",
   "Hotel Ugyen Ling",
 ];
-const ALL_HOTELS_SELECTOR = "__ALL_HOTELS__"; // Special value for 'All Hotels'
+const ALL_HOTELS_SELECTOR = "__ALL_HOTELS__";
 
 
 const SPECIFIC_CAFE_RESTAURANT_NAMES = [
@@ -43,7 +55,6 @@ const SPECIFIC_CAFE_RESTAURANT_NAMES = [
 
 const calculatePercentageChange = (current: number, previous: number): number | undefined => {
   if (previous === 0) {
-    // If previous is 0, change is undefined unless current is also 0.
     return current === 0 ? 0 : undefined;
   }
   return ((current - previous) / previous) * 100;
@@ -54,54 +65,53 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const today = new Date();
   const endDateParam = searchParams?.endDate;
   const startDateParam = searchParams?.startDate;
-  const selectedHotelName = searchParams?.chartHotel ?? ALL_HOTELS_SELECTOR; // Default to 'All Hotels'
+  
+  const selectedAnnualPerfHotelName = searchParams?.chartHotel ?? ALL_HOTELS_SELECTOR;
+  const selectedRevenueHotelName = searchParams?.revenueHotel ?? SPECIFIC_HOTEL_NAMES[0]; // Default to first hotel
+  const selectedRevenueCafeName = searchParams?.revenueCafe ?? SPECIFIC_CAFE_RESTAURANT_NAMES[0]; // Default to first cafe
+
 
   const endDate = endDateParam && isValid(parseISO(endDateParam)) ? parseISO(endDateParam) : today;
   const startDate = startDateParam && isValid(parseISO(startDateParam)) ? parseISO(startDateParam) : addDays(endDate, -6);
 
-  const dateRange: ApiDateRange = {
+  const dateRangeForSummary: ApiDateRange = {
     startDate: format(startDate, "yyyy-MM-dd"),
     endDate: format(endDate, "yyyy-MM-dd"),
   };
 
   const currentYear = today.getFullYear();
 
-  // Fetch data in parallel
   const [
     occupancyData,
-    revenueData,
+    revenueSummaryData,
     adrData,
     revparData,
-    annualPerformanceData, // Fetch data based on selection
+    annualPerformanceData,
     propertyComparisonData,
+    monthlyHotelRevenueData, // New data
+    monthlyCafeRevenueData,   // New data
   ] = await Promise.all([
-    getOccupancy(dateRange),
-    getRevenue(dateRange),
-    getADR(dateRange),
-    getRevPAR(dateRange),
-    selectedHotelName === ALL_HOTELS_SELECTOR
+    getOccupancy(dateRangeForSummary),
+    getRevenueSummary(dateRangeForSummary), // Use for summary cards
+    getADR(dateRangeForSummary),
+    getRevPAR(dateRangeForSummary),
+    selectedAnnualPerfHotelName === ALL_HOTELS_SELECTOR
       ? getAverageMonthlyPerformance(currentYear)
-      : getMonthlyHotelPerformance(selectedHotelName, currentYear),
-    getPropertyComparisonData(dateRange), // Fetch data for Property Comparison Chart
+      : getMonthlyHotelPerformance(selectedAnnualPerfHotelName, currentYear),
+    getPropertyComparisonData(dateRangeForSummary),
+    getMonthlyEntityRevenue(selectedRevenueHotelName, currentYear), // Fetch monthly for selected hotel
+    getMonthlyEntityRevenue(selectedRevenueCafeName, currentYear),   // Fetch monthly for selected cafe
   ]);
 
 
-  const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenueAmount, 0);
-
+  const totalRevenue = revenueSummaryData.reduce((sum, item) => sum + item.revenueAmount, 0);
   const hotelOccupancyData = occupancyData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
-
   const averageHotelOccupancy = hotelOccupancyData.length > 0
     ? hotelOccupancyData.reduce((sum, item) => sum + item.occupancyRate, 0) / hotelOccupancyData.length
     : 0;
 
-  const currency = revenueData.length > 0 ? revenueData[0].currency : 'BTN'; // Default to BTN
-  const currencySymbol = currency === 'BTN' ? 'Nu.' : currency; // Use Nu. for BTN
-
-  const hotelRevenueData = revenueData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
-
-  const cafeAndRestaurantRevenue = revenueData.filter(item =>
-    SPECIFIC_CAFE_RESTAURANT_NAMES.includes(item.entityName)
-  );
+  const currency = revenueSummaryData.length > 0 ? revenueSummaryData[0].currency : 'BTN';
+  const currencySymbol = currency === 'BTN' ? 'Nu.' : currency;
 
   const hotelADRData = adrData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
   const averageHotelADR = hotelADRData.length > 0
@@ -113,8 +123,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ? hotelRevPARData.reduce((sum, item) => sum + item.revpar, 0) / hotelRevPARData.length
     : 0;
 
-  // Simulate previous period data for percentage change calculation
-  // For mock purposes, generate random changes between -15% and +15%
   const previousTotalRevenue = Math.max(1, totalRevenue * (1 - (Math.random() * 0.3 - 0.15)));
   const previousAverageHotelOccupancy = Math.max(0.1, averageHotelOccupancy * (1 - (Math.random() * 0.3 - 0.15)));
   const previousAverageHotelADR = Math.max(1, averageHotelADR * (1 - (Math.random() * 0.3 - 0.15)));
@@ -127,13 +135,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const monitoredCafesRestaurantsCount = SPECIFIC_CAFE_RESTAURANT_NAMES.length;
 
-
   return (
     <>
       <PageHeader
         title="Dashboard Overview"
-        description={`Showing data from ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}`}
-        actions={<DateRangePicker initialStartDate={dateRange.startDate} initialEndDate={dateRange.endDate} />}
+        description={`Showing summary from ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}. Monthly charts for ${currentYear}.`}
+        actions={<DateRangePicker initialStartDate={dateRangeForSummary.startDate} initialEndDate={dateRangeForSummary.endDate} />}
       />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
@@ -179,46 +186,51 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
          />
       </div>
 
-       {/* Occupancy Chart - Takes full width */}
        <div className="grid grid-cols-1 gap-6 mb-6">
-          <OccupancyChart data={hotelOccupancyData} dateRange={dateRange} />
+          <OccupancyChart data={hotelOccupancyData} dateRange={dateRangeForSummary} />
        </div>
 
-      {/* Revenue Charts - Full width on small screens, side by side on large screens */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-6">
         <RevenueChart
-            data={hotelRevenueData}
-            dateRange={dateRange}
-            chartTitle="Hotels Revenue Breakdown"
-            barColor="hsl(var(--chart-1))" // Navy blue
+            initialData={monthlyHotelRevenueData}
+            allEntityNames={SPECIFIC_HOTEL_NAMES}
+            initialSelectedEntityName={selectedRevenueHotelName}
+            currencySymbol={currencySymbol}
+            currentYear={currentYear}
+            baseChartTitle="Hotels Revenue Breakdown"
+            barColor="hsl(var(--chart-1))"
+            entityType="hotel"
         />
         <RevenueChart
-            data={cafeAndRestaurantRevenue}
-            dateRange={dateRange}
-            chartTitle="Cafe & Restaurant Revenue Breakdown"
-            barColor="hsl(var(--chart-3))" // Orange
+            initialData={monthlyCafeRevenueData}
+            allEntityNames={SPECIFIC_CAFE_RESTAURANT_NAMES}
+            initialSelectedEntityName={selectedRevenueCafeName}
+            currencySymbol={currencySymbol}
+            currentYear={currentYear}
+            baseChartTitle="Cafe & Restaurant Revenue Breakdown"
+            barColor="hsl(var(--chart-3))"
+            entityType="cafe"
         />
       </div>
 
-       {/* Annual Performance Chart */}
        <div className="grid grid-cols-1 gap-6 mb-6">
            <AnnualPerformanceLineChart
                 initialData={annualPerformanceData}
                 allHotelNames={SPECIFIC_HOTEL_NAMES}
-                initialSelectedHotelName={selectedHotelName}
+                initialSelectedHotelName={selectedAnnualPerfHotelName}
                 currencySymbol={currencySymbol}
                 currentYear={currentYear}
            />
        </div>
 
-        {/* Property Comparison Chart */}
         <div className="grid grid-cols-1 gap-6 mb-6">
             <PropertyComparisonChart
                 data={propertyComparisonData}
-                dateRange={dateRange}
+                dateRange={dateRangeForSummary}
             />
         </div>
     </>
   );
 }
 
+    

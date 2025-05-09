@@ -92,6 +92,16 @@ export interface AnnualPerformanceChartDataPoint {
   avgRevpar: number;
 }
 
+/**
+ * Represents a data point for monthly revenue for a single entity.
+ */
+export interface MonthlyRevenueDataPoint {
+  month: string; // "Jan", "Feb", ..., "Dec"
+  revenueAmount: number;
+  currency: string;
+}
+
+
 const SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA = [
   "Hotel Olathang",
   "Olathang Cottages",
@@ -133,11 +143,11 @@ export async function getOccupancy(dateRange: DateRange): Promise<Occupancy[]> {
 }
 
 /**
- * Asynchronously retrieves revenue data for a given date range.
+ * Asynchronously retrieves revenue data for a given date range (used for summary cards).
  * @param dateRange The date range for which to retrieve revenue data.
  * @returns A promise that resolves to an array of Revenue objects.
  */
-export async function getRevenue(dateRange: DateRange): Promise<Revenue[]> {
+export async function getRevenueSummary(dateRange: DateRange): Promise<Revenue[]> {
   // TODO: Implement this by calling the eZee PMS API.
   // For now, mock data reflects individual hotels, cafes, and restaurants.
   const hotelRevenue = SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(name => ({
@@ -191,26 +201,22 @@ export async function getRevPAR(dateRange: DateRange): Promise<RevPARData[]> {
 // Helper function to generate mock data for a single hotel for a year
 const generateMockHotelData = (hotelName: string): AnnualPerformanceChartDataPoint[] => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const mockData: AnnualPerformanceChartDataPoint[] = []; // Define mockData here
-    const baseOcc = 50 + (hotelName.length % 10) * 2; // Base varies slightly per hotel
+    const mockData: AnnualPerformanceChartDataPoint[] = []; 
+    const baseOcc = 50 + (hotelName.length % 10) * 2; 
     const baseAdr = 100 + (hotelName.length % 15) * 5;
 
     for (let i = 0; i < months.length; i++) {
         const month = months[i];
-        // Mock occupancy: Trend with seasonality (e.g. higher in mid-year)
-        const seasonalFactorOcc = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 15 + 1; // -14 to 16
-        const randomFactorOcc = Math.random() * 10 - 5; // -5 to 5
+        const seasonalFactorOcc = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 15 + 1; 
+        const randomFactorOcc = Math.random() * 10 - 5; 
         const avgOccupancyRate = Math.min(98, Math.max(30, baseOcc + seasonalFactorOcc + randomFactorOcc));
 
-        // Mock ADR: Trend with seasonality (peaks slightly later than occupancy)
-        const seasonalFactorAdr = Math.sin((i / 12) * Math.PI * 2) * 20 + 1; // -19 to 21
-        const randomFactorAdr = Math.random() * 30 - 15; // -15 to 15
+        const seasonalFactorAdr = Math.sin((i / 12) * Math.PI * 2) * 20 + 1; 
+        const randomFactorAdr = Math.random() * 30 - 15; 
         const avgAdr = Math.max(50, baseAdr + seasonalFactorAdr + randomFactorAdr);
 
-        // Mock RevPAR: Correlated with occupancy and ADR
-        const avgRevpar = Math.max(20, (avgAdr * avgOccupancyRate) / 100 + (Math.random() * 10 - 5)); // +/- 5 randomness
+        const avgRevpar = Math.max(20, (avgAdr * avgOccupancyRate) / 100 + (Math.random() * 10 - 5)); 
 
-        // Push to the correct array
         mockData.push({
             month: month,
             avgOccupancyRate: parseFloat(avgOccupancyRate.toFixed(1)),
@@ -218,7 +224,7 @@ const generateMockHotelData = (hotelName: string): AnnualPerformanceChartDataPoi
             avgRevpar: parseFloat(avgRevpar.toFixed(0)),
         });
     }
-    return mockData; // Return mockData
+    return mockData; 
 };
 
 
@@ -232,8 +238,6 @@ export async function getMonthlyHotelPerformance(
   hotelName: string,
   year: number // Currently unused in mock
 ): Promise<AnnualPerformanceChartDataPoint[]> {
-  // In a real scenario, you'd call the API here.
-  // For mock, generate data for the specific hotel.
   return generateMockHotelData(hotelName);
 }
 
@@ -249,14 +253,12 @@ export async function getAverageMonthlyPerformance(
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const allHotelsData: { [month: string]: { occ: number[], adr: number[], revpar: number[] } } = {};
 
-     // Initialize structure
     months.forEach(month => {
         allHotelsData[month] = { occ: [], adr: [], revpar: [] };
     });
 
-    // Generate and collect data for all hotels
     for (const hotelName of SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA) {
-        const hotelData = await getMonthlyHotelPerformance(hotelName, year); // Use existing mock function
+        const hotelData = await getMonthlyHotelPerformance(hotelName, year); 
         hotelData.forEach(dataPoint => {
             allHotelsData[dataPoint.month].occ.push(dataPoint.avgOccupancyRate);
             allHotelsData[dataPoint.month].adr.push(dataPoint.avgAdr);
@@ -264,7 +266,6 @@ export async function getAverageMonthlyPerformance(
         });
     }
 
-     // Calculate averages
     const averageData: AnnualPerformanceChartDataPoint[] = months.map(month => {
         const monthStats = allHotelsData[month];
         const avgOccupancyRate = monthStats.occ.reduce((a, b) => a + b, 0) / monthStats.occ.length;
@@ -283,6 +284,48 @@ export async function getAverageMonthlyPerformance(
 }
 
 /**
+ * Generates mock monthly revenue data for a single entity.
+ * @param entityName The name of the entity.
+ * @param year The year for which to generate data.
+ * @returns An array of MonthlyRevenueDataPoint.
+ */
+const generateMockMonthlyEntityRevenue = (entityName: string, year: number): MonthlyRevenueDataPoint[] => {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const mockData: MonthlyRevenueDataPoint[] = [];
+  const baseRevenue = (entityName.length % 5 + 1) * 20000; // Base revenue varies per entity (20k to 100k)
+
+  for (let i = 0; i < months.length; i++) {
+    const month = months[i];
+    // Mock revenue: Trend with seasonality (e.g., higher in mid-year and year-end)
+    const seasonalFactor = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 0.3 + 1; // Factor from 0.7 to 1.3
+    const randomFactor = (Math.random() * 0.2 - 0.1) + 1; // Factor from 0.9 to 1.1
+    const revenueAmount = Math.max(5000, baseRevenue * seasonalFactor * randomFactor);
+
+    mockData.push({
+      month: month,
+      revenueAmount: parseFloat(revenueAmount.toFixed(0)),
+      currency: 'BTN',
+    });
+  }
+  return mockData;
+};
+
+/**
+ * Retrieves monthly revenue data for a specific entity for a given year (mock implementation).
+ * @param entityName The name of the entity (hotel or cafe/restaurant).
+ * @param year The year.
+ * @returns A promise resolving to an array of MonthlyRevenueDataPoint.
+ */
+export async function getMonthlyEntityRevenue(
+  entityName: string,
+  year: number
+): Promise<MonthlyRevenueDataPoint[]> {
+  // In a real scenario, you'd call the API here, potentially differentiating by entity type if needed.
+  return generateMockMonthlyEntityRevenue(entityName, year);
+}
+
+
+/**
  * Retrieves comprehensive property comparison data for a given date range.
  * This combines Occupancy, ADR, and RevPAR for the specified hotels.
  * @param dateRange The date range.
@@ -297,20 +340,16 @@ export interface PropertyComparisonData {
 }
 
 export async function getPropertyComparisonData(dateRange: DateRange): Promise<PropertyComparisonData[]> {
-    // Fetch individual metrics
     const [occupancyData, adrData, revparData] = await Promise.all([
         getOccupancy(dateRange),
         getADR(dateRange),
         getRevPAR(dateRange),
     ]);
 
-    // Filter for only the specified hotels
     const hotelOccupancy = occupancyData.filter(item => SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.includes(item.entityName));
     const hotelAdr = adrData.filter(item => SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.includes(item.entityName));
     const hotelRevpar = revparData.filter(item => SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.includes(item.entityName));
 
-
-    // Combine the data by hotel name
     const combinedData: PropertyComparisonData[] = SPECIFIC_HOTEL_NAMES_FOR_MOCK_DATA.map(hotelName => {
         const occ = hotelOccupancy.find(o => o.entityName === hotelName)?.occupancyRate ?? 0;
         const adrItem = hotelAdr.find(a => a.entityName === hotelName);
@@ -321,9 +360,11 @@ export async function getPropertyComparisonData(dateRange: DateRange): Promise<P
             occupancyRate: occ,
             adr: adrItem?.adr ?? 0,
             revpar: revparItem?.revpar ?? 0,
-            currency: adrItem?.currency ?? 'BTN', // Assume currency is consistent, default BTN
+            currency: adrItem?.currency ?? 'BTN', 
         };
     });
 
     return combinedData;
 }
+
+    
