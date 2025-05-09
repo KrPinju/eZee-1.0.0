@@ -22,11 +22,11 @@ interface HotelRevenueComparisonChartProps {
 const chartConfig = {
   roomSales: {
     label: "Room Sales", 
-    color: "hsl(var(--chart-1))", 
+    color: "hsl(var(--chart-1))", // Dark Navy Blue
   },
   foodSales: {
     label: "Food Sales",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(var(--chart-3))", // Orange
   },
 } satisfies ChartConfig;
 
@@ -134,3 +134,4 @@ export function HotelRevenueComparisonChart({ data, dateRange, currencySymbol }:
     </Card>
   );
 }
+
