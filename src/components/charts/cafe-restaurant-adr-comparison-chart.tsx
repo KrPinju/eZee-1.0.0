@@ -131,10 +131,10 @@ export function CafeRestaurantADRComparisonChart({
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    formatter={(value, dataKey, entry) => {
-                      const cafeName = entry.payload.name;
-                      // The dataKey here will be "adr"
-                      const metricLabel = chartConfig[dataKey as keyof typeof chartConfig]?.label || "Value";
+                    formatter={(value, nameArg, entry) => { // nameArg is the key for chartConfig
+                      const cafeName = entry.payload.name; // x-axis category
+                      const metricConfig = chartConfig[nameArg as keyof typeof chartConfig];
+                      const metricLabel = metricConfig?.label || "Value";
                       return [`${currencySymbol}${(value as number).toLocaleString()}`, `${cafeName} - ${metricLabel}`];
                     }}
                     indicator="dashed"
@@ -146,7 +146,7 @@ export function CafeRestaurantADRComparisonChart({
                 // fill="var(--color-adr)" // Default fill, overridden by Cell
                 radius={[4, 4, 0, 0]}
                 filter="url(#shadow-cafe-adr)"
-                name={chartConfig.adr.label} // Used for tooltip/legend title for the metric
+                name="adr" // Corrected: Use the key "adr" for chartConfig lookup
               >
                 <LabelList dataKey="name" position="center" angle={-90} offset={0} style={labelStyle} />
                 {/* Add Cells for individual bar colors */}
