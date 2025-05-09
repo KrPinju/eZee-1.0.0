@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, Edit3, Shield, Lock, LogOut, Briefcase, UserCircle } from "lucide-react";
+import { Mail, Phone, Edit3, Lock, LogOut, UserCircle } from "lucide-react"; // Removed Briefcase and Shield
 import { FaUserCircle } from 'react-icons/fa';
 
 export default function ProfilePage() {
@@ -67,7 +67,7 @@ export default function ProfilePage() {
               Account Details
             </CardTitle>
             <CardDescription>
-              Manage your account preferences and security. (Role: {user.role})
+              Manage your account preferences. (Role: {user.role})
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -81,20 +81,6 @@ export default function ProfilePage() {
                 <Lock className="h-4 w-4" />
                 Change Password (Coming Soon)
               </Button>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <h3 className="text-md font-semibold">Security Settings</h3>
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <span className="text-sm text-muted-foreground">Two-Factor Authentication</span>
-                <Button variant="outline" size="sm" className="flex items-center gap-1" disabled>
-                  <Shield className="h-4 w-4" />
-                  Enable (Soon)
-                </Button>
-              </div>
-              {/* Removed redundant security message for Two-Factor Authentication */}
             </div>
             
             <Separator />
@@ -116,4 +102,3 @@ export default function ProfilePage() {
     </>
   );
 }
-
