@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { PropertyComparisonData, DateRange } from "@/services/ezee-pms";
@@ -23,7 +22,7 @@ type MetricSelection = "all" | "occupancyRate" | "adr" | "revpar";
 const baseChartConfig = {
   occupancyRate: {
     label: "Occupancy (%)",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(var(--primary))", // Changed from --chart-1 to --primary for dark navy blue
   },
   adr: {
     label: "ADR", // Currency added dynamically
@@ -94,7 +93,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
 
 
    const labelStyle = {
-      fill: 'white', // White text
+      fill: 'hsl(var(--primary-foreground))', // White text on primary bg for better contrast
       fontSize: '10px',
       textAnchor: 'middle', // Center text horizontally
       fontWeight: 'bold', // Make the text bold
@@ -139,7 +138,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
             <BarChart data={formattedData} barGap={4} margin={{ top: 20, bottom: 5, left: 10, right: 5 }}> {/* Adjusted left margin */}
               <defs>
                 <filter id="shadow-comparison" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
+                  <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="hsl(var(--foreground))" floodOpacity="0.2"/>
                 </filter>
               </defs>
               <CartesianGrid vertical={false} />
@@ -155,7 +154,7 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
                   yAxisId="left"
                   orientation="left"
                   domain={[0, 100]}
-                  stroke="hsl(var(--chart-1))" // Match Occupancy color
+                  stroke="hsl(var(--primary))" // Match Occupancy color
                   width={50} // Adjusted width
                   tick={{ fontSize: 10 }} // Smaller font size for ticks
                   // Removed tickFormatter for %
@@ -232,4 +231,3 @@ export function PropertyComparisonChart({ data, dateRange }: PropertyComparisonC
     </Card>
   );
 }
-
