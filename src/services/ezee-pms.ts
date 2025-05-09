@@ -132,6 +132,15 @@ export interface MonthlyRevenueDataPoint {
   currency: string;
 }
 
+/**
+ * Represents a data point for monthly performance (e.g., ADR) for a single cafe/restaurant.
+ */
+export interface MonthlyCafePerformanceDataPoint {
+  month: string; // "Jan", "Feb", "Mar", ..., "Dec"
+  adr: number; // Average Daily Revenue for the month
+  currency: string;
+}
+
 
 export const SPECIFIC_HOTEL_NAMES = [
   "Hotel Olathang",
@@ -199,13 +208,13 @@ export async function getRevenueSummary(dateRange: DateRange): Promise<Revenue[]
   // For now, mock data reflects individual hotels, cafes, and restaurants.
   const hotelRevenue = SPECIFIC_HOTEL_NAMES.map(name => ({
     entityName: name,
-    revenueAmount: Math.floor(Math.random() * 10000) + 5000, // Random revenue between 5000-15000
+    revenueAmount: Math.floor(Math.random() * 1000000) + 500000, // Random revenue between 500000-1500000 Nu.
     currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 
   const cafeRestaurantRevenue = SPECIFIC_CAFE_RESTAURANT_NAMES.map(name => ({
     entityName: name,
-    revenueAmount: Math.floor(Math.random() * 3000) + 1000, // Random revenue between 1000-4000
+    revenueAmount: Math.floor(Math.random() * 300000) + 100000, // Random revenue between 100000-400000 Nu.
     currency: 'BTN', // Use Bhutanese Ngultrum
   }));
 
@@ -221,7 +230,7 @@ export async function getDetailedHotelRevenueSummary(dateRange: DateRange): Prom
   // TODO: Implement this by calling the eZee PMS API.
   // For now, mock data reflects individual hotels.
   return SPECIFIC_HOTEL_NAMES.map(name => {
-    const totalRevenue = Math.floor(Math.random() * 10000) + 5000; // Total revenue between 5000-15000
+    const totalRevenue = Math.floor(Math.random() * 1000000) + 500000; // Total revenue between 500000-1500000 Nu.
     const roomSalesPercentage = Math.random() * 0.4 + 0.5; // Room sales 50-90% of total
     const roomSales = Math.floor(totalRevenue * roomSalesPercentage);
     const foodSales = totalRevenue - roomSales;
@@ -396,6 +405,47 @@ export async function getMonthlyEntityRevenue(
 ): Promise<MonthlyRevenueDataPoint[]> {
   // In a real scenario, you'd call the API here, potentially differentiating by entity type if needed.
   return generateMockMonthlyEntityRevenue(entityName, year);
+}
+
+/**
+ * Generates mock monthly performance (ADR) data for a single cafe/restaurant.
+ * @param cafeName The name of the cafe/restaurant.
+ * @param year The year for which to generate data.
+ * @returns An array of MonthlyCafePerformanceDataPoint.
+ */
+const generateMockMonthlyCafePerformance = (cafeName: string, year: number): MonthlyCafePerformanceDataPoint[] => {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const mockData: MonthlyCafePerformanceDataPoint[] = [];
+  // Base ADR in Nu. (e.g., from 5,000 to 20,000 for cafes)
+  const baseAdr = 5000 + (cafeName.length % 8) * 1500;
+
+  for (let i = 0; i < months.length; i++) {
+    const month = months[i];
+    // Mock ADR: Trend with seasonality
+    const seasonalFactor = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 0.2 + 1; // Factor from 0.8 to 1.2
+    const randomFactor = (Math.random() * 0.15 - 0.075) + 1; // Factor from 0.925 to 1.075
+    const adr = Math.max(3000, baseAdr * seasonalFactor * randomFactor);
+
+    mockData.push({
+      month: month,
+      adr: parseFloat(adr.toFixed(0)),
+      currency: 'BTN',
+    });
+  }
+  return mockData;
+};
+
+/**
+ * Retrieves monthly performance (ADR) data for a specific cafe/restaurant for a given year (mock implementation).
+ * @param cafeName The name of the cafe/restaurant.
+ * @param year The year.
+ * @returns A promise resolving to an array of MonthlyCafePerformanceDataPoint.
+ */
+export async function getMonthlyCafePerformance(
+  cafeName: string,
+  year: number
+): Promise<MonthlyCafePerformanceDataPoint[]> {
+  return generateMockMonthlyCafePerformance(cafeName, year);
 }
 
 
