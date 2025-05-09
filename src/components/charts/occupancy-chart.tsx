@@ -21,7 +21,7 @@ interface OccupancyChartProps {
 const chartConfig = {
   occupancyRate: {
     label: "Occupancy (%)",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(var(--primary))", // Changed to use --primary for dark navy blue
   },
 } satisfies ChartConfig;
 
@@ -65,7 +65,7 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
             <BarChart data={formattedData} accessibilityLayer margin={{ top: 20, bottom: 30, left: 10, right: 5 }}> 
               <defs>
                 <filter id="shadow-occupancy" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="#000000" floodOpacity="0.2"/>
+                  <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="hsl(var(--foreground))" floodOpacity="0.2"/>
                 </filter>
               </defs>
               <CartesianGrid vertical={false} />
@@ -124,7 +124,7 @@ export function OccupancyChart({ data, dateRange }: OccupancyChartProps) {
                     angle={-90} 
                     offset={0} 
                     style={{
-                      fill: 'white', 
+                      fill: 'hsl(var(--primary-foreground))', // Use primary-foreground for text on primary bg
                       fontSize: '10px',
                       textAnchor: 'middle', 
                       fontWeight: 'bold', 
