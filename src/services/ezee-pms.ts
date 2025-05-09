@@ -1,3 +1,4 @@
+
 /**
  * Represents occupancy data for a specific entity (hotel, cafe, restaurant).
  */
@@ -179,6 +180,8 @@ const HOTEL_ROOM_COUNTS: Record<string, number> = {
   "Hotel Phuntsho Pelri": 47,
   "Hotel Ugyen Ling": 20,
 };
+
+export const ALL_HOTELS_SELECTOR = "__ALL_HOTELS__";
 
 
 /**
