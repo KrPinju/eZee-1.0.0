@@ -125,7 +125,7 @@ export function OccupancyComparisonChart({ data, dateRange }: OccupancyCompariso
                   value="Occupancy (%)"
                   angle={-90}
                   position="insideLeft"
-                  dx={-15}
+                  dx={-10} // Changed from -15 to -10 to move right
                   style={{
                     textAnchor: 'middle',
                     fill: 'hsl(var(--foreground))',
@@ -166,3 +166,4 @@ export function OccupancyComparisonChart({ data, dateRange }: OccupancyCompariso
     </Card>
   );
 }
+
