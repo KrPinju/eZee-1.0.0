@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Occupancy } from "@/services/ezee-pms";
@@ -55,8 +56,8 @@ export function HotelOccupancyComparisonChart({ data, dateRange }: HotelOccupanc
   }));
 
   const labelStyle = {
-    fill: 'hsl(var(--primary-foreground))',
-    fontSize: '10px',
+    fill: 'hsl(var(--primary-foreground))', // Ensure good contrast with bar color
+    fontSize: '10px', // Adjust if needed
     textAnchor: 'middle',
     fontWeight: 'bold',
   };
@@ -92,16 +93,16 @@ export function HotelOccupancyComparisonChart({ data, dateRange }: HotelOccupanc
                 dataKey="name" 
                 tickLine={false} 
                 axisLine={false} 
-                tick={false} 
-                height={0}
+                tick={false} // Remove X-axis labels below bars as names are inside
+                height={0} // No space needed for X-axis labels
               />
               <YAxis 
-                tickFormatter={(value) => String(Math.round(value))} // Ensure whole numbers for room counts
+                tickFormatter={(value) => String(Math.round(value))} 
                 width={50}
                 tick={{ fontSize: 10 }}
                 axisLine={false}
                 tickLine={false} 
-                domain={[0, maxTotalRooms > 0 ? dataMax => Math.ceil(Math.max(maxTotalRooms, dataMax) / 10) * 10 : 60]} // Ensure Y-axis covers max total rooms or at least 60
+                domain={[0, maxTotalRooms > 0 ? dataMax => Math.ceil(Math.max(maxTotalRooms, dataMax) / 10) * 10 : 60]} 
               >
                 <Label value="Number of Rooms" angle={-90} position="insideLeft" offset={-5} style={{ textAnchor: 'middle', fill: 'hsl(var(--foreground))', fontSize: '12px' }} />
               </YAxis>
@@ -127,10 +128,10 @@ export function HotelOccupancyComparisonChart({ data, dateRange }: HotelOccupanc
                 name="Occupied Rooms"
               >
                 <LabelList
-                    dataKey="name" // Keep showing hotel name inside the bar
-                    position="center" 
-                    angle={-90} 
-                    offset={0} 
+                    dataKey="name" 
+                    position="center" // Center the label within the bar
+                    angle={-90} // Rotate text for vertical display if names are long
+                    offset={0} // Adjust offset as needed
                     style={labelStyle}
                   />
               </Bar>
@@ -141,3 +142,4 @@ export function HotelOccupancyComparisonChart({ data, dateRange }: HotelOccupanc
     </Card>
   );
 }
+
