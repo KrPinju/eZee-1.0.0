@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -5,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Building2,
-  UtensilsCrossed, // Changed from Coffee and Utensils
+  UtensilsCrossed, 
   BarChart3,
   Settings,
   LifeBuoy,
@@ -14,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { IoIosArrowForward } from "react-icons/io";
 
 import {
   Sidebar,
@@ -33,14 +35,14 @@ import { useSidebar } from '@/components/ui/sidebar';
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', tooltip: 'Dashboard' },
   { href: '/hotels', icon: Building2, label: 'Hotels', tooltip: 'Hotels' },
-  { href: '/cafes-restaurants', icon: UtensilsCrossed, label: 'Cafes & Restaurants', tooltip: 'Cafes & Restaurants' }, // Combined item
+  { href: '/cafes-restaurants', icon: UtensilsCrossed, label: 'Cafes & Restaurants', tooltip: 'Cafes & Restaurants' },
   { href: '/occupancy', icon: Percent, label: 'Occupancy', tooltip: 'Occupancy' },
   { href: '/revenue', icon: DollarSign, label: 'Revenue', tooltip: 'Revenue' },
   { href: '/analytics', icon: BarChart3, label: 'Analytics', tooltip: 'Analytics' },
 ];
 
 const settingsAndSupportItems = [
-     { href: '#', icon: Settings, label: 'Settings', tooltip: "Settings" },
+     { href: '/settings', icon: Settings, label: 'Settings', tooltip: "Settings" }, // Updated href
      { href: '#', icon: LifeBuoy, label: 'Support', tooltip: "Support" },
 ];
 
@@ -65,7 +67,12 @@ export function AppSidebar() {
                 onClick={toggleSidebar}
                 aria-label={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
             >
-                {state === 'expanded' ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+                {/* Using IoIosArrowForward and rotating it for collapse state */}
+                {state === 'expanded' ? (
+                    <IoIosArrowForward className="h-5 w-5 transform rotate-180" />
+                ) : (
+                    <IoIosArrowForward className="h-5 w-5" />
+                )}
             </Button>
         </div>
       </SidebarHeader>
@@ -97,12 +104,16 @@ export function AppSidebar() {
         <SidebarSeparator />
          <SidebarMenu>
              {settingsAndSupportItems.map((item) => (
-                 <SidebarMenuItem key={item.label}>
+                 <SidebarMenuItem key={item.href}> {/* Ensure key is unique, href should be unique here */}
                      <Link href={item.href} legacyBehavior passHref>
                          <SidebarMenuButton
                              asChild
+                             isActive={pathname.startsWith(item.href)} // Check active state
                              tooltip={{ children: item.tooltip, className: "bg-primary text-primary-foreground"}}
-                             className="justify-start"
+                             className={cn(
+                                "justify-start",
+                                pathname.startsWith(item.href) && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
+                              )}
                          >
                              <a>
                                  <item.icon className="h-5 w-5" />
