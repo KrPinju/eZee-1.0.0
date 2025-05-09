@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -6,15 +5,14 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Building2,
-  Coffee,
-  Utensils,
+  UtensilsCrossed, // Changed from Coffee and Utensils
   BarChart3,
   Settings,
   LifeBuoy,
-  Percent, // Added for Occupancy
-  DollarSign, // Added for Revenue
-  ChevronLeft, // Replaced PanelLeftClose
-  ChevronRight, // Replaced PanelLeftOpen
+  Percent,
+  DollarSign,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 import {
@@ -30,40 +28,36 @@ import {
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import { useSidebar } from '@/components/ui/sidebar'; // Import useSidebar hook
+import { useSidebar } from '@/components/ui/sidebar';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', tooltip: 'Dashboard' },
   { href: '/hotels', icon: Building2, label: 'Hotels', tooltip: 'Hotels' },
-  { href: '/cafe', icon: Coffee, label: 'Cafe', tooltip: 'Cafe' },
-  { href: '/restaurants', icon: Utensils, label: 'Restaurants', tooltip: 'Restaurants' },
+  { href: '/cafes-restaurants', icon: UtensilsCrossed, label: 'Cafes & Restaurants', tooltip: 'Cafes & Restaurants' }, // Combined item
   { href: '/occupancy', icon: Percent, label: 'Occupancy', tooltip: 'Occupancy' },
   { href: '/revenue', icon: DollarSign, label: 'Revenue', tooltip: 'Revenue' },
   { href: '/analytics', icon: BarChart3, label: 'Analytics', tooltip: 'Analytics' },
 ];
 
 const settingsAndSupportItems = [
-     { href: '#', icon: Settings, label: 'Settings', tooltip: "Settings" }, // Use '#' for placeholder links
-     { href: '#', icon: LifeBuoy, label: 'Support', tooltip: "Support" }, // Use '#' for placeholder links
+     { href: '#', icon: Settings, label: 'Settings', tooltip: "Settings" },
+     { href: '#', icon: LifeBuoy, label: 'Support', tooltip: "Support" },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { state, toggleSidebar } = useSidebar(); // Get state and toggle function
+  const { state, toggleSidebar } = useSidebar();
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" side="left">
-       {/* Ensure header uses justify-between if other elements are added on the right */}
       <SidebarHeader className="flex items-center justify-between p-2 h-14">
-        <div className="flex items-center gap-2"> {/* Group title and button */}
-            {/* eZee Insights Title - visible only when expanded */}
+        <div className="flex items-center gap-2">
             <h1 className={cn(
                 "text-lg font-semibold text-sidebar-foreground whitespace-nowrap",
-                state === 'collapsed' ? 'hidden' : 'block' // Hide title when collapsed
+                state === 'collapsed' ? 'hidden' : 'block'
             )}>
                 eZee Insights
             </h1>
-            {/* Toggle Button */}
             <Button
                 variant="ghost"
                 size="icon"
@@ -74,7 +68,6 @@ export function AppSidebar() {
                 {state === 'expanded' ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
             </Button>
         </div>
-         {/* Add other potential right-aligned header elements here if needed */}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -104,7 +97,7 @@ export function AppSidebar() {
         <SidebarSeparator />
          <SidebarMenu>
              {settingsAndSupportItems.map((item) => (
-                 <SidebarMenuItem key={item.label}> {/* Changed key to label as href is not unique */}
+                 <SidebarMenuItem key={item.label}>
                      <Link href={item.href} legacyBehavior passHref>
                          <SidebarMenuButton
                              asChild
@@ -135,4 +128,3 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
-
