@@ -2,7 +2,8 @@
 "use client";
 
 import type { ADRData, DateRange as ApiDateRange } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Tooltip as RechartsTooltip, Label } from "recharts";
+// Added Cell for individual bar coloring
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Tooltip as RechartsTooltip, Label, Cell } from "recharts"; 
 import {
   ChartContainer,
   ChartTooltipContent,
@@ -19,9 +20,21 @@ interface CafeRestaurantADRComparisonChartProps {
 const chartConfig = {
   adr: {
     label: "Average Daily Revenue", 
-    color: "hsl(var(--chart-4))", 
+    color: "hsl(var(--chart-4))", // Default color for the metric, overridden by Cells
   },
 } satisfies ChartConfig;
+
+// Define distinct colors for the bars
+const barColors = [
+  "hsl(var(--chart-1))", // Brighter Dark Blue
+  "hsl(var(--chart-2))", // Brighter Teal
+  "hsl(25 80% 45%)",    // Darker Orange (adjusted for better contrast with white text)
+  "hsl(var(--chart-4))", // Purple
+  "hsl(var(--chart-5))", // Pink
+  "hsl(150 70% 40%)",   // Darker Green (custom)
+  "hsl(var(--primary))", // Theme Primary
+  "hsl(var(--accent))", // Theme Accent
+];
 
 export function CafeRestaurantADRComparisonChart({
   data,
@@ -50,7 +63,7 @@ export function CafeRestaurantADRComparisonChart({
   }));
 
   const labelStyle = {
-    fill: 'hsl(var(--primary-foreground))',
+    fill: 'hsl(var(--primary-foreground))', // Color for text inside bars
     fontSize: '10px',
     textAnchor: 'middle',
     fontWeight: 'bold',
@@ -120,6 +133,7 @@ export function CafeRestaurantADRComparisonChart({
                   <ChartTooltipContent
                     formatter={(value, dataKey, entry) => {
                       const cafeName = entry.payload.name;
+                      // The dataKey here will be "adr"
                       const metricLabel = chartConfig[dataKey as keyof typeof chartConfig]?.label || "Value";
                       return [`${currencySymbol}${(value as number).toLocaleString()}`, `${cafeName} - ${metricLabel}`];
                     }}
@@ -129,12 +143,16 @@ export function CafeRestaurantADRComparisonChart({
               />
               <Bar
                 dataKey="adr" 
-                fill="var(--color-adr)"
+                // fill="var(--color-adr)" // Default fill, overridden by Cell
                 radius={[4, 4, 0, 0]}
                 filter="url(#shadow-cafe-adr)"
-                name={chartConfig.adr.label}
+                name={chartConfig.adr.label} // Used for tooltip/legend title for the metric
               >
                 <LabelList dataKey="name" position="center" angle={-90} offset={0} style={labelStyle} />
+                {/* Add Cells for individual bar colors */}
+                {formattedData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
+                ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -143,3 +161,4 @@ export function CafeRestaurantADRComparisonChart({
     </Card>
   );
 }
+
