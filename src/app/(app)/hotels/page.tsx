@@ -1,10 +1,11 @@
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getOccupancy, getADR, getRevPAR, getDetailedHotelRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange, type DetailedRevenue } from "@/services/ezee-pms";
+import { getOccupancy, getADR, getRevPAR, getDetailedHotelRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange, type DetailedRevenue, type Occupancy } from "@/services/ezee-pms";
 import { format, addDays, parseISO, isValid } from "date-fns";
 import { Percent, DollarSign, TrendingUp } from 'lucide-react';
 import { DateRangePicker } from "@/components/date-range-picker";
 import { HotelRevenueComparisonChart } from "@/components/charts/hotel-revenue-comparison-chart";
+import { HotelOccupancyComparisonChart } from "@/components/charts/hotel-occupancy-comparison-chart"; // Added import
 
 interface HotelsPageProps {
   searchParams?: {
@@ -26,15 +27,17 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     endDate: format(endDate, "yyyy-MM-dd"),
   };
 
-  const [occupancyData, adrData, revparData, detailedHotelRevenueData] = await Promise.all([
+  const [allOccupancyData, adrData, revparData, detailedHotelRevenueData] = await Promise.all([
     getOccupancy(dateRangeForSummary),
     getADR(dateRangeForSummary),
     getRevPAR(dateRangeForSummary),
-    getDetailedHotelRevenueSummary(dateRangeForSummary), // Fetch detailed revenue summary
+    getDetailedHotelRevenueSummary(dateRangeForSummary),
   ]);
 
+  const hotelOccupancyData: Occupancy[] = allOccupancyData.filter(o => SPECIFIC_HOTEL_NAMES.includes(o.entityName));
+
   const hotelStats = SPECIFIC_HOTEL_NAMES.map(hotelName => {
-    const occupancy = occupancyData.find(o => o.entityName === hotelName && SPECIFIC_HOTEL_NAMES.includes(o.entityName))?.occupancyRate ?? 0;
+    const occupancy = hotelOccupancyData.find(o => o.entityName === hotelName)?.occupancyRate ?? 0;
     const adrItem = adrData.find(a => a.entityName === hotelName && SPECIFIC_HOTEL_NAMES.includes(a.entityName));
     const revparItem = revparData.find(r => r.entityName === hotelName && SPECIFIC_HOTEL_NAMES.includes(r.entityName));
     
@@ -95,12 +98,18 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
         ))}
       </div>
 
-      {/* Revenue Comparison Chart with Room Sales & Food Sales */}
       <div className="grid grid-cols-1 gap-6 mb-6">
         <HotelRevenueComparisonChart 
             data={detailedHotelRevenueData} 
             dateRange={dateRangeForSummary} 
             currencySymbol={pageCurrencySymbol} 
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 mb-6"> {/* New section for Occupancy Comparison */}
+        <HotelOccupancyComparisonChart
+          data={hotelOccupancyData}
+          dateRange={dateRangeForSummary}
         />
       </div>
     </>
