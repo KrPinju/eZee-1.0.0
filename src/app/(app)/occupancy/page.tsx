@@ -2,57 +2,30 @@
 import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { OccupancyComparisonChart } from "@/components/charts/occupancy-comparison-chart"; 
-import { IndividualOccupancyChart } from "@/components/charts/individual-occupancy-chart"; // New chart
+import { IndividualOccupancyChart } from "@/components/charts/individual-occupancy-chart";
+import { EntitySelector } from "@/components/entity-selector"; // New import
 import { 
   getAnnualAverageOccupancyPerHotel, 
   getOccupancy, 
-  getIndividualEntityOccupancy, // New service function
+  getIndividualEntityOccupancy, 
   SPECIFIC_HOTEL_NAMES, 
-  SPECIFIC_CAFE_RESTAURANT_NAMES, // Import cafe names
-  ALL_SELECTABLE_ENTITIES, // New import for all entities
+  ALL_SELECTABLE_ENTITIES, 
   type Occupancy as OccupancyData, 
   type DateRange as ApiDateRange 
 } from "@/services/ezee-pms";
-import { format, parseISO, isValid, getYear, differenceInDays, isSameMonth, isSameYear, startOfMonth, endOfMonth, addDays } from "date-fns";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { format, parseISO, isValid, getYear, differenceInDays, isSameMonth, isSameYear, startOfMonth, endOfMonth } from "date-fns";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Define searchParams type for better type safety, export it for use in EntitySelector
+export interface OccupancyPageSearchParams {
+  startDate?: string;
+  endDate?: string;
+  individualEntity?: string;
+}
 interface OccupancyPageProps {
-  searchParams?: {
-    startDate?: string;
-    endDate?: string;
-    individualEntity?: string; // New searchParam for selected individual entity
-  };
+  searchParams?: OccupancyPageSearchParams;
 }
-
-// Helper component for the entity selector dropdown to handle client-side navigation
-function EntitySelector({ defaultValue, searchParams }: { defaultValue: string, searchParams?: OccupancyPageProps['searchParams']}) {
-  const { useRouter, usePathname } = require("next/navigation");
-  const router = useRouter();
-  const pathname = usePathname();
-  const currentSearchParams = new URLSearchParams(Array.from(Object.entries(searchParams || {})));
-
-
-  const handleEntityChange = (value: string) => {
-    currentSearchParams.set("individualEntity", value);
-    router.replace(`${pathname}?${currentSearchParams.toString()}`, { scroll: false });
-  };
-
-  return (
-    <Select value={defaultValue} onValueChange={handleEntityChange}>
-      <SelectTrigger className="w-full sm:w-[250px]">
-        <SelectValue placeholder="Select Hotel or Restaurant" />
-      </SelectTrigger>
-      <SelectContent>
-        {ALL_SELECTABLE_ENTITIES.map(name => (
-          <SelectItem key={name} value={name}>{name}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-}
-
 
 export default async function OccupancyPage({ searchParams }: OccupancyPageProps) {
   const today = new Date();
@@ -121,6 +94,9 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
   const selectedIndividualEntityName = searchParams?.individualEntity ?? ALL_SELECTABLE_ENTITIES[0];
   const individualOccupancyData = await getIndividualEntityOccupancy(selectedIndividualEntityName, dateRangeForCharts);
   const entityTypeForIndividualChart = SPECIFIC_HOTEL_NAMES.includes(selectedIndividualEntityName) ? 'hotel' : 'restaurant';
+  
+  const hotelOccupancyData: OccupancyData[] = comparisonOccupancyDataSource.filter(o => SPECIFIC_HOTEL_NAMES.includes(o.entityName));
+
 
   return (
     <>
@@ -131,14 +107,18 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
           <div className="flex flex-col sm:flex-row gap-2">
             <DateRangePicker initialStartDate={initialPickerStartDate} initialEndDate={initialPickerEndDate} />
             <Suspense fallback={<Skeleton className="h-10 w-full sm:w-[250px]" />}>
-               <EntitySelector defaultValue={selectedIndividualEntityName} searchParams={searchParams} />
+               <EntitySelector 
+                 defaultValue={selectedIndividualEntityName} 
+                 allEntities={ALL_SELECTABLE_ENTITIES}
+                 currentSearchParams={searchParams} 
+               />
             </Suspense>
           </div>
         }
       />
       <div className="grid grid-cols-1 gap-6">
         <OccupancyComparisonChart
-          data={comparisonOccupancyDataSource}
+          data={hotelOccupancyData} // Display only hotel data here
           dateRange={comparisonChartDateRange} 
         />
         <IndividualOccupancyChart
