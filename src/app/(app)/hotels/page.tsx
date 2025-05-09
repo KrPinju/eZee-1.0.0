@@ -1,10 +1,10 @@
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getOccupancy, getADR, getRevPAR, getRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange } from "@/services/ezee-pms";
+import { getOccupancy, getADR, getRevPAR, getDetailedHotelRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange, type DetailedRevenue } from "@/services/ezee-pms";
 import { format, addDays, parseISO, isValid } from "date-fns";
 import { Percent, DollarSign, TrendingUp } from 'lucide-react';
 import { DateRangePicker } from "@/components/date-range-picker";
-import { HotelRevenueComparisonChart } from "@/components/charts/hotel-revenue-comparison-chart"; // New import
+import { HotelRevenueComparisonChart } from "@/components/charts/hotel-revenue-comparison-chart";
 
 interface HotelsPageProps {
   searchParams?: {
@@ -26,11 +26,11 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     endDate: format(endDate, "yyyy-MM-dd"),
   };
 
-  const [occupancyData, adrData, revparData, revenueSummaryData] = await Promise.all([
+  const [occupancyData, adrData, revparData, detailedHotelRevenueData] = await Promise.all([
     getOccupancy(dateRangeForSummary),
     getADR(dateRangeForSummary),
     getRevPAR(dateRangeForSummary),
-    getRevenueSummary(dateRangeForSummary), // Fetch revenue summary
+    getDetailedHotelRevenueSummary(dateRangeForSummary), // Fetch detailed revenue summary
   ]);
 
   const hotelStats = SPECIFIC_HOTEL_NAMES.map(hotelName => {
@@ -50,8 +50,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     };
   });
 
-  const hotelRevenueData = revenueSummaryData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
-  const pageCurrency = hotelRevenueData.length > 0 ? hotelRevenueData[0].currency : 
+  const pageCurrency = detailedHotelRevenueData.length > 0 ? detailedHotelRevenueData[0].currency : 
                      (hotelStats.length > 0 ? (hotelStats[0].currencySymbol === 'Nu.' ? 'BTN' : hotelStats[0].currencySymbol) : 'BTN');
   const pageCurrencySymbol = pageCurrency === 'BTN' ? 'Nu.' : pageCurrency;
 
@@ -96,10 +95,10 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
         ))}
       </div>
 
-      {/* New Revenue Comparison Chart */}
+      {/* Revenue Comparison Chart with Room Sales & Food Sales */}
       <div className="grid grid-cols-1 gap-6 mb-6">
         <HotelRevenueComparisonChart 
-            data={hotelRevenueData} 
+            data={detailedHotelRevenueData} 
             dateRange={dateRangeForSummary} 
             currencySymbol={pageCurrencySymbol} 
         />

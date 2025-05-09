@@ -1,26 +1,32 @@
 
 "use client";
 
-import type { Revenue } from "@/services/ezee-pms";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, LabelList, Tooltip as RechartsTooltip } from "recharts";
+import type { DetailedRevenue } from "@/services/ezee-pms"; // Updated import
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend } from "recharts";
 import {
   ChartContainer,
   ChartTooltipContent,
+  ChartLegendContent, // Added import for legend
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DateRangePicker } from "@/components/date-range-picker"; // Added import
+import { DateRangePicker } from "@/components/date-range-picker";
 
 interface HotelRevenueComparisonChartProps {
-  data: Revenue[];
+  data: DetailedRevenue[]; // Updated data type
   dateRange: { startDate: string; endDate: string };
   currencySymbol: string;
 }
 
-const chartConfigBase = {
-  revenueAmount: {
-    label: "Revenue", 
-    color: "hsl(var(--primary))", // Use primary color for bars
+// Updated chartConfig for Room Sales and Food Sales
+const chartConfig = {
+  roomSales: {
+    label: "Room Sales", 
+    color: "hsl(var(--chart-1))", 
+  },
+  foodSales: {
+    label: "Food Sales",
+    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
@@ -30,9 +36,9 @@ export function HotelRevenueComparisonChart({ data, dateRange, currencySymbol }:
       <Card className="shadow-lg">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex-1">
-            <CardTitle>Hotel Revenue Comparison</CardTitle>
+            <CardTitle>Hotel Revenue Breakdown</CardTitle>
             <CardDescription>
-              Total revenue from {dateRange.startDate} to {dateRange.endDate}
+              Room Sales and Food Sales from {dateRange.startDate} to {dateRange.endDate}
             </CardDescription>
           </div>
           <DateRangePicker
@@ -48,27 +54,19 @@ export function HotelRevenueComparisonChart({ data, dateRange, currencySymbol }:
     );
   }
   
-  const chartConfig = { ...chartConfigBase };
-
   const formattedData = data.map(item => ({
     name: item.entityName,
-    revenueAmount: item.revenueAmount,
+    roomSales: item.roomSales,
+    foodSales: item.foodSales,
   }));
-
-  const labelStyle = {
-    fill: 'hsl(var(--primary-foreground))',
-    fontSize: '10px',
-    textAnchor: 'middle',
-    fontWeight: 'bold',
-  };
 
   return (
     <Card className="shadow-lg">
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex-1">
-            <CardTitle>Hotel Revenue Comparison</CardTitle>
+            <CardTitle>Hotel Revenue Breakdown</CardTitle>
             <CardDescription>
-            Total revenue from {dateRange.startDate} to {dateRange.endDate}
+             Room Sales and Food Sales from {dateRange.startDate} to {dateRange.endDate}
             </CardDescription>
         </div>
         <DateRangePicker
@@ -80,17 +78,23 @@ export function HotelRevenueComparisonChart({ data, dateRange, currencySymbol }:
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] sm:h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={formattedData} margin={{ top: 20, bottom: 5, left: 10, right: 20 }}>
+            <BarChart data={formattedData} margin={{ top: 20, bottom: 5, left: 10, right: 20 }} barGap={4}>
               <defs>
-                <filter id="shadow-revenue-comparison" x="-20%" y="-20%" width="140%" height="140%">
+                <filter id="shadow-hotel-revenue-breakdown" x="-20%" y="-20%" width="140%" height="140%">
                   <feDropShadow dx="2" dy="3" stdDeviation="3" floodColor="hsl(var(--foreground))" floodOpacity="0.2"/>
                 </filter>
               </defs>
               <CartesianGrid vertical={false} />
-              <XAxis dataKey="name" tick={false} height={0} axisLine={false} tickLine={false} />
+              <XAxis 
+                dataKey="name" 
+                tickLine={false} 
+                axisLine={false} 
+                tick={{ fontSize: 10 }} 
+                height={30} 
+              />
               <YAxis 
                 tickFormatter={(value) => `${currencySymbol}${value.toLocaleString()}`} 
-                width={70} // Adjusted width
+                width={70}
                 tick={{ fontSize: 10 }}
                 axisLine={false}
                 tickLine={false} 
@@ -99,23 +103,30 @@ export function HotelRevenueComparisonChart({ data, dateRange, currencySymbol }:
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    formatter={(value, dataKey, entry) => { // value is item.value, dataKey is item.dataKey 'revenueAmount', entry is item
-                      const hotelName = entry.payload.name; // This is the hotel name from the data
-                      return [`${currencySymbol}${(value as number).toLocaleString()}`, hotelName];
+                    formatter={(value, dataKey, entry) => {
+                      const hotelName = entry.payload.name;
+                      const metricLabel = chartConfig[dataKey as keyof typeof chartConfig]?.label || dataKey;
+                      return [`${currencySymbol}${(value as number).toLocaleString()}`, `${hotelName} - ${metricLabel}`];
                     }}
                     indicator="dashed"
                   />
                 }
               />
-              <Bar dataKey="revenueAmount" fill="var(--color-revenueAmount)" radius={4} filter="url(#shadow-revenue-comparison)">
-                <LabelList
-                  dataKey="name"
-                  position="center"
-                  angle={-90}
-                  offset={0}
-                  style={labelStyle}
-                />
-              </Bar>
+              <Legend content={<ChartLegendContent />} />
+              <Bar 
+                dataKey="roomSales" 
+                fill="var(--color-roomSales)" 
+                radius={[4, 4, 0, 0]} 
+                filter="url(#shadow-hotel-revenue-breakdown)"
+                name="Room Sales"
+              />
+              <Bar 
+                dataKey="foodSales" 
+                fill="var(--color-foodSales)" 
+                radius={[4, 4, 0, 0]} 
+                filter="url(#shadow-hotel-revenue-breakdown)"
+                name="Food Sales"
+              />
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
@@ -123,4 +134,3 @@ export function HotelRevenueComparisonChart({ data, dateRange, currencySymbol }:
     </Card>
   );
 }
-

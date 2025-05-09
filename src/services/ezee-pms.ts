@@ -31,6 +31,29 @@ export interface Revenue {
 }
 
 /**
+ * Represents detailed revenue data for a specific entity, broken down into room and food sales.
+ */
+export interface DetailedRevenue {
+  /**
+   * The name of the entity.
+   */
+  entityName: string;
+  /**
+   * Revenue from room sales.
+   */
+  roomSales: number;
+  /**
+   * Revenue from food sales.
+   */
+  foodSales: number;
+  /**
+   * The currency code (e.g., "BTN", "USD").
+   */
+  currency: string;
+}
+
+
+/**
  * Represents Average Daily Rate data for a specific entity.
  */
 export interface ADRData {
@@ -166,6 +189,29 @@ export async function getRevenueSummary(dateRange: DateRange): Promise<Revenue[]
 }
 
 /**
+ * Asynchronously retrieves detailed revenue data (room sales and food sales) for hotels for a given date range.
+ * @param dateRange The date range for which to retrieve detailed revenue data.
+ * @returns A promise that resolves to an array of DetailedRevenue objects.
+ */
+export async function getDetailedHotelRevenueSummary(dateRange: DateRange): Promise<DetailedRevenue[]> {
+  // TODO: Implement this by calling the eZee PMS API.
+  // For now, mock data reflects individual hotels.
+  return SPECIFIC_HOTEL_NAMES.map(name => {
+    const totalRevenue = Math.floor(Math.random() * 10000) + 5000; // Total revenue between 5000-15000
+    const roomSalesPercentage = Math.random() * 0.4 + 0.5; // Room sales 50-90% of total
+    const roomSales = Math.floor(totalRevenue * roomSalesPercentage);
+    const foodSales = totalRevenue - roomSales;
+    return {
+      entityName: name,
+      roomSales: roomSales,
+      foodSales: foodSales,
+      currency: 'BTN', // Use Bhutanese Ngultrum
+    };
+  });
+}
+
+
+/**
  * Asynchronously retrieves Average Daily Rate (ADR) data for hotels for a given date range.
  * @param dateRange The date range for which to retrieve ADR data.
  * @returns A promise that resolves to an array of ADRData objects.
@@ -201,21 +247,21 @@ export async function getRevPAR(dateRange: DateRange): Promise<RevPARData[]> {
 // Helper function to generate mock data for a single hotel for a year
 const generateMockHotelData = (hotelName: string): AnnualPerformanceChartDataPoint[] => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const mockData: AnnualPerformanceChartDataPoint[] = []; 
-    const baseOcc = 50 + (hotelName.length % 10) * 2; 
+    const mockData: AnnualPerformanceChartDataPoint[] = [];
+    const baseOcc = 50 + (hotelName.length % 10) * 2;
     const baseAdr = 100 + (hotelName.length % 15) * 5;
 
     for (let i = 0; i < months.length; i++) {
         const month = months[i];
-        const seasonalFactorOcc = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 15 + 1; 
-        const randomFactorOcc = Math.random() * 10 - 5; 
+        const seasonalFactorOcc = Math.sin((i / 12) * Math.PI * 2 - Math.PI / 2) * 15 + 1;
+        const randomFactorOcc = Math.random() * 10 - 5;
         const avgOccupancyRate = Math.min(98, Math.max(30, baseOcc + seasonalFactorOcc + randomFactorOcc));
 
-        const seasonalFactorAdr = Math.sin((i / 12) * Math.PI * 2) * 20 + 1; 
-        const randomFactorAdr = Math.random() * 30 - 15; 
+        const seasonalFactorAdr = Math.sin((i / 12) * Math.PI * 2) * 20 + 1;
+        const randomFactorAdr = Math.random() * 30 - 15;
         const avgAdr = Math.max(50, baseAdr + seasonalFactorAdr + randomFactorAdr);
 
-        const avgRevpar = Math.max(20, (avgAdr * avgOccupancyRate) / 100 + (Math.random() * 10 - 5)); 
+        const avgRevpar = Math.max(20, (avgAdr * avgOccupancyRate) / 100 + (Math.random() * 10 - 5));
 
         mockData.push({
             month: month,
@@ -224,7 +270,7 @@ const generateMockHotelData = (hotelName: string): AnnualPerformanceChartDataPoi
             avgRevpar: parseFloat(avgRevpar.toFixed(0)),
         });
     }
-    return mockData; 
+    return mockData;
 };
 
 
@@ -258,7 +304,7 @@ export async function getAverageMonthlyPerformance(
     });
 
     for (const hotelName of SPECIFIC_HOTEL_NAMES) {
-        const hotelData = await getMonthlyHotelPerformance(hotelName, year); 
+        const hotelData = await getMonthlyHotelPerformance(hotelName, year);
         hotelData.forEach(dataPoint => {
             allHotelsData[dataPoint.month].occ.push(dataPoint.avgOccupancyRate);
             allHotelsData[dataPoint.month].adr.push(dataPoint.avgAdr);
@@ -360,11 +406,9 @@ export async function getPropertyComparisonData(dateRange: DateRange): Promise<P
             occupancyRate: occ,
             adr: adrItem?.adr ?? 0,
             revpar: revparItem?.revpar ?? 0,
-            currency: adrItem?.currency ?? 'BTN', 
+            currency: adrItem?.currency ?? 'BTN',
         };
     });
 
     return combinedData;
 }
-
-    
