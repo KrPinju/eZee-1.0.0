@@ -1,9 +1,10 @@
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getOccupancy, getADR, getRevPAR, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange } from "@/services/ezee-pms";
+import { getOccupancy, getADR, getRevPAR, getRevenueSummary, SPECIFIC_HOTEL_NAMES, type DateRange as ApiDateRange } from "@/services/ezee-pms";
 import { format, addDays, parseISO, isValid } from "date-fns";
 import { Percent, DollarSign, TrendingUp } from 'lucide-react';
 import { DateRangePicker } from "@/components/date-range-picker";
+import { HotelRevenueComparisonChart } from "@/components/charts/hotel-revenue-comparison-chart"; // New import
 
 interface HotelsPageProps {
   searchParams?: {
@@ -25,10 +26,11 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     endDate: format(endDate, "yyyy-MM-dd"),
   };
 
-  const [occupancyData, adrData, revparData] = await Promise.all([
+  const [occupancyData, adrData, revparData, revenueSummaryData] = await Promise.all([
     getOccupancy(dateRangeForSummary),
     getADR(dateRangeForSummary),
     getRevPAR(dateRangeForSummary),
+    getRevenueSummary(dateRangeForSummary), // Fetch revenue summary
   ]);
 
   const hotelStats = SPECIFIC_HOTEL_NAMES.map(hotelName => {
@@ -48,6 +50,12 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
     };
   });
 
+  const hotelRevenueData = revenueSummaryData.filter(item => SPECIFIC_HOTEL_NAMES.includes(item.entityName));
+  const pageCurrency = hotelRevenueData.length > 0 ? hotelRevenueData[0].currency : 
+                     (hotelStats.length > 0 ? (hotelStats[0].currencySymbol === 'Nu.' ? 'BTN' : hotelStats[0].currencySymbol) : 'BTN');
+  const pageCurrencySymbol = pageCurrency === 'BTN' ? 'Nu.' : pageCurrency;
+
+
   return (
     <>
       <PageHeader
@@ -55,7 +63,7 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
         description={`Key metrics for ${SPECIFIC_HOTEL_NAMES.length} hotel properties. Showing data from ${format(startDate, "MMM d, yyyy")} to ${format(endDate, "MMM d, yyyy")}.`}
         actions={<DateRangePicker initialStartDate={dateRangeForSummary.startDate} initialEndDate={dateRangeForSummary.endDate} />}
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         {hotelStats.map(hotel => (
           <Card key={hotel.name} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader>
@@ -86,6 +94,15 @@ export default async function HotelsPage({ searchParams }: HotelsPageProps) {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* New Revenue Comparison Chart */}
+      <div className="grid grid-cols-1 gap-6 mb-6">
+        <HotelRevenueComparisonChart 
+            data={hotelRevenueData} 
+            dateRange={dateRangeForSummary} 
+            currencySymbol={pageCurrencySymbol} 
+        />
       </div>
     </>
   );
