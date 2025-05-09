@@ -9,6 +9,7 @@ import {
   ChartConfig
 } from "@/components/ui/chart";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { parseISO, getYear, format, getMonth, getDate } from "date-fns"; // Added getMonth, getDate
 
 interface OccupancyComparisonChartProps {
   data: Occupancy[]; // Can be for a date range or annual averages
@@ -30,7 +31,14 @@ export function OccupancyComparisonChart({ data, dateRange }: OccupancyCompariso
   const endYear = getYear(endDateObj);
 
   let descriptionDatePart;
-  if (startYear === endYear && startYear === getYear(new Date(startYear, 0, 1)) && endYear === getYear(new Date(endYear, 11, 31)) && dateRange.startDate === format(new Date(startYear,0,1), 'yyyy-MM-dd') && dateRange.endDate === format(new Date(endYear,11,31), 'yyyy-MM-dd')) {
+
+  // Check if the dateRange represents a full year (Jan 1st to Dec 31st of the same year)
+  const isFullYearView = 
+    startYear === endYear &&
+    getMonth(startDateObj) === 0 && getDate(startDateObj) === 1 && // January 1st
+    getMonth(endDateObj) === 11 && getDate(endDateObj) === 31; // December 31st
+
+  if (isFullYearView) {
     descriptionDatePart = `Average monthly occupancy rates for the year ${startYear}`;
   } else {
     descriptionDatePart = `Occupancy rates from ${format(startDateObj, "MMM d, yyyy")} to ${format(endDateObj, "MMM d, yyyy")}`;
@@ -107,7 +115,7 @@ export function OccupancyComparisonChart({ data, dateRange }: OccupancyCompariso
               </XAxis>
               <YAxis
                 domain={[0, 100]}
-                tickFormatter={(value) => `${value}%`}
+                tickFormatter={(value) => `${value}`} // Removed % sign
                 width={70}
                 tick={{ fontSize: 10 }}
                 axisLine={false}
@@ -133,7 +141,7 @@ export function OccupancyComparisonChart({ data, dateRange }: OccupancyCompariso
                     formatter={(value, nameArg, entry) => {
                       const hotelName = entry.payload.name;
                       const occRate = Number(value).toFixed(1);
-                      let tooltipText = `${occRate}%`;
+                      let tooltipText = `${occRate}%`; // Tooltip still shows %
                       if (entry.payload.occupiedRooms !== undefined && entry.payload.totalRooms !== undefined) {
                          tooltipText += ` (${entry.payload.occupiedRooms}/${entry.payload.totalRooms} rooms)`;
                       }
@@ -158,6 +166,3 @@ export function OccupancyComparisonChart({ data, dateRange }: OccupancyCompariso
     </Card>
   );
 }
-
-// Helper imports for description logic
-import { parseISO, getYear, format } from "date-fns";

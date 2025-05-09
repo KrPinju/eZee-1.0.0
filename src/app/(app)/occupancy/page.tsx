@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { OccupancyComparisonChart } from "@/components/charts/occupancy-comparison-chart"; 
 import { getAnnualAverageOccupancyPerHotel, getOccupancy, SPECIFIC_HOTEL_NAMES, type Occupancy as OccupancyData, type DateRange as ApiDateRange } from "@/services/ezee-pms";
-import { format, parseISO, isValid, getYear, getMonth, differenceInDays, isSameMonth, isSameYear, startOfMonth, endOfMonth } from "date-fns";
+import { format, parseISO, isValid, getYear, differenceInDays, isSameMonth, isSameYear, startOfMonth, endOfMonth, addDays } from "date-fns";
 
 interface OccupancyPageProps {
   searchParams?: {
@@ -14,7 +14,6 @@ interface OccupancyPageProps {
 
 export default async function OccupancyPage({ searchParams }: OccupancyPageProps) {
   const today = new Date();
-  const currentYear = getYear(today);
 
   // Determine effective start and end dates from searchParams or defaults
   let effectiveStartDate: Date;
@@ -25,10 +24,10 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
 
   if (parsedStartDateParam && isValid(parsedStartDateParam)) {
     effectiveStartDate = parsedStartDateParam;
-    if (parsedEndDateParam && isValid(parsedEndDateParam)) {
+    if (parsedEndDateParam && isValid(parsedEndDateParam) && parsedEndDateParam >= parsedStartDateParam) {
       effectiveEndDate = parsedEndDateParam;
     } else {
-      // If only startDate is provided, default endDate to end of startDate's month
+      // If only startDate is provided, or endDate is invalid/before startDate, default endDate to end of startDate's month
       effectiveEndDate = endOfMonth(effectiveStartDate);
     }
   } else {
@@ -37,7 +36,7 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
     effectiveEndDate = endOfMonth(today);
   }
   
-  // Ensure startDate is not after endDate; if so, adjust startDate to be start of endDate's month
+  // Final check to ensure startDate is not after endDate; if so, adjust startDate.
   if (effectiveStartDate > effectiveEndDate) {
     effectiveStartDate = startOfMonth(effectiveEndDate);
   }
@@ -50,17 +49,23 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
   const dayDifference = differenceInDays(effectiveEndDate, effectiveStartDate);
 
   // Condition to fetch data for a specific month/short range
-  // If the range is effectively a single month or shorter.
-  if (isSameMonth(effectiveStartDate, effectiveEndDate) && isSameYear(effectiveStartDate, effectiveEndDate) && dayDifference < 35 ) { 
+  // If the range is effectively a single month or shorter (e.g., less than 35 days and within the same year/month).
+  const isShortRangeView = isSameMonth(effectiveStartDate, effectiveEndDate) && 
+                           isSameYear(effectiveStartDate, effectiveEndDate) && 
+                           dayDifference < 35;
+
+  if (isShortRangeView) { 
     const rangeForQuery: ApiDateRange = {
       startDate: format(effectiveStartDate, "yyyy-MM-dd"),
       endDate: format(effectiveEndDate, "yyyy-MM-dd"),
     };
     occupancyDataSource = await getOccupancy(rangeForQuery);
     dateRangeForChartDisplay = rangeForQuery;
-    // Check if the range is exactly a full month
-    if (format(effectiveStartDate, "yyyy-MM-dd") === format(startOfMonth(effectiveStartDate), "yyyy-MM-dd") && 
-        format(effectiveEndDate, "yyyy-MM-dd") === format(endOfMonth(effectiveEndDate), "yyyy-MM-dd")) {
+    
+    const isFullMonth = format(effectiveStartDate, "yyyy-MM-dd") === format(startOfMonth(effectiveStartDate), "yyyy-MM-dd") && 
+                        format(effectiveEndDate, "yyyy-MM-dd") === format(endOfMonth(effectiveEndDate), "yyyy-MM-dd");
+    
+    if (isFullMonth) {
       pageDescription = `Hotel occupancy for ${format(effectiveStartDate, "MMMM yyyy")}.`;
     } else {
       pageDescription = `Hotel occupancy from ${format(effectiveStartDate, "MMM d, yyyy")} to ${format(effectiveEndDate, "MMM d, yyyy")}.`;
@@ -96,4 +101,3 @@ export default async function OccupancyPage({ searchParams }: OccupancyPageProps
     </>
   );
 }
-
