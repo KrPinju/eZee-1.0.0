@@ -65,7 +65,7 @@ export function RevenueChart({
   };
 
   const dynamicChartTitle = `${selectedEntity} - Monthly Revenue ${currentYear}`;
-  const dynamicChartDescription = `Showing monthly revenue for ${selectedEntity} for the year ${currentYear}.`;
+  // const dynamicChartDescription = `Showing monthly revenue for ${selectedEntity} for the year ${currentYear}.`; // Removed as per user request
 
   if (!initialData || initialData.length === 0) {
     return (
@@ -98,7 +98,7 @@ export function RevenueChart({
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex-1">
           <CardTitle>{dynamicChartTitle}</CardTitle>
-          <CardDescription>{dynamicChartDescription}</CardDescription>
+          {/* <CardDescription>{dynamicChartDescription}</CardDescription> Removed as per user request */}
         </div>
         <Select value={selectedEntity} onValueChange={handleEntityChange}>
           <SelectTrigger className="w-full sm:w-[220px] mt-2 sm:mt-0">
