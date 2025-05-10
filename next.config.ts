@@ -1,4 +1,4 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -19,8 +19,11 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    // Remove unrecognized keys to prevent errors
+    // allowedDevOrigins is not a valid Next.js config option
+
     // Required for Inter font variable
-    optimizeFonts: true,
+    // optimizeFonts: true, // Remove if it causes issues
   },
 };
 
