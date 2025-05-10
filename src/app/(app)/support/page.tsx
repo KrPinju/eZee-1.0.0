@@ -27,7 +27,7 @@ export default function SupportPage() {
             <p className="text-sm text-muted-foreground">
               For any inquiries or issues, please email us:
             </p>
-            <Link href="mailto:support@ezeeinsights.com" className="block" legacyBehavior>
+            <Link href="mailto:support@ezeeinsights.com" className="block">
               <Button variant="outline" className="w-full">
                 support@ezeeinsights.com
               </Button>
@@ -35,7 +35,7 @@ export default function SupportPage() {
             <p className="text-sm text-muted-foreground mt-2">
               Or call us (Mon-Fri, 9am-5pm):
             </p>
-             <Link href="tel:+9752333444" className="block" legacyBehavior>
+             <Link href="tel:+9752333444" className="block">
               <Button variant="outline" className="w-full" disabled>
                 +975-2-333444 (Coming Soon)
               </Button>

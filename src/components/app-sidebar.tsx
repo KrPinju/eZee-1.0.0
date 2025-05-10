@@ -79,7 +79,7 @@ export function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} legacyBehavior passHref>
+              <Link href={item.href} passHref>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname.startsWith(item.href)}
@@ -104,7 +104,7 @@ export function AppSidebar() {
          <SidebarMenu>
              {utilityNavItems.map((item) => ( 
                  <SidebarMenuItem key={item.href}>
-                     <Link href={item.href} legacyBehavior passHref>
+                     <Link href={item.href} passHref>
                          <SidebarMenuButton
                              asChild
                              isActive={pathname.startsWith(item.href)}
@@ -124,7 +124,7 @@ export function AppSidebar() {
              ))}
         </SidebarMenu>
         <SidebarSeparator />
-        <Link href="/profile" passHref legacyBehavior>
+        <Link href="/profile" passHref>
           <a className={cn(
             "flex items-center gap-3 p-3 group-data-[collapsible=icon]:justify-center hover:bg-sidebar-accent/50 rounded-md transition-colors",
             pathname === '/profile' && "bg-sidebar-accent/80"
