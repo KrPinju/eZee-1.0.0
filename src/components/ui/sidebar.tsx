@@ -556,9 +556,8 @@ const SidebarMenuButton = React.forwardRef<
 
       const buttonContent = state === 'collapsed' ? (
           // Render only the icon when collapsed
-          React.Children.toArray(children).find((child: any) =>
-              React.isValidElement(child) && typeof child.type !== 'string' && child.type.displayName?.includes('Icon')
-          )
+          (React.Children.toArray(children).find((child: any) =>
+              React.isValidElement(child) && typeof child.type !== 'string' && child.type.displayName?.includes('Icon')))
       ) : (
           // Render icon and text when expanded
           children
