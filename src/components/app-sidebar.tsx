@@ -89,10 +89,10 @@ export function AppSidebar() {
                     pathname.startsWith(item.href) && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
                   )}
                 >
-                  <a>
+                  
                     <item.icon className="h-5 w-5" />
                     <span>{item.label}</span>
-                  </a>
+                  
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -114,31 +114,33 @@ export function AppSidebar() {
                                 pathname.startsWith(item.href) && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground"
                               )}
                          >
-                             <a>
+                           
                                  <item.icon className="h-5 w-5" />
                                  <span>{item.label}</span>
-                             </a>
+                             
                          </SidebarMenuButton>
                      </Link>
                  </SidebarMenuItem>
              ))}
         </SidebarMenu>
         <SidebarSeparator />
-        <Link href="/profile" passHref>
-          <a className={cn(
+        <Link
+          href="/profile"
+          passHref
+          className={cn(
             "flex items-center gap-3 p-3 group-data-[collapsible=icon]:justify-center hover:bg-sidebar-accent/50 rounded-md transition-colors",
             pathname === '/profile' && "bg-sidebar-accent/80"
-            )}
-          >
-            <Avatar className="h-9 w-9 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
-                {/* Use FaUserCircle as default avatar */}
-                <FaUserCircle className="h-full w-full text-sidebar-foreground/70" />
-            </Avatar>
-            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                <span className="text-sm font-medium text-sidebar-foreground">USER</span>
-                <span className="text-xs text-sidebar-foreground/70">manager@ezee.com</span>
-            </div>
-          </a>
+            )}>
+
+          <Avatar className="h-9 w-9 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
+              {/* Use FaUserCircle as default avatar */}
+              <FaUserCircle className="h-full w-full text-sidebar-foreground/70" />
+          </Avatar>
+          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+              <span className="text-sm font-medium text-sidebar-foreground">USER</span>
+              <span className="text-xs text-sidebar-foreground/70">manager@ezee.com</span>
+          </div>
+
         </Link>
       </SidebarFooter>
     </Sidebar>
